@@ -1,6 +1,6 @@
 # https://docs.github.com/en/actions/guides
 # CI name , it will display on github's action page menu
-name: Github Action Build Docker Images
+name: Build sql
 # trigger on which this CI should be run
 on: # push operation is operate
   push:
