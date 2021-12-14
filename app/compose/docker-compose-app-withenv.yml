@@ -1,0 +1,37 @@
+version: '3'
+services:
+  # spider network_mode: "host"
+  spider1:
+    image: includeno/originfinding-spider
+    container_name: spider1
+    network_mode: "host"
+    environment:
+      - consul_host=${consul_host}
+      - consul_port=${consul_port}
+      - consul_service_name=spider
+      - consul_service_id=${machine_id}-spider1
+      - server_port=8081
+
+
+  spider2:
+    image: includeno/originfinding-spider
+    container_name: spider2
+    network_mode: "host"
+    environment:
+      - consul_host=${consul_host}
+      - consul_port=${consul_port}
+      - consul_service_name=spider
+      - consul_service_id=${machine_id}-spider2
+      - server_port=8082
+
+  api:
+    image: includeno/originfinding-sql
+    container_name: api
+    ports:
+      - "8080:8080"
+    environment:
+      - consul_host=${consul_host}
+      - consul_port=${consul_port}
+      - consul_service_name=api
+      - consul_service_id=${machine_id}-api
+      - server_port=8080

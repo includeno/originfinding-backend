@@ -1,0 +1,135 @@
+package com.originfinding.service;
+
+import com.originfinding.config.SeleniumConfig;
+import com.originfinding.entity.UrlRecord;
+import com.originfinding.util.ClassPair;
+import com.originfinding.util.MatchHelper;
+import com.originfinding.util.SpringContextUtil;
+import lombok.extern.slf4j.Slf4j;
+import okhttp3.OkHttpClient;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Date;
+import java.util.Random;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+@Slf4j
+@Service
+public class CommonPageService {
+    @Autowired
+    OkHttpClient httpClient;
+
+    @Autowired
+    CommonPageService commonPageService;
+
+
+    //多线程方法
+    public Future<UrlRecord> addTask(ThreadPoolExecutor executor, String url) {
+
+        Callable<UrlRecord> callable = () -> {
+            SeleniumConfig config = new SeleniumConfig();
+            WebDriver chrome = config.getWebDriver();
+            chrome.get(url);
+            Integer random = new Random(9).nextInt();
+            try {
+                TimeUnit.MILLISECONDS.sleep(1072 + random * 123);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            UrlRecord record = new UrlRecord();
+            record.setUrl(url);
+            try {
+                record.setContent(getMainContent(chrome, url));
+            } catch (Exception e) {
+
+            } finally {
+                chrome.close();
+                return record;
+            }
+
+        };
+        return executor.submit(callable);
+    }
+
+    //爬取网页的主要信息
+    public UrlRecord crawl(WebDriver chrome,UrlRecord record ){
+        String url=record.getUrl();
+        for(ClassPair pair: MatchHelper.methodList){
+            Class c=pair.getC();
+
+            try {
+                Method match= c.getMethod("match",new Class[]{String.class});
+                //spring获取实例
+                ContentService service=(ContentService) SpringContextUtil.getContext().getBean(c);//
+                if((boolean)match.invoke(service,url)==true){
+
+                    Method wait= c.getMethod("wait",new Class[]{WebDriver.class,String.class});
+                    wait.invoke(service,chrome,url);
+
+                    Method getTitle= c.getMethod("getTitle",new Class[]{WebDriver.class,String.class});
+                    String title= (String) getTitle.invoke(service,chrome,url);
+                    record.setTitle(title);
+
+                    Method getTime= c.getMethod("getTime",new Class[]{WebDriver.class,String.class});
+                    Date time= (Date) getTime.invoke(service,chrome,url);
+                    record.setTime(time);
+                    Method getMainContent= c.getMethod("getMainContent",new Class[]{WebDriver.class,String.class});
+                    String content= (String) getMainContent.invoke(service,chrome,url);
+                    record.setContent(content);
+                }
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+            finally {
+                return record;
+            }
+        }
+        return record;
+    }
+
+    public String getMainContent(WebDriver chrome, String url) {
+        URL resource = null;
+        try {
+            resource = new URL(url);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        String host = resource.getHost();// 获取主机名
+        log.info("host:" + host+" url:"+url);
+        WebElement content;
+
+
+        switch (host) {
+            case "blog.csdn.net":
+                //content = chrome.findElement(By.className("blogpost-body"));
+                content = chrome.findElement(By.tagName("article"));
+                break;
+            case "www.cnblogs.com":
+                content = chrome.findElement(By.id("post_detail"));
+                break;
+            default:
+                content = chrome.findElement(By.tagName("body"));
+                break;
+        }
+        log.info("WebElement content:"+content);
+        String ans=content.getText();
+        log.info("MainContent is:"+ans);
+        return ans;
+    }
+
+}

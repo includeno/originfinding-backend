@@ -1,0 +1,19 @@
+version: '3'
+services:
+  consul:
+    image: consul:1.9.10
+    container_name: consulname
+    network_mode: "host"
+    environment:
+      - CONSUL_BIND_INTERFACE=eth0
+    ports:
+      - 8500:8500
+      - 8300:8300
+      - 8302:8302
+      - 8600:8600
+
+
+#docker run --name consulname -d -e CONSUL_BIND_INTERFACE=eth0 -p 8500:8500 -p 8300:8300 -p 8301:8301 -p 8302:8302 -p 8600:8600 consul:1.9.10 agent -server -bootstrap-expect=1 -ui -bind=0.0.0.0 -client=0.0.0.0
+#docker logs consulname
+#docker stop consulname
+#docker rm consulname

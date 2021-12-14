@@ -36,4 +36,4 @@ build/
 
 private
 compose/app.env
-environment/kafka/app.env
+*/*/app.env
