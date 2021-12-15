@@ -226,7 +226,7 @@ public class MatchHelper {
 
         Reflections reflections = new Reflections(
                 ClasspathHelper.forPackage("com.originfinding.service"), Scanners.values());
-        Set<Class<? extends c>> implementingTypes =
+        Set<Class> implementingTypes =
                 reflections.getSubTypesOf(c);
         return implementingTypes.stream().collect(Collectors.toList());
     }
