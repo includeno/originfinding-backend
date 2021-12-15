@@ -36,6 +36,7 @@ public class CsdnService implements ContentService{
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        log.info("wait completed");
 //        WebElement text = driver.findElement(By.xpath("//a[contains(text(),'下一页')]"));
 //        text.click();
     }
@@ -44,10 +45,12 @@ public class CsdnService implements ContentService{
     public String getMainContent(WebDriver chrome, String url) {
         WebElement content = chrome.findElement(By.tagName("article"));
         String ans=content.getText();
-        if(ans!=null&&ans.equals("")){
+        if(ans!=null&&!ans.equals("")){
+            log.info("getMainContent completed "+ans);
             return ans;
         }
         else{
+            log.error("getMainContent error "+ans);
             return "";
         }
     }
@@ -56,10 +59,12 @@ public class CsdnService implements ContentService{
     public String getTitle(WebDriver chrome, String url) {
         WebElement content = chrome.findElement(By.id("articleContentId"));
         String ans=content.getText();
-        if(ans!=null&&ans.equals("")){
+        if(ans!=null&&!ans.equals("")){
+            log.info("getTitle completed "+ans);
             return ans;
         }
         else{
+            log.error("getTitle error "+ans);
             return "";
         }
     }
@@ -73,6 +78,7 @@ public class CsdnService implements ContentService{
         if(ans!=null&&!ans.equals("")){
             res=GlobalDateUtil.convert(ans);
         }
+        log.info("getTime completed "+res.toString());
         return res;
     }
 

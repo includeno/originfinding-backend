@@ -38,7 +38,7 @@ public class ZhihuzhuanlanService implements ContentService{
             for(int i=0;i<elements.size();i++){
                 elements.get(i).click();
             }
-
+            log.info("wait completed");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -48,10 +48,12 @@ public class ZhihuzhuanlanService implements ContentService{
     public String getMainContent(WebDriver chrome, String url) {
         WebElement content = chrome.findElement(By.className("RichText"));
         String ans=content.getText();
-        if(ans!=null&&ans.equals("")){
+        if(ans!=null&&!ans.equals("")){
+            log.info("getMainContent completed"+ans);
             return ans;
         }
         else{
+            log.error("getMainContent error "+ans);
             return "";
         }
     }
@@ -60,10 +62,12 @@ public class ZhihuzhuanlanService implements ContentService{
     public String getTitle(WebDriver chrome, String url) {
         WebElement content = chrome.findElement(By.className("Post-Title"));
         String ans=content.getText();
-        if(ans!=null&&ans.equals("")){
+        if(ans!=null&&!ans.equals("")){
+            log.info("getTitle completed"+ans);
             return ans;
         }
         else{
+            log.error("getTitle error "+ans);
             return "";
         }
     }
@@ -79,6 +83,7 @@ public class ZhihuzhuanlanService implements ContentService{
         if(ans!=null&&!ans.equals("")){
             res= GlobalDateUtil.convert(ans);
         }
+        log.info("getTime completed "+res.toString());
         return res;
     }
 

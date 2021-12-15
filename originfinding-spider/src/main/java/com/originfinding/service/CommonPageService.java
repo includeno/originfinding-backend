@@ -1,5 +1,6 @@
 package com.originfinding.service;
 
+import com.google.gson.Gson;
 import com.originfinding.config.SeleniumConfig;
 import com.originfinding.entity.UrlRecord;
 import com.originfinding.util.ClassPair;
@@ -34,6 +35,8 @@ public class CommonPageService {
     @Autowired
     CommonPageService commonPageService;
 
+    Gson gson=new Gson();
+
 
     //多线程方法
     public Future<UrlRecord> addTask(ThreadPoolExecutor executor, String url) {
@@ -67,7 +70,10 @@ public class CommonPageService {
     public UrlRecord crawl(WebDriver chrome,UrlRecord record ){
         String url=record.getUrl();
         List<ClassPair> clazzs = MatchHelper.getMethodList(ContentService.class);
-
+        //打印Class对象
+        for(ClassPair cla : clazzs){
+            log.info("实现类:"+cla.getC().getClass());
+        }
         for(ClassPair pair: clazzs){
             Class c=pair.getC();
 
@@ -76,6 +82,7 @@ public class CommonPageService {
                 //spring获取实例
                 ContentService service=(ContentService) SpringContextUtil.getContext().getBean(c);//
                 if((boolean)match.invoke(service,url)==true){
+                    log.info("match:"+c.getClass());
 
                     Method wait= c.getMethod("wait",new Class[]{WebDriver.class,String.class});
                     wait.invoke(service,chrome,url);
@@ -90,6 +97,8 @@ public class CommonPageService {
                     Method getMainContent= c.getMethod("getMainContent",new Class[]{WebDriver.class,String.class});
                     String content= (String) getMainContent.invoke(service,chrome,url);
                     record.setContent(content);
+                    log.warn("record:"+gson.toJson(record));
+                    break;
                 }
             } catch (NoSuchMethodException e) {
                 e.printStackTrace();
