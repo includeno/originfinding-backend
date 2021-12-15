@@ -45,7 +45,7 @@ public class MatchHelper {
             // 判断class对象是否是一个接口
             if (target.isInterface()) {
                 @NotNull
-                String basePackage = target.getClassLoader().getResource("").getPath();
+                String basePackage = target.getClassLoader().getResource("./" + "com.originfinding.service".replaceAll("\\.", "/")).getPath();
                 File[] files = new File(basePackage).listFiles();
                 // 存放class路径的list
                 ArrayList<String> classpaths = Lists.newArrayList();
