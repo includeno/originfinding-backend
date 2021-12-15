@@ -35,3 +35,7 @@ services:
       - consul_service_name=api
       - consul_service_id=${machine_id}-api
       - server_port=8080
+      - kafka_server=${kafka_server}
+      - datasource=${datasource}
+      - datasource_username=${datasource_username}
+      - datasource_password=${datasource_password}
