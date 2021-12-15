@@ -1,4 +1,4 @@
-FROM openjdk:11.0.10-jdk
+FROM includeno/javachrome:openjdk-11.0.10-jdkchrome92.0.4515.43
 
 EXPOSE 8080
 WORKDIR /app

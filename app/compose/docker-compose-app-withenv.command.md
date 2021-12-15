@@ -29,6 +29,6 @@ docker-compose -f docker-compose-app-withenv.yml down
 
 ## remove image
 ```
-docker image rm includeno/originfinding-api
+docker image rm includeno/originfinding-sql
 docker image rm includeno/originfinding-spider
 ```

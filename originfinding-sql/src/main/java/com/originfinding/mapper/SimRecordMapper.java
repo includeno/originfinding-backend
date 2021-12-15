@@ -5,5 +5,5 @@ import com.originfinding.entity.SimRecord;
 import org.springframework.stereotype.Component;
 
 @Component
-public interface UrlrecordMapper extends BaseMapper<SimRecord> {
+public interface SimRecordMapper extends BaseMapper<SimRecord> {
 }

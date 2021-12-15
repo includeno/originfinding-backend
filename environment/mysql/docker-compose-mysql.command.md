@@ -2,7 +2,7 @@
 
 ## image
 ```
-docker pull mysql:8.0.27
+docker pull mysql:5.7.33
 ```
 
 ## run
@@ -23,5 +23,5 @@ docker-compose -f docker-compose-mysql.yml down
 
 ## remove image
 ```
-docker image rm mysql:8.0.27
+docker image rm mysql:5.7.33
 ```

@@ -1,7 +1,7 @@
 package com.originfinding.controller;
 
 import com.originfinding.entity.SimRecord;
-import com.originfinding.mapper.UrlrecordMapper;
+import com.originfinding.mapper.SimRecordMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,7 +11,7 @@ import java.util.Date;
 @RequestMapping("/mapper")
 public class UrlrecordMapperController {
     @Autowired
-    UrlrecordMapper UrlrecordMapper;
+    SimRecordMapper UrlrecordMapper;
 
     @PostMapping("/Urlrecord")
     public int insertUrlrecord(SimRecord SimRecord){
