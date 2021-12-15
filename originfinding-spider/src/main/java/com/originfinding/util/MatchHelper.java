@@ -2,6 +2,7 @@ package com.originfinding.util;
 
 import com.google.common.collect.Lists;
 import com.originfinding.service.ContentService;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.validation.constraints.NotNull;
 import java.io.File;
@@ -9,7 +10,9 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.*;
 
+
 //辅助匹配url的工具
+@Slf4j
 public class MatchHelper {
 
      public final static List<ClassPair> methodList=getMethodList(ContentService.class);
@@ -44,7 +47,9 @@ public class MatchHelper {
         try {
             // 判断class对象是否是一个接口
             if (target.isInterface()) {
-                @NotNull
+                log.warn("getName:"+target.getClassLoader().getName());
+                log.warn("empty path:"+target.getClassLoader().getResource("").getPath());
+                log.warn("basePackage path:"+target.getClassLoader().getResource("./" + "com.originfinding.service".replaceAll("\\.", "/")).getPath());
                 String basePackage = target.getClassLoader().getResource("./" + "com.originfinding.service".replaceAll("\\.", "/")).getPath();
                 File[] files = new File(basePackage).listFiles();
                 // 存放class路径的list
