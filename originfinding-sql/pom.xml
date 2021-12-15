@@ -130,7 +130,7 @@
                 <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-maven-plugin -->
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.4.13</version>
+                <version>2.3.12.RELEASE</version>
                 <configuration>
                     <mainClass>com.originfinding.SQLServerMain</mainClass>
                     <layout>ZIP</layout>
