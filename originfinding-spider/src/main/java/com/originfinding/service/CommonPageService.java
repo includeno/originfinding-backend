@@ -18,6 +18,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -65,7 +66,9 @@ public class CommonPageService {
     //爬取网页的主要信息
     public UrlRecord crawl(WebDriver chrome,UrlRecord record ){
         String url=record.getUrl();
-        for(ClassPair pair: MatchHelper.methodList){
+        List<ClassPair> clazzs = MatchHelper.getMethodList(ContentService.class);
+
+        for(ClassPair pair: clazzs){
             Class c=pair.getC();
 
             try {
