@@ -35,7 +35,8 @@ public class CommonPageService {
     @Autowired
     CommonPageService commonPageService;
 
-    Gson gson=new Gson();
+    @Autowired
+    Gson gson;
 
 
     //多线程方法

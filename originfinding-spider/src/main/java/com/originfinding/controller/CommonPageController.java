@@ -1,5 +1,6 @@
 package com.originfinding.controller;
 
+import com.google.gson.Gson;
 import com.originfinding.config.SeleniumConfig;
 import com.originfinding.entity.UrlRecord;
 import com.originfinding.service.CommonPageService;
@@ -21,6 +22,10 @@ public class CommonPageController {
     @Autowired
     CommonPageService commonPageService;
 
+    @Autowired
+    Gson gson;
+
+
     //读取网页的主要内容
     @PostMapping("/crawl")
     public UrlRecord crawl(@RequestParam("url") String url) {
@@ -36,9 +41,10 @@ public class CommonPageController {
         }
         UrlRecord record = new UrlRecord();
         record.setUrl(url);
+        log.info("record begin:"+gson.toJson(record));
         try {
             record=commonPageService.crawl(chrome, record);
-            log.warn(record.getTitle());
+            log.info("record end:"+gson.toJson(record));
         } catch (Exception e) {
             log.error("Exception in getMainContent");
             e.printStackTrace();

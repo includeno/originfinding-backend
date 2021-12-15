@@ -3,6 +3,10 @@ package com.originfinding.util;
 import com.google.common.collect.Lists;
 import com.originfinding.service.ContentService;
 import lombok.extern.slf4j.Slf4j;
+import org.reflections.Reflections;
+import org.reflections.scanners.Scanners;
+import org.reflections.scanners.SubTypesScanner;
+import org.reflections.util.ClasspathHelper;
 
 import javax.validation.constraints.NotNull;
 import java.io.File;
@@ -10,7 +14,9 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 //辅助匹配url的工具
@@ -19,7 +25,26 @@ public class MatchHelper {
 
      public final static List<ClassPair> methodList=getMethodList(ContentService.class);
 
-     public static List<ClassPair> getMethodList(Class<?> target) {
+    public static List<ClassPair> getMethodList(Class<?> target) {
+        List<Class> subList = getSubclassesFromJar(target);
+        List<ClassPair> list=new ArrayList<>();
+        for(Class c:subList){
+            ClassPair pair=new ClassPair();
+            Method m= null;
+            try {
+                m = c.getMethod("match",new Class[]{String.class});
+                pair.setM(m);
+                pair.setC(c);
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+            list.add(pair);
+        }
+        return list;
+
+    }
+
+     public static List<ClassPair> getMethodList2(Class<?> target) {
          List<Class> subList=getAllInterfaceAchieveClass(target);
          List<ClassPair> list=new ArrayList<>();
          for(Class c:subList){
@@ -194,5 +219,15 @@ public class MatchHelper {
             }
         }
         return list;
+    }
+
+
+    public static List<Class> getSubclassesFromJar(Class c){
+
+        Reflections reflections = new Reflections(
+                ClasspathHelper.forPackage("com.originfinding.service"), Scanners.values());
+        Set<Class<? extends c>> implementingTypes =
+                reflections.getSubTypesOf(c);
+        return implementingTypes.stream().collect(Collectors.toList());
     }
 }
