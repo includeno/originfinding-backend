@@ -17,6 +17,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Configuration
@@ -57,27 +58,40 @@ public class MyKafkaListener {
 
         SimRecord simRecord = new SimRecord();
         SimRecord temp = null;
+
+        //计算simhash 64位长度
+        SimHash simHash = new SimHash(res.getContent(), 64);
         //TODO redis 判断记录存在=>url转化为相同长度的hash值
-        if (false) {
+        if (stringRedisTemplate.opsForValue().get("CommonpageConsumer:"+url)==null) {
             //已存在记录
             QueryWrapper<SimRecord> queryWrapper = new QueryWrapper();
             temp = simRecordService.getOne(queryWrapper);
+            temp.setCreateTime(new Date());
+            temp.setParentId(-1);//默认原创 未找到关联的原创文章
+
+            temp.setUrl(res.getUrl());
+            temp.setTitle(res.getTitle());
+            temp.setTime(res.getTime());
+            temp.setUpdateTime(new Date());
+            temp.setSimhash(simHash.getStrSimHash());
+            simRecordService.updateById(temp);
         } else {
+            stringRedisTemplate.opsForValue().set("CommonpageConsumer:"+url,"new",1, TimeUnit.MINUTES);
             //不存在记录
             temp = simRecord;
             temp.setCreateTime(new Date());
             temp.setParentId(-1);//默认原创 未找到关联的原创文章
+
+            temp.setUrl(res.getUrl());
+            temp.setTitle(res.getTitle());
+            temp.setTime(res.getTime());
+            temp.setUpdateTime(new Date());
+            temp.setSimhash(simHash.getStrSimHash());
+            simRecordService.save(temp);
         }
-        temp.setUrl(res.getUrl());
-        temp.setTitle(res.getTitle());
-        temp.setTime(res.getTime());
-        temp.setUpdateTime(new Date());
-        //计算simhash 64位长度
-        SimHash simHash = new SimHash(res.getContent(), 64);
-        temp.setSimhash(simHash.getStrSimHash());
+
         //数据库保存记录
-        log.info("CommonpageConsumer save:"+gson.toJson(simRecord));
-        simRecordService.save(simRecord);
+        log.info("CommonpageConsumer db:"+gson.toJson(temp));
 
         //数据库查id
         QueryWrapper<SimRecord> queryWrapper = new QueryWrapper();
