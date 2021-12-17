@@ -62,7 +62,10 @@ public class MyKafkaListener {
         //计算simhash 64位长度
         SimHash simHash = new SimHash(res.getContent(), 64);
         //TODO redis 判断记录存在=>url转化为相同长度的hash值
-        if (stringRedisTemplate.opsForValue().get("CommonpageConsumer:"+url)==null) {
+        String key="CommonpageConsumer:"+url;
+        String redisrecord=stringRedisTemplate.opsForValue().get(key);
+        log.info("redis record: "+redisrecord);
+        if (redisrecord!=null) {
             //已存在记录
             QueryWrapper<SimRecord> queryWrapper = new QueryWrapper();
             queryWrapper.eq("url",url);
@@ -77,7 +80,7 @@ public class MyKafkaListener {
             temp.setSimhash(simHash.getStrSimHash());
             simRecordService.updateById(temp);
         } else {
-            stringRedisTemplate.opsForValue().set("CommonpageConsumer:"+url,"new",1, TimeUnit.MINUTES);
+            stringRedisTemplate.opsForValue().set(key,"new",5, TimeUnit.MINUTES);
             //不存在记录
             temp = simRecord;
             temp.setCreateTime(new Date());
