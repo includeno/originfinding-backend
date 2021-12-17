@@ -11,8 +11,10 @@ import com.originfinding.util.SimHash;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
@@ -29,8 +31,13 @@ public class MyKafkaListener {
     KafkaTemplate kafkaTemplate;
 
     @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
     Gson gson;
 
+
+    @Transactional(rollbackFor = Exception.class)
     @KafkaListener(id = "CommonpageConsumer", topics = KafkaTopic.commonpage)
     public void listenCommonpage(String message) {
         log.info("CommonpageConsumer receive:"+message);
