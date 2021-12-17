@@ -65,6 +65,7 @@ public class MyKafkaListener {
         if (stringRedisTemplate.opsForValue().get("CommonpageConsumer:"+url)==null) {
             //已存在记录
             QueryWrapper<SimRecord> queryWrapper = new QueryWrapper();
+            queryWrapper.eq("url",url);
             temp = simRecordService.getOne(queryWrapper);
             temp.setCreateTime(new Date());
             temp.setParentId(-1);//默认原创 未找到关联的原创文章
@@ -95,6 +96,7 @@ public class MyKafkaListener {
 
         //数据库查id
         QueryWrapper<SimRecord> queryWrapper = new QueryWrapper();
+        queryWrapper.eq("url",url);
         SimRecord record = simRecordService.getOne(queryWrapper);
         //任务添加至队列
         kafkaTemplate.send(KafkaTopic.queue, record.getId().toString());
