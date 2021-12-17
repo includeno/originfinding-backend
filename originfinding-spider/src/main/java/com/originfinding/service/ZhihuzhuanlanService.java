@@ -22,6 +22,7 @@ public class ZhihuzhuanlanService implements ContentService{
 
     @Override
     public void wait(WebDriver chrome, String url){
+        log.info("wait began");
         try {
             //等待弹窗加载完毕
             WebDriverWait wait = new WebDriverWait(chrome, 10, 1);

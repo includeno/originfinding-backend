@@ -1,0 +1,10 @@
+#redis
+version: '3'
+services:
+  mysql:
+    image: redis:6.0.16
+    container_name: redis_container
+    ports:
+      - "6379:6379"
+    command:
+      - redis-server --appendonly yes --requirepass "redis123456"

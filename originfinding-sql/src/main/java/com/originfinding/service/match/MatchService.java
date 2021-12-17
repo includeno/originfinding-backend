@@ -1,11 +1,11 @@
-package com.originfinding.service;
+package com.originfinding.service.match;
 
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public interface URLValidService {
+public interface MatchService {
 
     //抓取主机名的方法
     default String getHost(String url){

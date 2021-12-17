@@ -33,11 +33,7 @@ public class CommonPageService {
     OkHttpClient httpClient;
 
     @Autowired
-    CommonPageService commonPageService;
-
-    @Autowired
     Gson gson;
-
 
     //多线程方法
     public Future<UrlRecord> addTask(ThreadPoolExecutor executor, String url) {
@@ -70,18 +66,18 @@ public class CommonPageService {
     //爬取网页的主要信息
     public UrlRecord crawl(WebDriver chrome,UrlRecord record ){
         String url=record.getUrl();
-        List<ClassPair> clazzs = MatchHelper.getMethodList(ContentService.class);
+        List<Class> clazzs = MatchHelper.impls;
         //打印Class对象
-        for(ClassPair cla : clazzs){
-            log.info("实现类:"+cla.getC().getClass());
+        for(Class cla : clazzs){
+            log.info("实现类:"+cla.getClass());
         }
-        for(ClassPair pair: clazzs){
-            Class c=pair.getC();
+        for(Class c: clazzs){
 
             try {
                 Method match= c.getMethod("match",new Class[]{String.class});
                 //spring获取实例
-                ContentService service=(ContentService) SpringContextUtil.getContext().getBean(c);//
+                ContentService service=(ContentService) SpringContextUtil.getContext().getBean(c);
+                //仅使用符合条件的爬虫
                 if((boolean)match.invoke(service,url)==true){
                     log.info("match:"+c.getClass());
 
@@ -99,7 +95,10 @@ public class CommonPageService {
                     String content= (String) getMainContent.invoke(service,chrome,url);
                     record.setContent(content);
                     log.warn("record:"+gson.toJson(record));
-                    break;
+                    break;//在找到匹配的爬虫之后跳出循环节省时间
+                }
+                else{
+                    log.info("not match:"+c.getClass());
                 }
             } catch (NoSuchMethodException e) {
                 e.printStackTrace();
@@ -109,7 +108,7 @@ public class CommonPageService {
                 e.printStackTrace();
             }
             finally {
-                return record;
+
             }
         }
         return record;

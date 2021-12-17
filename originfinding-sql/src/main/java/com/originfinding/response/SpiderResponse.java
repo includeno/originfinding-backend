@@ -1,6 +1,7 @@
 package com.originfinding.response;
 
 import lombok.Data;
+
 import java.util.Date;
 
 @Data

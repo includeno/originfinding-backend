@@ -1,4 +1,4 @@
-package com.originfinding.service;
+package com.originfinding.service.feign;
 
 import com.originfinding.entity.UrlRecord;
 import org.springframework.cloud.openfeign.FeignClient;

@@ -16,6 +16,7 @@ public class SimRecord {
 
     String url;//文章地址
     String simhash;
+    String title;
     Date time;//文章时间
     Date createTime;
     Date updateTime;
@@ -27,6 +28,4 @@ public class SimRecord {
 //    String sim6;
 //    String sim7;
     Integer parentId;//如果是原创的直接为-1
-
-
 }
