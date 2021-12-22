@@ -1,14 +1,39 @@
 package com.originfinding.config;
 
+import org.apache.kafka.clients.admin.NewTopic;
+import org.springframework.context.annotation.Bean;
+import org.springframework.kafka.config.TopicBuilder;
+
 public class KafkaTopic {
-
-    public static final String searchrequest="searchrequest";//搜索请求
-
     //Spark监听
-    public static final String task="sparktask";//Spark task
-    public static final String result="sparkresult";//Spark 结果
+    public static final String sparktask ="sparktask";//Spark task
+    public static final String sparkresult="sparkresult";//Spark 结果
     public static final String queue="queue";//批量读取n条kafka消息 请求聚合
 
     //普通网页爬虫监听
     public static final String commonpage="commonpage";
+
+    @Bean
+    public NewTopic commonpage() {
+        return TopicBuilder.name(KafkaTopic.commonpage)
+                .partitions(10)
+                .replicas(1)
+                .build();
+    }
+
+    @Bean
+    public NewTopic queue() {
+        return TopicBuilder.name(KafkaTopic.queue)
+                .partitions(10)
+                .replicas(1)
+                .build();
+    }
+
+    @Bean
+    public NewTopic task() {
+        return TopicBuilder.name(KafkaTopic.sparktask)
+                .partitions(10)
+                .replicas(1)
+                .build();
+    }
 }

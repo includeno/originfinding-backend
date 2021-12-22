@@ -1,39 +1,42 @@
 package com.originfinding.config;
 
-import com.originfinding.SpiderMain;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import java.util.Arrays;
 
-@Configuration
 public class SeleniumConfig {
 
-    @Bean
-    public WebDriver getWebDriver(){
+    public static WebDriver getWebDriver(){
+        return getWebDriver(false);
+    }
+
+    public static WebDriver getWebDriver(boolean fast){
         ChromeOptions chromeOptions = new ChromeOptions();
-        if(SpiderMain.isLinux()){
+        if(SystemConfig.isLinux()){
             chromeOptions.addArguments("--headless");
             chromeOptions.addArguments("--no-sandbox");
             chromeOptions.addArguments("--disable-gpu");
             chromeOptions.addArguments("--disable-dev-shm-usage");
         }
-        else if(SpiderMain.isWindows()){
+        else if(SystemConfig.isWindows()){
             chromeOptions.addArguments("--headless");
             chromeOptions.addArguments("--no-sandbox");
             chromeOptions.addArguments("--disable-gpu");
             chromeOptions.addArguments("--disable-dev-shm-usage");
             chromeOptions.setExperimentalOption("excludeSwitches", Arrays.asList("enable-automation"));
         }
-        else if(SpiderMain.isMac()){
+        else if(SystemConfig.isMac()){
             chromeOptions.addArguments("--no-sandbox");
             chromeOptions.addArguments("--disable-gpu");
             chromeOptions.addArguments("--disable-dev-shm-usage");
+            chromeOptions.setExperimentalOption("excludeSwitches", Arrays.asList("enable-automation"));
         }
-
+        if(fast){
+            //https://blog.csdn.net/yexiaomodemo/article/details/99958509
+            chromeOptions.setCapability("pageLoadStrategy","none");
+        }
 
         //设置为 headless 模式 （必须）
         //chromeOptions.addArguments("--headless");

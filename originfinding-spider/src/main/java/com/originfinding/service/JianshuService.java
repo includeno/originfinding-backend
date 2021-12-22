@@ -4,22 +4,18 @@ import com.originfinding.config.SeleniumConfig;
 import com.originfinding.util.GlobalDateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.*;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.List;
-import java.util.Random;
 import java.util.regex.Pattern;
 
-@Service
 @Slf4j
-public class CsdnService implements ContentService {
+@Service
+public class JianshuService implements ContentService {
     public static final String[] patterns = new String[]{
-            "https://blog.csdn.net/(.*)/article/details/(.*)",//https://blog.csdn.net/qq_16214677/article/details/84863046
-            "https://(.*).blog.csdn.net/article/details/(.*)",//https://gxyyds.blog.csdn.net/article/details/96458591
+            "https://www.jianshu.com/p/(.*)",//https://www.jianshu.com/p/f0ad0f80fd2c
     };
 
     @Override
@@ -35,13 +31,13 @@ public class CsdnService implements ContentService {
 
     @Override
     public WebDriver getDriver() {
-        WebDriver chrome = SeleniumConfig.getWebDriver();
+        WebDriver chrome = SeleniumConfig.getWebDriver(false);
         return chrome;
     }
 
     @Override
     public void wait(WebDriver chrome, String url) {
-        WebDriverWait wait = new WebDriverWait(chrome, 30, 10);
+        WebDriverWait wait = new WebDriverWait(chrome, 30, 1);
         WebElement searchInput = wait.until(new ExpectedCondition<WebElement>() {
             @Override
             public WebElement apply(WebDriver text) {
@@ -49,27 +45,27 @@ public class CsdnService implements ContentService {
             }
         });
         log.info("wait article completed");
-        Actions action = new Actions(chrome);
-        Integer random = new Random(30).nextInt();
-        for (int i = 0; i < 10 + random; i++) {
-            action.sendKeys(Keys.chord(Keys.DOWN));
-        }
+
+        //拉到页面底部
         JavascriptExecutor javascriptExecutor = (JavascriptExecutor) chrome;
         javascriptExecutor.executeScript("window.scrollTo(0, document.body.scrollHeight)");
+        //class nP21pp 展开阅读全文
         try {
-            WebElement content = chrome.findElement(By.className("passport-container"));
-            if (content != null) {
-                WebElement button = chrome.findElement(By.xpath("//span[contains(text(),'x')]"));
+            WebElement button = chrome.findElement(By.className("nP21pp"));
+            if (button != null) {
+                log.warn("检测到阅读原文按钮");
                 button.click();
-                log.info("wait passport completed");
             }
-        } catch (NoSuchElementException exception) {
-            log.error("can't find passport");
+        } catch (NoSuchElementException e) {
+            e.printStackTrace();
         }
+
     }
 
     @Override
     public String getMainContent(WebDriver chrome, String url) {
+        //tag article
+        //https://www.jianshu.com/p/f0ad0f80fd2c
         WebElement content = chrome.findElement(By.tagName("article"));
         String ans = "";
         if (content == null) {
@@ -88,7 +84,8 @@ public class CsdnService implements ContentService {
 
     @Override
     public String getTitle(WebDriver chrome, String url) {
-        WebElement content = chrome.findElement(By.id("articleContentId"));
+        //class _1RuRku
+        WebElement content = chrome.findElement(By.className("_1RuRku"));
         String ans = content.getText();
         if (ans != null && !ans.equals("")) {
             log.info("getTitle completed:" + ans);
@@ -101,37 +98,21 @@ public class CsdnService implements ContentService {
 
     @Override
     public String getTag(WebDriver chrome, String url) {
-        //数组 tag-link
-        String ans = "";
-        try {
-            List<WebElement> tags = chrome.findElements(By.className("tag-link"));
-            if (tags != null && tags.size() > 0) {
-                StringBuffer stringBuffer = new StringBuffer();
-                for (WebElement element : tags) {
-                    stringBuffer.append(element.getText() + " ");
-                }
-                ans = stringBuffer.toString();
-                log.info("getTag completed " + ans);
-            }
-        } catch (NoSuchElementException e) {
-            e.printStackTrace();
-            log.error("getTag error " + ans);
-        }
-        return ans;
+        return "";
     }
 
     @Override
     public Date getTime(WebDriver chrome, String url) {
-        //class time
-        WebElement content = chrome.findElement(By.className("time"));
+        //2021.11.19 17:08:03
+        //tag time
+        WebElement content = chrome.findElement(By.tagName("time"));
         String ans = content.getText();
         Date res = new Date();
         if (ans != null && !ans.equals("")) {
-            res = GlobalDateUtil.convert(ans);
+            res = GlobalDateUtil.convertFull(ans);
         }
         log.info("getTime completed:" + res.toString());
         return res;
     }
-
 
 }

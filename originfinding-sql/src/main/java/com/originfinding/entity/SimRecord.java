@@ -15,9 +15,11 @@ public class SimRecord {
     Integer id;
 
     String url;//文章地址
-    String simhash;
-    String title;
+    String title;//文章标题
+    String tag;//文章显示的标签
     Date time;//文章时间
+
+    String simhash;
     Date createTime;
     Date updateTime;
 

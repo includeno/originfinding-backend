@@ -1,6 +1,6 @@
 package com.originfinding;
 
-
+import com.originfinding.config.SystemConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -13,29 +13,16 @@ import java.util.TimeZone;
 @SpringBootApplication
 public class SpiderMain {
 
-
-    public static boolean isLinux() {
-        return System.getProperty("os.name").toLowerCase().contains("linux");
-    }
-
-    public static boolean isWindows() {
-        return System.getProperty("os.name").toLowerCase().contains("windows");
-    }
-
-    public static boolean isMac() {
-        return System.getProperty("os.name").toLowerCase().contains("mac");
-    }
-
     public static void main(String[] args) {
 
         //chromedriver http://npm.taobao.org/mirrors/chromedriver/
-        if(isLinux()){
+        if(SystemConfig.isLinux()){
             System.setProperty("webdriver.chrome.driver", "/tools/chromedriver");//linux
         }
-        if(isWindows()){
+        if(SystemConfig.isWindows()){
             System.setProperty("webdriver.chrome.driver", "C:\\EnvironmentSoftwares\\chromedriver_win32\\chromedriver.exe");//windows
         }
-        if(isMac()){
+        if(SystemConfig.isMac()){
             System.setProperty("webdriver.chrome.driver", "chromedriver");//mac
         }
 

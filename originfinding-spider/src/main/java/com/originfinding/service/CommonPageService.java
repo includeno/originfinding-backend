@@ -3,7 +3,6 @@ package com.originfinding.service;
 import com.google.gson.Gson;
 import com.originfinding.config.SeleniumConfig;
 import com.originfinding.entity.UrlRecord;
-import com.originfinding.util.ClassPair;
 import com.originfinding.util.MatchHelper;
 import com.originfinding.util.SpringContextUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -64,41 +63,50 @@ public class CommonPageService {
     }
 
     //爬取网页的主要信息
-    public UrlRecord crawl(WebDriver chrome,UrlRecord record ){
-        String url=record.getUrl();
+    public UrlRecord crawl(UrlRecord record) {
+        String url = record.getUrl();
         List<Class> clazzs = MatchHelper.impls;
         //打印Class对象
-        for(Class cla : clazzs){
-            log.info("实现类:"+cla.getClass());
+        for (Class cla : clazzs) {
+            log.info("实现类:" + cla.getClass());
         }
-        for(Class c: clazzs){
-
+        for (Class c : clazzs) {
+            WebDriver chrome = null;
             try {
-                Method match= c.getMethod("match",new Class[]{String.class});
+                Method match = c.getMethod("match", new Class[]{String.class});
                 //spring获取实例
-                ContentService service=(ContentService) SpringContextUtil.getContext().getBean(c);
+                ContentService service = (ContentService) SpringContextUtil.getContext().getBean(c);
                 //仅使用符合条件的爬虫
-                if((boolean)match.invoke(service,url)==true){
-                    log.info("match:"+c.getClass());
+                if ((boolean) match.invoke(service, url) == true) {
+                    log.info("match:" + c.getClass());
+                    //使用特定网站专用的浏览器开启方法
+                    Method getDriver = c.getMethod("getDriver", new Class[]{});
+                    chrome = (WebDriver) getDriver.invoke(service);
 
-                    Method wait= c.getMethod("wait",new Class[]{WebDriver.class,String.class});
-                    wait.invoke(service,chrome,url);
+                    chrome.get(url);
 
-                    Method getTitle= c.getMethod("getTitle",new Class[]{WebDriver.class,String.class});
-                    String title= (String) getTitle.invoke(service,chrome,url);
+                    Method wait = c.getMethod("wait", new Class[]{WebDriver.class, String.class});
+                    wait.invoke(service, chrome, url);
+
+                    Method getTitle = c.getMethod("getTitle", new Class[]{WebDriver.class, String.class});
+                    String title = (String) getTitle.invoke(service, chrome, url);
                     record.setTitle(title);
 
-                    Method getTime= c.getMethod("getTime",new Class[]{WebDriver.class,String.class});
-                    Date time= (Date) getTime.invoke(service,chrome,url);
+                    Method getTag = c.getMethod("getTag", new Class[]{WebDriver.class, String.class});
+                    String tag = (String) getTag.invoke(service, chrome, url);
+                    record.setTag(tag);
+
+                    Method getTime = c.getMethod("getTime", new Class[]{WebDriver.class, String.class});
+                    Date time = (Date) getTime.invoke(service, chrome, url);
                     record.setTime(time);
-                    Method getMainContent= c.getMethod("getMainContent",new Class[]{WebDriver.class,String.class});
-                    String content= (String) getMainContent.invoke(service,chrome,url);
+
+                    Method getMainContent = c.getMethod("getMainContent", new Class[]{WebDriver.class, String.class});
+                    String content = (String) getMainContent.invoke(service, chrome, url);
                     record.setContent(content);
-                    log.warn("record:"+gson.toJson(record));
+                    log.warn("record:" + gson.toJson(record));
                     break;//在找到匹配的爬虫之后跳出循环节省时间
-                }
-                else{
-                    log.info("not match:"+c.getClass());
+                } else {
+                    log.info("not match:" + c.getClass());
                 }
             } catch (NoSuchMethodException e) {
                 e.printStackTrace();
@@ -106,9 +114,10 @@ public class CommonPageService {
                 e.printStackTrace();
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
-            }
-            finally {
-
+            } finally {
+                if (chrome != null) {
+                    chrome.close();
+                }
             }
         }
         return record;

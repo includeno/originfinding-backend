@@ -1,8 +1,10 @@
 package com.originfinding.service;
 
+import com.originfinding.config.SeleniumConfig;
 import com.originfinding.util.GlobalDateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedCondition;
@@ -11,21 +13,39 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 @Service
 @Slf4j
-public class ZhihuzhuanlanService implements ContentService{
-    public static final String pattern="https://zhuanlan.zhihu.com/p/(.*)";
-    public static final Pattern re = Pattern.compile(pattern);
-    public static final String host="zhuanlan.zhihu.com";
+public class ZhihuzhuanlanService implements ContentService {
+    public static final String[] patterns = new String[]{
+            "https://zhuanlan.zhihu.com/p/(.*)",//https://zhuanlan.zhihu.com/p/88403925
+    };
 
     @Override
-    public void wait(WebDriver chrome, String url){
+    public boolean match(String url) {
+        for (String pattern : patterns) {
+            Pattern p = Pattern.compile(pattern);
+            if (p.matcher(url).matches()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public WebDriver getDriver() {
+        WebDriver chrome = SeleniumConfig.getWebDriver();
+        return chrome;
+    }
+
+    @Override
+    public void wait(WebDriver chrome, String url) {
         log.info("wait began");
         try {
             //等待弹窗加载完毕
-            WebDriverWait wait = new WebDriverWait(chrome, 10, 1);
+            WebDriverWait wait = new WebDriverWait(chrome, 30, 1);
             //如果有注册弹窗 关闭Modal-closeButton
             WebElement searchInput = wait.until(new ExpectedCondition<WebElement>() {
                 @Override
@@ -36,25 +56,33 @@ public class ZhihuzhuanlanService implements ContentService{
             searchInput.click();
             //如果有关注弹窗 关闭Modal-closeButton
             List<WebElement> elements = chrome.findElements(By.className("Modal-closeButton"));
-            for(int i=0;i<elements.size();i++){
+            for (int i = 0; i < elements.size(); i++) {
                 elements.get(i).click();
             }
             log.info("wait completed");
         } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
 
     @Override
     public String getMainContent(WebDriver chrome, String url) {
-        WebElement content = chrome.findElement(By.className("RichText"));
-        String ans=content.getText();
-        if(ans!=null&&!ans.equals("")){
-            log.info("getMainContent completed"+ans);
-            return ans;
+        //直接转到网页底部 加载所有文章信息 参考 https://zhuanlan.zhihu.com/p/38366833
+        JavascriptExecutor javascriptExecutor = (JavascriptExecutor) chrome;
+        javascriptExecutor.executeScript("window.scrollTo(0, document.body.scrollHeight)");
+        try {
+            TimeUnit.MILLISECONDS.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        else{
-            log.error("getMainContent error "+ans);
+        WebElement content = chrome.findElement(By.tagName("article"));
+        String ans = content.getText();
+        if (ans != null && !ans.equals("")) {
+            log.info("getMainContent completed" + ans);
+            return ans;
+        } else {
+            log.error("getMainContent error " + ans);
             return "";
         }
     }
@@ -62,41 +90,50 @@ public class ZhihuzhuanlanService implements ContentService{
     @Override
     public String getTitle(WebDriver chrome, String url) {
         WebElement content = chrome.findElement(By.className("Post-Title"));
-        String ans=content.getText();
-        if(ans!=null&&!ans.equals("")){
-            log.info("getTitle completed"+ans);
+        String ans = content.getText();
+        if (ans != null && !ans.equals("")) {
+            log.info("getTitle completed" + ans);
             return ans;
-        }
-        else{
-            log.error("getTitle error "+ans);
+        } else {
+            log.error("getTitle error " + ans);
             return "";
         }
     }
 
     @Override
-    public Date getTime(WebDriver chrome, String url){
-        //class ContentItem-time
-        //发布于 2019-10-20 10:23
-
-        WebElement content = chrome.findElement(By.className("ContentItem-time"));
-        String ans=content.getText();
-        Date res=new Date();
-        if(ans!=null&&!ans.equals("")){
-            res= GlobalDateUtil.convert(ans);
-        }
-        log.info("getTime completed "+res.toString());
-        return res;
+    public String getTag(WebDriver chrome, String url) {
+        return "";
     }
 
     @Override
-    public boolean match(String url) {
-        String cur=getHost(url);
-        if(cur.equals(host)&&re.matcher(url).matches()){
-            return true;
+    public Date getTime(WebDriver chrome, String url) {
+        //class ContentItem-time
+        //发布于 2019-10-20 10:23
+
+        //拉到页面底部
+        JavascriptExecutor javascriptExecutor = (JavascriptExecutor) chrome;
+        javascriptExecutor.executeScript("window.scrollTo(0, document.body.scrollHeight)");
+        try {
+            TimeUnit.MILLISECONDS.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        else {
-            return false;
+        Date res = new Date();
+        WebElement content = chrome.findElement(By.className("ContentItem-time"));
+        if (content == null) {
+            log.error("getTime error: element = null");
+            return res;
         }
+        String ans = content.getText();
+
+        if (ans != null && !ans.equals("")) {
+            ans = ans.split(" ")[1] + " " + ans.split(" ")[2];
+            res = GlobalDateUtil.convert(ans);
+        } else {
+            log.error("getTime error:time==null");
+        }
+        log.info("getTime completed " + res.toString());
+        return res;
     }
 }
 
