@@ -72,6 +72,7 @@ public class MainController {
 
                 //读取数据库
                 QueryWrapper<SimRecord> queryWrapper = new QueryWrapper();
+                queryWrapper.eq("url",url);
                 SimRecord simRecord = simRecordService.getOne(queryWrapper);
                 //数据库中不存在
                 if (simRecord == null) {
@@ -90,9 +91,9 @@ public class MainController {
                         entity.setParentUrl("");
                     }
                     else{
-
                         //查询关联数据
                         QueryWrapper<SimRecord> parentQuery = new QueryWrapper();
+                        parentQuery.eq("id",simRecord.getParentId());
                         SimRecord parent = simRecordService.getOne(parentQuery);
                         if(parent==null){
                             log.info("/submit parent doesn't exist "+url);
