@@ -14,19 +14,19 @@ public class SimRecord {
     @TableId(value = "id", type = IdType.AUTO)
     Integer id;
 
-    String url;//文章地址
-    String title;//文章标题
-    String tag;//文章显示的标签
+    String url="";//文章地址
+    String title="";//文章标题
+    String tag="";//文章显示的标签
     Date time;//文章时间
 
-    String simhash;
+    String simhash="";
     Date createTime;
     Date updateTime;
 
     //特征指标
-    String sim3;
-    String sim4;
-    String sim5;
+    String sim3="";
+    String sim4="";
+    String sim5="";
 //    String sim6;
 //    String sim7;
     Integer parentId;//如果是原创的直接为-1

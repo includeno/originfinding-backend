@@ -77,31 +77,37 @@ public class MyKafkaListener {
         //判断url存在于布隆过滤器中
         boolean exist=bloomFilter.contains(url);
         boolean operation=false;
+        Date date = new Date();
         if (exist) {
             //已存在记录
             QueryWrapper<SimRecord> queryWrapper = new QueryWrapper();
             queryWrapper.eq("url",url);
             temp = simRecordService.getOne(queryWrapper);
-            temp.setCreateTime(new Date());
             temp.setParentId(-1);//默认原创 未找到关联的原创文章
 
             temp.setUrl(res.getUrl());
             temp.setTitle(res.getTitle());
+            temp.setTag(res.getTag());
             temp.setTime(res.getTime());
-            temp.setUpdateTime(new Date());
+
             temp.setSimhash(simHash.getStrSimHash());
+            temp.setUpdateTime(date);
+
             operation=simRecordService.updateById(temp);
         } else {
             //不存在记录
-            temp = new SimRecord();;
-            temp.setCreateTime(new Date());
-            temp.setParentId(-1);//默认原创 未找到关联的原创文章
+            temp = new SimRecord();
 
             temp.setUrl(res.getUrl());
             temp.setTitle(res.getTitle());
+            temp.setTag(res.getTag());
             temp.setTime(res.getTime());
-            temp.setUpdateTime(new Date());
+
             temp.setSimhash(simHash.getStrSimHash());
+            temp.setCreateTime(date);
+            temp.setUpdateTime(date);
+
+            temp.setParentId(-1);//默认原创 未找到关联的原创文章
             operation=simRecordService.save(temp);
         }
         //数据库操作成功
