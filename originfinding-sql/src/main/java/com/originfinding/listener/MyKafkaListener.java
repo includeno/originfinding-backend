@@ -4,9 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.gson.Gson;
 import com.originfinding.config.KafkaTopic;
 import com.originfinding.entity.SimRecord;
+import com.originfinding.entity.SpiderRecord;
 import com.originfinding.entity.UrlRecord;
 import com.originfinding.listener.message.SparkTaskMessage;
 import com.originfinding.service.SimRecordService;
+import com.originfinding.service.SpiderRecordService;
 import com.originfinding.service.feign.SpiderService;
 import com.originfinding.util.SimHash;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,9 @@ public class MyKafkaListener {
 
     @Autowired
     SimRecordService simRecordService;
+
+    @Autowired
+    SpiderRecordService spiderRecordService;
 
     @Autowired
     KafkaTemplate kafkaTemplate;
@@ -68,32 +73,65 @@ public class MyKafkaListener {
             log.error("error: 爬虫服务无法爬取此网页，请稍后重试" + gson.toJson(res));
             return;
         }
+        Date date = new Date();
+        //保存当前url的爬虫记录
+        QueryWrapper<SpiderRecord> spiderQueryWrapper = new QueryWrapper();
+        spiderQueryWrapper.eq("url",url);
+        SpiderRecord spiderRecord = spiderRecordService.getOne(spiderQueryWrapper);
+        if(spiderRecord==null){
+            //无记录
+            spiderRecord=new SpiderRecord();
+            spiderRecord.setUrl(url);
+
+            spiderRecord.setTag(res.getTag());
+            spiderRecord.setContent(res.getContent());
+            spiderRecord.setTime(res.getTime());
+
+            spiderRecord.setCreateTime(date);
+            spiderRecord.setUpdateTime(date);
+            spiderRecordService.save(spiderRecord);
+        }
+        else{
+            spiderRecord.setTag(res.getTag());
+            spiderRecord.setContent(res.getContent());
+            spiderRecord.setTime(res.getTime());
+
+            spiderRecord.setUpdateTime(date);
+            spiderRecordService.updateById(spiderRecord);
+        }
 
         //计算simhash 64位长度
         SimRecord temp = null;
         SimHash simHash = new SimHash(res.getContent(), 64);
 
         //TODO redis 判断记录存在=>url转化为相同长度的hash值
-        //判断url存在于布隆过滤器中
+        //判断url存在于布隆过滤器中 很可能MySQL中
         boolean exist=bloomFilter.contains(url);
         boolean operation=false;
-        Date date = new Date();
+
         if (exist) {
             //已存在记录
             QueryWrapper<SimRecord> queryWrapper = new QueryWrapper();
             queryWrapper.eq("url",url);
             temp = simRecordService.getOne(queryWrapper);
-            temp.setParentId(-1);//默认原创 未找到关联的原创文章
+            if(temp==null){
+                log.warn("未查询到已知url");
+                operation=false;
+            }
+            else{
+                temp.setParentId(-1);//默认原创 未找到关联的原创文章
 
-            temp.setUrl(res.getUrl());
-            temp.setTitle(res.getTitle());
-            temp.setTag(res.getTag());
-            temp.setTime(res.getTime());
+                temp.setUrl(res.getUrl());
+                temp.setTitle(res.getTitle());
+                temp.setTag(res.getTag());
+                temp.setTime(res.getTime());
 
-            temp.setSimhash(simHash.getStrSimHash());
-            temp.setUpdateTime(date);
+                temp.setSimhash(simHash.getStrSimHash());
+                temp.setUpdateTime(date);
 
-            operation=simRecordService.updateById(temp);
+                operation=simRecordService.updateById(temp);
+            }
+
         } else {
             //不存在记录
             temp = new SimRecord();
@@ -123,7 +161,7 @@ public class MyKafkaListener {
             SparkTaskMessage sparkTaskMessage=SparkTaskMessage.fromSimRecord(record,res.getContent());
 
             //任务添加至队列
-            kafkaTemplate.send(KafkaTopic.queue, gson.toJson(sparkTaskMessage));
+            kafkaTemplate.send(KafkaTopic.sparktask, gson.toJson(sparkTaskMessage));
             //其余操作成功后添加至布隆过滤器
             if(!bloomFilter.contains(url)){
                 bloomFilter.add(url);
@@ -142,13 +180,19 @@ public class MyKafkaListener {
         //分词
         for(ConsumerRecord<String,String> temp:list){
             log.info(temp.value());
+            SparkTaskMessage message=gson.fromJson(temp.value(),SparkTaskMessage.class);
+            
+
         }
 
     }
 
 
-    //@KafkaListener(id = "TaskConsumer",topics = KafkaTopic.task)
+    @KafkaListener(id = "SparktaskConsumer",topics = KafkaTopic.sparktask)
     public void listenTask(String message) {
+        log.info("SparktaskConsumer receive :"+message);
+        SparkTaskMessage sparkTaskMessage=gson.fromJson(message,SparkTaskMessage.class);
+
 
     }
 }

@@ -28,6 +28,7 @@ public class ZhihuzhuanlanService implements ContentService {
         for (String pattern : patterns) {
             Pattern p = Pattern.compile(pattern);
             if (p.matcher(url).matches()) {
+                log.info("zhihuzhuanlan matches");
                 return true;
             }
         }
