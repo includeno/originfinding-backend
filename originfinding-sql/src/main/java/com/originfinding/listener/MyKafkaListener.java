@@ -83,6 +83,7 @@ public class MyKafkaListener {
             spiderRecord.setUrl(url);
 
             spiderRecord.setTag(res.getTag());
+            spiderRecord.setTitle(res.getTitle());
             spiderRecord.setContent(res.getContent());
             spiderRecord.setTime(res.getTime());
 
