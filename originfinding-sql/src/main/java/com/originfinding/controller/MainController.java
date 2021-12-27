@@ -19,7 +19,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.lang.reflect.InvocationTargetException;
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,6 +58,7 @@ public class MainController {
 
         SubmitResponse response=new SubmitResponse();
         List<SubmitResponse.SubmitResponseEntity> answer = new ArrayList<>();
+        Date now=new Date();
         for (String url : ans) {
             SubmitResponse.SubmitResponseEntity entity=new SubmitResponse.SubmitResponseEntity();
             //redis判断此url在周期内是否存在 不存在则发送消息，存在则立即返回
@@ -78,7 +81,9 @@ public class MainController {
                 if (simRecord == null) {
                     log.info("/submit simRecord == null "+url);
                     entity.setUrl(url);
+                    entity.setUpdateTime(null);//标记为未处理状态
                     answer.add(entity);
+                    stringRedisTemplate.opsForValue().set(url,gson.toJson(entity), Duration.ofHours(24));//首次处理时过期时间设置短一些
                 } else {
                     log.info("/submit simRecord != null "+url);
                     //补充数据库数据
@@ -86,7 +91,7 @@ public class MainController {
                     entity.setSim3(simRecord.getSim3());
                     entity.setSim4(simRecord.getSim4());
                     entity.setSim5(simRecord.getSim5());
-                    entity.setUpdateTime(simRecord.getUpdateTime());
+                    entity.setUpdateTime(simRecord.getUpdateTime());//此url已处理过并且有记录 已提交新的处理
                     if(simRecord.getParentId().equals(-1)){
                         entity.setParentUrl("");
                     }
@@ -105,8 +110,7 @@ public class MainController {
                         }
                     }
                     //TODO redis内添加周期数据
-                    stringRedisTemplate.opsForValue().set(url,gson.toJson(entity));
-                    log.info("redis set!");
+                    stringRedisTemplate.opsForValue().set(url,gson.toJson(entity), Duration.ofHours(24*3));
                     answer.add(entity);
                 }
             }

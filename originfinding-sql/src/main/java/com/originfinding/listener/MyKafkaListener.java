@@ -6,6 +6,7 @@ import com.originfinding.config.KafkaTopic;
 import com.originfinding.entity.SimRecord;
 import com.originfinding.entity.SpiderRecord;
 import com.originfinding.entity.UrlRecord;
+import com.originfinding.listener.message.SparkResultMessage;
 import com.originfinding.listener.message.SparkTaskMessage;
 import com.originfinding.service.SimRecordService;
 import com.originfinding.service.SpiderRecordService;
@@ -22,6 +23,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -206,6 +208,13 @@ public class MyKafkaListener {
         log.info("SparktaskConsumer receive :" + message);
         SparkTaskMessage sparkTaskMessage = gson.fromJson(message, SparkTaskMessage.class);
 
+
+    }
+
+    @KafkaListener(id = "SparkResultConsumer", topics = KafkaTopic.sparkresult)
+    public void listenTaskResult(String message) {
+        log.info("SparkResultConsumer receive :" + message);
+        SparkResultMessage sparkResultMessage = gson.fromJson(message, SparkResultMessage.class);
 
     }
 }
