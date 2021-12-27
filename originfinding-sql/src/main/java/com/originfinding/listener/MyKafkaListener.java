@@ -113,12 +113,45 @@ public class MyKafkaListener {
             //已存在记录
             QueryWrapper<SimRecord> queryWrapper = new QueryWrapper();
             queryWrapper.eq("url",url);
+
+            temp.setParentId(-1);//默认原创 未找到关联的原创文章
+
+            temp.setUrl(res.getUrl());
+            temp.setTitle(res.getTitle());
+            temp.setTag(res.getTag());
+            temp.setTime(res.getTime());
+
+            temp.setSimhash(simHash.getStrSimHash());
+            temp.setUpdateTime(date);
+
+            operation=simRecordService.updateById(temp);
+            simRecordService.update(temp,queryWrapper);//按照url更新
+
+        } else {
+            QueryWrapper<SimRecord> queryWrapper = new QueryWrapper();
+            queryWrapper.eq("url",url);
             temp = simRecordService.getOne(queryWrapper);
+            log.info("simRecordService.getOne(queryWrapper) "+gson.toJson(temp));
             if(temp==null){
-                log.warn("未查询到已知url");
-                operation=false;
+                log.warn("未查询到 已知url的SimRecord记录");
+                //不存在记录
+                temp = new SimRecord();
+
+                temp.setUrl(res.getUrl());
+                temp.setTitle(res.getTitle());
+                temp.setTag(res.getTag());
+                temp.setTime(res.getTime());
+
+                temp.setSimhash(simHash.getStrSimHash());
+                temp.setCreateTime(date);
+                temp.setUpdateTime(date);
+
+                temp.setParentId(-1);//默认原创 未找到关联的原创文章
+                operation=simRecordService.save(temp);
             }
             else{
+                log.warn("查询到 已知url的SimRecord记录");
+                //测试环境下 布隆过滤器中未出现
                 temp.setParentId(-1);//默认原创 未找到关联的原创文章
 
                 temp.setUrl(res.getUrl());
@@ -131,22 +164,6 @@ public class MyKafkaListener {
 
                 operation=simRecordService.updateById(temp);
             }
-
-        } else {
-            //不存在记录
-            temp = new SimRecord();
-
-            temp.setUrl(res.getUrl());
-            temp.setTitle(res.getTitle());
-            temp.setTag(res.getTag());
-            temp.setTime(res.getTime());
-
-            temp.setSimhash(simHash.getStrSimHash());
-            temp.setCreateTime(date);
-            temp.setUpdateTime(date);
-
-            temp.setParentId(-1);//默认原创 未找到关联的原创文章
-            operation=simRecordService.save(temp);
         }
         //数据库操作成功
         if(operation==true){
