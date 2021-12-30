@@ -20,9 +20,9 @@ ENV consul_service_id="service"
 ENV kafka_server="127.0.0.1:9092"
 
 #mysql
-ENV datasource="jdbc:mysql://rm-uf646cc87yqoi7lu6lo.mysql.rds.aliyuncs.com:3306/demo?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC"
-ENV datasource_username="root"
-ENV datasource_password="E3!ZivFF9gbQZ"
+ENV datasource='jdbc:mysql://rm-uf646cc87yqoi7lu6lo.mysql.rds.aliyuncs.com:3306/demo?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC'
+ENV datasource_username='root'
+ENV datasource_password='E3!ZivFF9gbQZ'
 
 #redis
 ENV redis_host="127.0.0.1"
@@ -37,4 +37,5 @@ CMD java -jar /app/application.jar --server.port=${server_port} \
  --spring.cloud.consul.host=${consul_host} --spring.cloud.consul.port=${consul_port} \
  --spring.cloud.consul.discovery.service-name=${consul_service_name} --spring.cloud.consul.discovery.instance-id=${consul_service_id} \
  --spring.kafka.bootstrap-servers=${kafka_server} \
+ --spring.datasource.url=${datasource} --spring.datasource.username=${datasource_username} spring.datasource.password=${datasource_password} \
  --spring.redis.host=${redis_host} --spring.redis.port=${redis_port} --spring.redis.password=${redis_password} --spring.redis.database=${redis_database}
