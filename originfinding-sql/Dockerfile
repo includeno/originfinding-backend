@@ -20,7 +20,7 @@ ENV consul_service_id="service"
 ENV kafka_server="127.0.0.1:9092"
 
 #mysql
-ENV datasource="jdbc:mysql://127.0.0.1:3306/demo?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC"
+ENV datasource="jdbc:mysql://rm-uf646cc87yqoi7lu6lo.mysql.rds.aliyuncs.com:3306/demo?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC"
 ENV datasource_username="root"
 ENV datasource_password="root"
 
