@@ -36,7 +36,7 @@ services:
       - consul_service_id=${machine_id}-api
       - server_port=8080
       - kafka_server=${kafka_server}
-      - datasource="jdbc:mysql://rm-uf646cc87yqoi7lu6lo.mysql.rds.aliyuncs.com:3306/demo?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC"
+      - datasource=${datasource}
       - datasource_username=${datasource_username}
       - datasource_password=${datasource_password}
       - redis_host=${redis_host}
