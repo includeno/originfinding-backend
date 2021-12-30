@@ -79,6 +79,7 @@ public class MyKafkaListener {
         QueryWrapper<SpiderRecord> spiderQueryWrapper = new QueryWrapper();
         spiderQueryWrapper.eq("url", url);
         SpiderRecord spiderRecord = spiderRecordService.getOne(spiderQueryWrapper);
+        log.info("spiderRecordService.getOne: "+gson.toJson(spiderRecord));
         if (spiderRecord == null) {
             //无记录
             spiderRecord = new SpiderRecord();
@@ -91,14 +92,16 @@ public class MyKafkaListener {
 
             spiderRecord.setCreateTime(date);
             spiderRecord.setUpdateTime(date);
-            spiderRecordService.save(spiderRecord);
+            boolean op=spiderRecordService.save(spiderRecord);
+            log.info("spiderRecordService.save: "+op);
         } else {
             spiderRecord.setTag(res.getTag());
             spiderRecord.setContent(res.getContent());
             spiderRecord.setTime(res.getTime());
 
             spiderRecord.setUpdateTime(date);
-            spiderRecordService.updateById(spiderRecord);
+            boolean op=spiderRecordService.updateById(spiderRecord);
+            log.info("spiderRecordService.updateById: "+op);
         }
 
         //计算simhash 64位长度
@@ -111,6 +114,7 @@ public class MyKafkaListener {
         boolean operation = false;
 
         if (exist) {
+            log.info("bloomFilter exists ");
             //已存在记录
             QueryWrapper<SimRecord> queryWrapper = new QueryWrapper();
             queryWrapper.eq("url", url);
@@ -128,6 +132,7 @@ public class MyKafkaListener {
 
             operation = simRecordService.update(temp, queryWrapper);//按照url更新
         } else {
+            log.info("bloomFilter doesn't exist ");
             QueryWrapper<SimRecord> queryWrapper = new QueryWrapper();
             queryWrapper.eq("url", url);
             temp = simRecordService.getOne(queryWrapper);

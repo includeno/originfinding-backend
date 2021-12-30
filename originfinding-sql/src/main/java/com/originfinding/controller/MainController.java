@@ -65,10 +65,12 @@ public class MainController {
             String res = stringRedisTemplate.opsForValue().get(url);
             if (res!=null&&!res.equals("")) {
                 //TODO redis 周期内存在记录 读取redis内数据
+                log.info("/submit redis record exists "+url);
                 entity=gson.fromJson(res,SubmitResponse.SubmitResponseEntity.class);
                 answer.add(entity);
             }
             else {
+                log.info("/submit redis record doesn't exist "+url);
                 //redis 周期内不存在记录
                 //提交spark处理
                 kafkaTemplate.send(KafkaTopic.commonpage, url);
@@ -115,8 +117,8 @@ public class MainController {
                 }
             }
         }
-        log.info("/submit response:"+gson.toJson(response));
         response.setList(answer);
+        log.info("/submit response:"+gson.toJson(response));
         return response;
     }
 }
