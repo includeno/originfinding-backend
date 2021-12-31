@@ -22,6 +22,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.concurrent.FailureCallback;
+import org.springframework.util.concurrent.SuccessCallback;
 
 import java.time.Duration;
 import java.util.Date;
@@ -182,7 +184,18 @@ public class MyKafkaListener {
             SparkTaskMessage sparkTaskMessage = SparkTaskMessage.fromSimRecord(record, res.getContent());
 
             //任务添加至队列
-            kafkaTemplate.send(KafkaTopic.sparktask, gson.toJson(sparkTaskMessage));
+            kafkaTemplate.send(KafkaTopic.sparktask, gson.toJson(sparkTaskMessage)).addCallback(new SuccessCallback() {
+                @Override
+                public void onSuccess(Object o) {
+                    log.info("sparktask send success "+url);
+                }
+            }, new FailureCallback() {
+                @Override
+                public void onFailure(Throwable throwable) {
+                    log.error("sparktask send error "+url+" "+throwable.getMessage());
+                }
+            });
+            kafkaTemplate.flush();
             //其余操作成功后添加至布隆过滤器
             if (!bloomFilter.contains(url)) {
                 bloomFilter.add(url);
