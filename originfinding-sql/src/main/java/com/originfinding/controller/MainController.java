@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.util.concurrent.FailureCallback;
+import org.springframework.util.concurrent.SuccessCallback;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -73,7 +75,17 @@ public class MainController {
                 log.info("/submit redis record doesn't exist "+url);
                 //redis 周期内不存在记录
                 //提交spark处理
-                kafkaTemplate.send(KafkaTopic.commonpage, url);
+                kafkaTemplate.send(KafkaTopic.commonpage, url).addCallback(new SuccessCallback() {
+                    @Override
+                    public void onSuccess(Object o) {
+                        log.info("kafkaTemplate send success "+url);
+                    }
+                }, new FailureCallback() {
+                    @Override
+                    public void onFailure(Throwable throwable) {
+                        log.error("kafkaTemplate send error "+url+" "+throwable.getMessage());
+                    }
+                });
                 kafkaTemplate.flush();
 
                 //读取数据库
