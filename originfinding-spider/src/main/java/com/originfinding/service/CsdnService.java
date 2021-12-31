@@ -27,7 +27,7 @@ public class CsdnService implements ContentService {
         for (String pattern : patterns) {
             Pattern p = Pattern.compile(pattern);
             if (p.matcher(url).matches()) {
-                log.info("csdn matches");
+                log.info("csdn matches @url:"+url);
                 return true;
             }
         }

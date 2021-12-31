@@ -13,6 +13,7 @@ public class UrlFilter {
         List<String> ans = new ArrayList<>();
 
         for (String url : list) {
+            url=formatUrl(url);
             for (Class c : MatchHelper.impls) {
                 Method match = c.getMethod("match", new Class[]{String.class});
                 //spring获取实例
@@ -29,5 +30,12 @@ public class UrlFilter {
             }
         }
         return ans;
+    }
+
+    public static String formatUrl(String url){
+        if(url.endsWith("/")){
+            return url.substring(0,url.length()-1);
+        }
+        return url;
     }
 }

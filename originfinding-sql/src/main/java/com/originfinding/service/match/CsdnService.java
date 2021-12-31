@@ -18,7 +18,7 @@ public class CsdnService implements MatchService {
         for (String pattern : patterns) {
             Pattern p = Pattern.compile(pattern);
             if (p.matcher(url).matches()) {
-                log.info("csdn matches");
+                log.info("csdn matches @url:"+url);
                 return true;
             }
         }

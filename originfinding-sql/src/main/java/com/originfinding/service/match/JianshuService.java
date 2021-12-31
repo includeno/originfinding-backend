@@ -18,7 +18,7 @@ public class JianshuService implements MatchService {
         for (String pattern : patterns) {
             Pattern p = Pattern.compile(pattern);
             if (p.matcher(url).matches()) {
-                log.info("jianshu matches");
+                log.info("jianshu matches @url:"+url);
                 return true;
             }
         }

@@ -26,7 +26,7 @@ public class CnblogsService implements ContentService {
         for (String pattern : patterns) {
             Pattern p = Pattern.compile(pattern);
             if (p.matcher(url).matches()) {
-                log.info("cnblog matches");
+                log.info("cnblog matches @url:"+url);
                 return true;
             }
         }

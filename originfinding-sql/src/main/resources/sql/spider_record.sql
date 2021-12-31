@@ -20,10 +20,10 @@ DROP TABLE IF EXISTS `spider_record`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `spider_record` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `url` varchar(300) NOT NULL,
-  `title` varchar(300) NOT NULL,
-  `tag` varchar(300) NOT NULL,
-  `content` mediumtext NOT NULL,
+  `url` varchar(300) NOT NULL DEFAULT '',
+  `title` varchar(300) NOT NULL DEFAULT '',
+  `tag` varchar(300) NOT NULL DEFAULT '',
+  `content` mediumtext NOT NULL DEFAULT '',
   `time` datetime NOT NULL,
   `create_time` datetime NOT NULL,
   `update_time` datetime NOT NULL,

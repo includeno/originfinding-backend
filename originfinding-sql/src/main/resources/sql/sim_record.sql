@@ -20,11 +20,11 @@ DROP TABLE IF EXISTS `sim_record`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `sim_record` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `url` varchar(300) NOT NULL,
-  `title` varchar(300) NOT NULL,
-  `tag` varchar(300) NOT NULL,
+  `url` varchar(300) NOT NULL DEFAULT '',
+  `title` varchar(300) NOT NULL DEFAULT '',
+  `tag` varchar(300) NOT NULL DEFAULT '',
   `time` datetime NOT NULL,
-  `simhash` varchar(45) NOT NULL,
+  `simhash` varchar(300) NOT NULL DEFAULT '',
   `create_time` datetime NOT NULL,
   `update_time` datetime NOT NULL,
   `sim3` varchar(300) DEFAULT NULL,

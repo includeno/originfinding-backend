@@ -15,10 +15,11 @@ docker-compose --env-file app.env -f docker-compose-app-withenv.yml  up -d
 
 ## inspect
 ```
+docker-compose -f docker-compose-app-withenv.yml logs -f api
+
 docker-compose -f docker-compose-app-withenv.yml logs spider1
 docker-compose -f docker-compose-app-withenv.yml logs spider2
 docker-compose -f docker-compose-app-withenv.yml logs api
-docker-compose -f docker-compose-app-withenv.yml logs -f api
 docker-compose -f docker-compose-app-withenv.yml logs api > /root/api.log
 ```
 
