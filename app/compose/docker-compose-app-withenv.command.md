@@ -21,6 +21,10 @@ docker-compose -f docker-compose-app-withenv.yml logs spider1
 docker-compose -f docker-compose-app-withenv.yml logs spider2
 docker-compose -f docker-compose-app-withenv.yml logs api
 docker-compose -f docker-compose-app-withenv.yml logs api > /root/api.log
+
+docker-compose -f docker-compose-app-withenv.yml exec api /bin/bash
+docker-compose -f docker-compose-app-withenv.yml exec spider1 /bin/bash
+docker-compose -f docker-compose-app-withenv.yml exec spider2 /bin/bash
 ```
 
 ## stop&remove container

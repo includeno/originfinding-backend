@@ -74,6 +74,7 @@ public class MainController {
                 //redis 周期内不存在记录
                 //提交spark处理
                 kafkaTemplate.send(KafkaTopic.commonpage, url);
+                kafkaTemplate.flush();
 
                 //读取数据库
                 QueryWrapper<SimRecord> queryWrapper = new QueryWrapper();
