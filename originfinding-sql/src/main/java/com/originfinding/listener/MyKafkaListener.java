@@ -221,7 +221,7 @@ public class MyKafkaListener {
     }
 
 
-    @KafkaListener(id = "SparktaskConsumer", topics = KafkaTopic.sparktask)
+    //@KafkaListener(id = "SparktaskConsumer", topics = KafkaTopic.sparktask)
     public void listenTask(String message) {
         log.info("SparktaskConsumer receive :" + message);
         SparkTaskMessage sparkTaskMessage = gson.fromJson(message, SparkTaskMessage.class);
