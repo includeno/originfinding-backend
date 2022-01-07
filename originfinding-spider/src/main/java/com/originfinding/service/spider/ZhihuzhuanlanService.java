@@ -1,6 +1,8 @@
-package com.originfinding.service;
+package com.originfinding.service.spider;
 
 import com.originfinding.config.SeleniumConfig;
+import com.originfinding.service.ContentService;
+import com.originfinding.service.MatchService;
 import com.originfinding.util.GlobalDateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
@@ -18,10 +20,10 @@ import java.util.regex.Pattern;
 
 @Service
 @Slf4j
-public class ZhihuzhuanlanService implements ContentService {
+public class ZhihuzhuanlanService implements ContentService, MatchService {
     public static final String[] patterns = new String[]{
-            "https://zhuanlan.zhihu.com/p/(.*)",//https://zhuanlan.zhihu.com/p/88403925
-            "https://www.zhihu.com/column/p/(.*)"//https://www.zhihu.com/column/p/24172120
+            "https://zhuanlan.zhihu.com/p/(.+)",//https://zhuanlan.zhihu.com/p/88403925
+            "https://www.zhihu.com/column/p/(.+)",//https://www.zhihu.com/column/p/24172120
     };
 
     @Override
@@ -29,7 +31,6 @@ public class ZhihuzhuanlanService implements ContentService {
         for (String pattern : patterns) {
             Pattern p = Pattern.compile(pattern);
             if (p.matcher(url).matches()) {
-                log.info("zhihuzhuanlan matches @url:"+url);
                 return true;
             }
         }
@@ -81,7 +82,7 @@ public class ZhihuzhuanlanService implements ContentService {
         WebElement content = chrome.findElement(By.tagName("article"));
         String ans = content.getText();
         if (ans != null && !ans.equals("")) {
-            log.info("getMainContent completed" + ans);
+            log.info("getMainContent completed:" + ans.length());
             return ans;
         } else {
             log.error("getMainContent error " + ans);
@@ -130,7 +131,7 @@ public class ZhihuzhuanlanService implements ContentService {
 
         if (ans != null && !ans.equals("")) {
             ans = ans.split(" ")[1] + " " + ans.split(" ")[2];
-            res = GlobalDateUtil.convert(ans);
+            res = GlobalDateUtil.convert2(ans);
         } else {
             log.error("getTime error:time==null");
         }

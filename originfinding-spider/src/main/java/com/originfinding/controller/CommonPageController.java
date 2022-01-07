@@ -24,7 +24,7 @@ public class CommonPageController {
     Gson gson;
 
     //创建令牌桶
-    private RateLimiter rateLimiter= RateLimiter.create(0.15);//每秒放行十个请求
+    private RateLimiter rateLimiter= RateLimiter.create(0.2);//每5秒放行1个请求
 
     //读取网页的主要内容
     @PostMapping("/crawl")

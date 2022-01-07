@@ -1,6 +1,8 @@
-package com.originfinding.service;
+package com.originfinding.service.spider;
 
 import com.originfinding.config.SeleniumConfig;
+import com.originfinding.service.ContentService;
+import com.originfinding.service.MatchService;
 import com.originfinding.util.GlobalDateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
@@ -16,9 +18,10 @@ import java.util.regex.Pattern;
 
 @Service
 @Slf4j
-public class CnblogsService implements ContentService {
+public class CnblogsService implements ContentService, MatchService {
     public static final String[] patterns = new String[]{
-            "https://www.cnblogs.com/(.*)/p/(.*)",//https://www.cnblogs.com/frankdeng/p/9310684.html
+            "https://www.cnblogs.com/(.+)/p/(.+)",//https://www.cnblogs.com/frankdeng/p/9310684.html
+            "https://www.cnblogs.com/(.+)/archive/(.+)",//https://www.cnblogs.com/fengys-moving/archive/2012/05/27/2520549.html
     };
 
     @Override
@@ -26,7 +29,6 @@ public class CnblogsService implements ContentService {
         for (String pattern : patterns) {
             Pattern p = Pattern.compile(pattern);
             if (p.matcher(url).matches()) {
-                log.info("cnblog matches @url:"+url);
                 return true;
             }
         }
@@ -56,7 +58,7 @@ public class CnblogsService implements ContentService {
         WebElement content = chrome.findElement(By.id("cnblogs_post_body"));
         String ans = content.getText();
         if (ans != null && !ans.equals("")) {
-            log.info("getMainContent completed " + ans);
+            log.info("getMainContent completed:" + ans.length());
             return ans;
         } else {
             log.error("getMainContent error " + ans);
@@ -121,7 +123,7 @@ public class CnblogsService implements ContentService {
         String ans = content.getText();
         Date res = new Date();
         if (ans != null && !ans.equals("")) {
-            res = GlobalDateUtil.convert(ans);
+            res = GlobalDateUtil.convert2(ans);
         }
         log.info("getTime completed " + res.toString());
         return res;

@@ -8,8 +8,8 @@ import com.originfinding.entity.SpiderRecord;
 import com.originfinding.entity.UrlRecord;
 import com.originfinding.listener.message.SparkResultMessage;
 import com.originfinding.listener.message.SparkTaskMessage;
-import com.originfinding.service.SimRecordService;
-import com.originfinding.service.SpiderRecordService;
+import com.originfinding.service.sql.SimRecordService;
+import com.originfinding.service.sql.SpiderRecordService;
 import com.originfinding.service.feign.SpiderService;
 import com.originfinding.util.SimHash;
 import lombok.extern.slf4j.Slf4j;
@@ -25,10 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.concurrent.FailureCallback;
 import org.springframework.util.concurrent.SuccessCallback;
 
-import java.time.Duration;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Configuration
@@ -56,6 +54,8 @@ public class MyKafkaListener {
 
     @Value("${spring.cloud.consul.discovery.instance-id}")
     String instance_id;
+
+
 
     @Transactional(rollbackFor = Exception.class)
     @KafkaListener(id = "CommonpageConsumer", topics = KafkaTopic.commonpage)
@@ -207,7 +207,7 @@ public class MyKafkaListener {
 
     }
 
-    @KafkaListener(id = "QueueConsumer", topics = KafkaTopic.queue, containerFactory = "batchFactory")
+    //@KafkaListener(id = "QueueConsumer", topics = KafkaTopic.queue, containerFactory = "batchFactory")
     public void listenQueue(List<ConsumerRecord<String, String>> list) {
         log.info("QueueConsumer receive :" + list.size());
         //分词
@@ -215,24 +215,7 @@ public class MyKafkaListener {
             log.info(temp.value());
             SparkTaskMessage message = gson.fromJson(temp.value(), SparkTaskMessage.class);
 
-
         }
-
     }
 
-
-    //@KafkaListener(id = "SparktaskConsumer", topics = KafkaTopic.sparktask)
-    public void listenTask(String message) {
-        log.info("SparktaskConsumer receive :" + message);
-        SparkTaskMessage sparkTaskMessage = gson.fromJson(message, SparkTaskMessage.class);
-
-
-    }
-
-    @KafkaListener(id = "SparkResultConsumer", topics = KafkaTopic.sparkresult)
-    public void listenTaskResult(String message) {
-        log.info("SparkResultConsumer receive :" + message);
-        SparkResultMessage sparkResultMessage = gson.fromJson(message, SparkResultMessage.class);
-
-    }
 }

@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 @Slf4j
 public class CnblogsService implements MatchService {
     public static final String[] patterns = new String[]{
-            "https://www.cnblogs.com/(.*)/p/(.*)",//https://www.cnblogs.com/frankdeng/p/9310684.html
+            "https://www.cnblogs.com/(.+)/p/(.+)",//https://www.cnblogs.com/frankdeng/p/9310684.html
     };
 
     @Override

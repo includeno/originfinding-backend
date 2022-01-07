@@ -7,10 +7,9 @@ import java.util.regex.Pattern;
 
 @Service
 @Slf4j
-public class ZhihuzhuanlanService implements MatchService {
+public class IteyeService implements MatchService {
     public static final String[] patterns = new String[]{
-            "https://zhuanlan.zhihu.com/p/(.+)",//https://zhuanlan.zhihu.com/p/88403925
-            "https://www.zhihu.com/column/p/(.+)"//https://www.zhihu.com/column/p/24172120
+            "https://www.iteye.com/blog/(.+)",//https://www.iteye.com/blog/m17165851127-2524064
     };
 
     @Override
@@ -18,11 +17,9 @@ public class ZhihuzhuanlanService implements MatchService {
         for (String pattern : patterns) {
             Pattern p = Pattern.compile(pattern);
             if (p.matcher(url).matches()) {
-                log.info("zhihuzhuanlan matches @url:"+url);
                 return true;
             }
         }
         return false;
     }
 }
-

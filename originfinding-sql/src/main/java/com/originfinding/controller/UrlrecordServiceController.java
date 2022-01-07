@@ -1,7 +1,7 @@
 package com.originfinding.controller;
 
 import com.originfinding.entity.SimRecord;
-import com.originfinding.service.SimRecordService;
+import com.originfinding.service.sql.SimRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

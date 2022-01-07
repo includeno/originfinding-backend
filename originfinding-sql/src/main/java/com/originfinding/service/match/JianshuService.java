@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 @Service
 public class JianshuService implements MatchService {
     public static final String[] patterns = new String[]{
-            "https://www.jianshu.com/p/(.*)",//https://www.jianshu.com/p/f0ad0f80fd2c
+            "https://www.jianshu.com/p/(.+)",//https://www.jianshu.com/p/f0ad0f80fd2c
     };
 
     @Override

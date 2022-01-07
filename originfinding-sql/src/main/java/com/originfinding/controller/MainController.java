@@ -8,7 +8,7 @@ import com.originfinding.request.QueryRequest;
 import com.originfinding.request.SubmitRequest;
 import com.originfinding.response.QueryResponse;
 import com.originfinding.response.SubmitResponse;
-import com.originfinding.service.SimRecordService;
+import com.originfinding.service.sql.SimRecordService;
 import com.originfinding.util.UrlFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,12 +53,33 @@ public class MainController {
     //submit 提交批处理请求
     @PostMapping("/submit")
     public SubmitResponse submit(SubmitRequest request) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        List<SubmitResponse.SubmitResponseEntity> answer=submitFunction(request);
+        SubmitResponse response=new SubmitResponse();
+        response.setList(answer);
+        log.info("/submit response:"+gson.toJson(response));
+        return response;
+    }
+
+    //schedule submit 提交批处理请求，省略返回值
+    @PostMapping("/schedule/submit")
+    public String submitSchedule(SubmitRequest request) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        submitFunction(request);
+        return "ok";
+    }
+
+
+    public List<SubmitResponse.SubmitResponseEntity> submitFunction(SubmitRequest request){
         List<String> list = request.getList().stream().distinct().collect(Collectors.toList());//url过滤重复url
         log.info("/submit begin filter"+gson.toJson(list));
-        List<String> ans = UrlFilter.filter(list);//筛选出符合条件的URl
+        List<String> ans = null;//筛选出符合条件的URl
+        try {
+            ans = UrlFilter.filter(list);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
         log.info("/submit end filter"+gson.toJson(ans));
 
-        SubmitResponse response=new SubmitResponse();
+
         List<SubmitResponse.SubmitResponseEntity> answer = new ArrayList<>();
         Date now=new Date();
         for (String url : ans) {
@@ -130,8 +151,7 @@ public class MainController {
                 }
             }
         }
-        response.setList(answer);
-        log.info("/submit response:"+gson.toJson(response));
-        return response;
+
+        return answer;
     }
 }

@@ -1,6 +1,8 @@
-package com.originfinding.service;
+package com.originfinding.service.spider;
 
 import com.originfinding.config.SeleniumConfig;
+import com.originfinding.service.ContentService;
+import com.originfinding.service.MatchService;
 import com.originfinding.util.GlobalDateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.*;
@@ -16,10 +18,10 @@ import java.util.regex.Pattern;
 
 @Service
 @Slf4j
-public class CsdnService implements ContentService {
+public class CsdnService implements ContentService, MatchService {
     public static final String[] patterns = new String[]{
-            "https://blog.csdn.net/(.*)/article/details/(.*)",//https://blog.csdn.net/qq_16214677/article/details/84863046
-            "https://(.*).blog.csdn.net/article/details/(.*)",//https://gxyyds.blog.csdn.net/article/details/96458591
+            "https://blog.csdn.net/(.+)/article/details/(.+)",//https://blog.csdn.net/qq_16214677/article/details/84863046
+            "https://(.+).blog.csdn.net/article/details/(.+)",//https://gxyyds.blog.csdn.net/article/details/96458591
     };
 
     @Override
@@ -27,7 +29,6 @@ public class CsdnService implements ContentService {
         for (String pattern : patterns) {
             Pattern p = Pattern.compile(pattern);
             if (p.matcher(url).matches()) {
-                log.info("csdn matches @url:"+url);
                 return true;
             }
         }
@@ -36,7 +37,7 @@ public class CsdnService implements ContentService {
 
     @Override
     public WebDriver getDriver() {
-        WebDriver chrome = SeleniumConfig.getWebDriver();
+        WebDriver chrome = SeleniumConfig.getWebDriver(true);
         return chrome;
     }
 
@@ -49,6 +50,11 @@ public class CsdnService implements ContentService {
                 return text.findElement(By.tagName("article"));
             }
         });
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         log.info("wait article completed");
         Actions action = new Actions(chrome);
         Integer random = new Random(30).nextInt();
@@ -79,7 +85,7 @@ public class CsdnService implements ContentService {
         }
         ans = content.getText();
         if (ans != null && !ans.equals("")) {
-            log.info("getMainContent completed:" + ans);
+            log.info("getMainContent completed:" + ans.length());
             return ans;
         } else {
             log.error("getMainContent error:" + ans);
@@ -102,6 +108,18 @@ public class CsdnService implements ContentService {
 
     @Override
     public String getTag(WebDriver chrome, String url) {
+        JavascriptExecutor javascriptExecutor = (JavascriptExecutor) chrome;
+        javascriptExecutor.executeScript("window.scrollTo(0, document.body.scrollHeight)");
+        try {
+            WebElement content = chrome.findElement(By.className("passport-container"));
+            if (content != null) {
+                WebElement button = chrome.findElement(By.xpath("//span[contains(text(),'x')]"));
+                button.click();
+                log.info("wait passport completed");
+            }
+        } catch (NoSuchElementException exception) {
+            log.error("can't find passport");
+        }
         //数组 tag-link
         String ans = "";
         try {
@@ -123,16 +141,34 @@ public class CsdnService implements ContentService {
 
     @Override
     public Date getTime(WebDriver chrome, String url) {
+        JavascriptExecutor javascriptExecutor = (JavascriptExecutor) chrome;
+        javascriptExecutor.executeScript("window.scrollTo(0, document.body.scrollHeight)");
+        try {
+            WebElement content = chrome.findElement(By.className("passport-container"));
+            if (content != null) {
+                WebElement button = chrome.findElement(By.xpath("//span[contains(text(),'x')]"));
+                button.click();
+                log.info("wait passport completed");
+            }
+        } catch (NoSuchElementException exception) {
+            log.error("can't find passport");
+        }
+
         //class time
-        WebElement content = chrome.findElement(By.className("time"));
+        WebDriverWait wait = new WebDriverWait(chrome, 30, 10);
+        WebElement content = wait.until(new ExpectedCondition<WebElement>() {
+            @Override
+            public WebElement apply(WebDriver text) {
+                return text.findElement(By.className("time"));
+            }
+        });
         String ans = content.getText();
+        System.out.println("content.getText():"+content.getText());
         Date res = new Date();
         if (ans != null && !ans.equals("")) {
-            res = GlobalDateUtil.convert(ans);
+            res = GlobalDateUtil.convert3(ans);
         }
-        log.info("getTime completed:" + res.toString());
+        log.info("getTime completed:" + res);
         return res;
     }
-
-
 }
