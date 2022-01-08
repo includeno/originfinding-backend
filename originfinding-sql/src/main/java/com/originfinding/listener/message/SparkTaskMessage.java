@@ -24,9 +24,11 @@ public class SparkTaskMessage {
         sparkTaskMessage.setId(simRecord.getId());
         sparkTaskMessage.setUrl(simRecord.getUrl());
         sparkTaskMessage.setTitle(simRecord.getTitle());
+        sparkTaskMessage.setTime(simRecord.getTime());
         sparkTaskMessage.setContent(content);
         sparkTaskMessage.setSimhash(simRecord.getSimhash());
         sparkTaskMessage.setTag(simRecord.getTag());
+
         return sparkTaskMessage;
     }
 }
