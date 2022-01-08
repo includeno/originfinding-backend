@@ -148,6 +148,12 @@
             <version>5.1.6</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/com.hankcs/hanlp -->
+        <dependency>
+            <groupId>com.hankcs</groupId>
+            <artifactId>hanlp</artifactId>
+            <version>portable-1.8.2</version>
+        </dependency>
 
     </dependencies>
 

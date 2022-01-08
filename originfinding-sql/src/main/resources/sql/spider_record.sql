@@ -23,7 +23,7 @@ CREATE TABLE `spider_record` (
   `url` varchar(300) NOT NULL DEFAULT '',
   `title` varchar(300) NOT NULL DEFAULT '',
   `tag` varchar(300) NOT NULL DEFAULT '',
-  `content` mediumtext NOT NULL,
+  `content` mediumtext,
   `time` datetime NOT NULL,
   `create_time` datetime NOT NULL,
   `update_time` datetime NOT NULL,
