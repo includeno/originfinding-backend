@@ -258,7 +258,7 @@ public class MyKafkaListener {
             String tag=pair.getWord();
             if(wordPairMap.get(tag)!=null){
                 WordPair newPair=wordPairMap.get(tag);
-                newPair.setCount(newPair.getCount()+1);
+                newPair.setCount(newPair.getCount()+pair.getCount());
                 wordPairMap.put(tag,newPair);
             }
             else{
@@ -271,7 +271,7 @@ public class MyKafkaListener {
             String tag=pair.getWord();
             if(wordPairMap.get(tag)!=null){
                 WordPair newPair=wordPairMap.get(tag);
-                newPair.setCount(newPair.getCount()+1);
+                newPair.setCount(newPair.getCount()+pair.getCount());
                 wordPairMap.put(tag,newPair);
             }
             else{
