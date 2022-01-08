@@ -15,7 +15,8 @@ import java.util.*;
 @Slf4j
 public class AnsjSimHash {
     String token;//源文本
-    BigInteger strSimHash;//Simhash
+    BigInteger simHash;//Simhash
+    String strSimHash;//Simhash String
     Integer hashbits = 64;
     List<String> words;//Top 关键词列表
     List<WordPair> wordsPair;//Top 关键词列表 带次数
@@ -48,7 +49,7 @@ public class AnsjSimHash {
         this.hashbits=hashbits;
         this.hashcode=token.hashCode();
         this.top=top;
-        this.strSimHash=simHash(this.token,this.hashbits,filter);
+        this.simHash=simHash(this.token,this.hashbits,filter);
     }
 
     private BigInteger simHash(String token,Integer hashbits,StopRecognition filter) {
@@ -131,11 +132,16 @@ public class AnsjSimHash {
         log.info("token:"+this.hashcode+" =>"+new Gson().toJson(words));
 
         BigInteger fingerprint = new BigInteger("0");
+        StringBuffer simHashBuffer = new StringBuffer();
         for (int i = 0; i < hashbits; i++) {
             if (v[i] >= 0) {
                 fingerprint = fingerprint.add(new BigInteger("1").shiftLeft(i));
+                simHashBuffer.append("1");
+            }else{
+                simHashBuffer.append("0");
             }
         }
+        this.strSimHash=simHashBuffer.toString();
         return fingerprint;
     }
 
@@ -179,7 +185,7 @@ public class AnsjSimHash {
     public static int hammingDistance(AnsjSimHash from, AnsjSimHash to) {
         BigInteger m = new BigInteger("1").shiftLeft(from.getHashbits()).subtract(
                 new BigInteger("1"));
-        BigInteger x = from.getStrSimHash().xor(to.getStrSimHash()).and(m);
+        BigInteger x = from.getSimHash().xor(to.getSimHash()).and(m);
         int tot = 0;
         while (x.signum() != 0) {
             tot += 1;
@@ -207,6 +213,30 @@ public class AnsjSimHash {
             x = x.and(x.subtract(new BigInteger("1")));
         }
         return count;
+    }
+
+    /**
+     * 计算海明距离,海明距离越小说明越相似;
+     * @param hashbits 位数
+     * @param from　源
+     * @param to 目标
+     * @return
+     */
+    public static int hammingDistance(Integer hashbits,String from, String to) {
+        assert from.length()==hashbits;
+        assert to.length()==hashbits;
+        int distance;
+        if (from.length() != to.length()) {
+            distance = -1;
+        } else {
+            distance = 0;
+            for (int i = 0; i < from.length(); i++) {
+                if (from.charAt(i) != to.charAt(i)) {
+                    distance++;
+                }
+            }
+        }
+        return distance;
     }
 
     /**
