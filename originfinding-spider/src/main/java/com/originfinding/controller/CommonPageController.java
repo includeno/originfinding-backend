@@ -24,14 +24,14 @@ public class CommonPageController {
     Gson gson;
 
     //创建令牌桶
-    private RateLimiter rateLimiter= RateLimiter.create(0.2);//每5秒放行1个请求
+    private RateLimiter rateLimiter= RateLimiter.create(2);//每1秒放行2个请求
 
     //读取网页的主要内容
     @PostMapping("/crawl")
     public UrlRecord crawl(@RequestParam("url") String url) {
         UrlRecord record = new UrlRecord();
         record.setUrl(url);
-        if (rateLimiter.tryAcquire(3, TimeUnit.SECONDS)) {
+        if (rateLimiter.tryAcquire(2, TimeUnit.SECONDS)) {
             log.info("crawl begin:"+gson.toJson(record));
             record=commonPageService.crawl(record);
             log.info("crawl end:"+gson.toJson(record));
