@@ -171,12 +171,29 @@ public class MyKafkaListener {
         boolean exist = bloomFilter.contains(res.getUrl());
         boolean operation = false;
         SimRecord temp = null;
-        if (exist) {
-            log.info("bloomFilter exists ");
-            //布隆过滤器中已存在记录
+        //第一次
+        if(exist==false){
+            log.info("BloomFilter doesn't exist ");
+            temp = new SimRecord();
+
+            temp.setUrl(res.getUrl());
+            temp.setTitle(res.getTitle());
+            temp.setTag(tagString);
+            temp.setTime(res.getTime());
+
+            temp.setSimhash(simhash);
+            temp.setCreateTime(date);
+            temp.setUpdateTime(date);
+
+            temp.setParentId(-1);//默认原创 未找到关联的原创文章
+            operation = simRecordService.save(temp);
+            log.info("simRecordService.save: "+operation);
+        }
+        else{
             QueryWrapper<SimRecord> queryWrapper = new QueryWrapper();
             queryWrapper.eq("url", res.getUrl());
-            temp = new SimRecord();
+            temp = simRecordService.getOne(queryWrapper);
+            log.info("getOne " + gson.toJson(temp));
             if (temp != null) {
                 temp.setUrl(res.getUrl());
                 temp.setParentId(-1);//默认原创 未找到关联的原创文章
@@ -189,32 +206,11 @@ public class MyKafkaListener {
                 temp.setSimhash(simhash);
                 temp.setUpdateTime(date);
                 operation = simRecordService.update(temp, queryWrapper);//按照url更新
-            } else {
-                //数据库不存在记录并且布隆过滤器中存在记录 非正常情况下
-                temp = new SimRecord();
-
-                temp.setUrl(res.getUrl());
-                temp.setTitle(res.getTitle());
-                temp.setTag(tagString);
-                temp.setTime(res.getTime());
-
-                temp.setSimhash(simhash);
-                temp.setCreateTime(date);
-                temp.setUpdateTime(date);
-
-                temp.setParentId(-1);//默认原创 未找到关联的原创文章
-                operation = simRecordService.save(temp);
+                log.info("simRecordService.update: "+operation);
             }
+            else {
+                log.warn("simRecordService.getOne: error");
 
-        } else {
-            log.info("bloomFilter doesn't exist ");
-            QueryWrapper<SimRecord> queryWrapper = new QueryWrapper();
-            queryWrapper.eq("url", res.getUrl());
-            temp = simRecordService.getOne(queryWrapper);
-            log.info("simRecordService.getOne(queryWrapper) " + gson.toJson(temp));
-            if (temp == null) {
-                log.warn("未查询到 已知url的SimRecord记录");
-                //不存在记录
                 temp = new SimRecord();
 
                 temp.setUrl(res.getUrl());
@@ -228,19 +224,7 @@ public class MyKafkaListener {
 
                 temp.setParentId(-1);//默认原创 未找到关联的原创文章
                 operation = simRecordService.save(temp);
-            } else {
-                log.warn("查询到 已知url的SimRecord记录");
-                temp.setParentId(-1);//默认原创 未找到关联的原创文章
-
-                temp.setUrl(res.getUrl());
-                temp.setTitle(res.getTitle());
-                temp.setTag(tagString);
-                temp.setTime(res.getTime());
-
-                temp.setSimhash(simhash);
-                temp.setUpdateTime(date);
-
-                operation = simRecordService.updateById(temp);
+                log.info("simRecordService.save: "+operation);
             }
         }
         //数据库失败
