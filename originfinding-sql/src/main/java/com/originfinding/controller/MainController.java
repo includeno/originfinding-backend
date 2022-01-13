@@ -102,7 +102,7 @@ public class MainController {
             SubmitResponse.SubmitResponseEntity entity=new SubmitResponse.SubmitResponseEntity();
             //redis判断此url在周期内是否存在 不存在则发送消息，存在则立即返回
             String res = "";
-            if(skipRedis!=true){
+            if(skipRedis.equals(Boolean.TRUE)){
                 res=stringRedisTemplate.opsForValue().get(url);
             }
             else {
