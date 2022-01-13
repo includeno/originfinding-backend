@@ -10,12 +10,18 @@ import org.springframework.kafka.config.TopicBuilder;
 @Configuration
 public class KafkaTopic {
     //Spark监听
+    public static final String sparklda ="sparklda";//Spark lda步骤处理
+
+    public static final String sparkldatask="sparkldatask";//Spark 执行最终筛选
+    public static final String sparktfidftask="sparktfidftask";//Spark 执行最终筛选
+
     public static final String sparktask ="sparktask";//Spark task
     public static final String sparkresult="sparkresult";//Spark 结果
     public static final String queue="queue";//批量读取n条kafka消息 请求聚合
 
     //普通网页爬虫监听
     public static final String commonpage="commonpage";
+
 
     @Bean
     public NewTopic commonpage() {
@@ -25,9 +31,26 @@ public class KafkaTopic {
                 .build();
     }
 
+
+
+    @Bean
+    public NewTopic sparklda() {
+        return TopicBuilder.name(KafkaTopic.sparklda)
+                .partitions(10)
+                .replicas(1)
+                .build();
+    }
     @Bean
     public NewTopic queue() {
-        return TopicBuilder.name(KafkaTopic.queue)
+        return TopicBuilder.name(KafkaTopic.sparkldatask)
+                .partitions(10)
+                .replicas(1)
+                .build();
+    }
+
+    @Bean
+    public NewTopic tfidf() {
+        return TopicBuilder.name(KafkaTopic.sparktfidftask)
                 .partitions(10)
                 .replicas(1)
                 .build();

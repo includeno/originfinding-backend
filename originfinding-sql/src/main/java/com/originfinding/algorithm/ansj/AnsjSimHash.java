@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.ansj.domain.Term;
 import org.ansj.recognition.impl.StopRecognition;
+import org.ansj.splitWord.analysis.NlpAnalysis;
 import org.ansj.splitWord.analysis.ToAnalysis;
 
 import java.math.BigInteger;
@@ -56,7 +57,7 @@ public class AnsjSimHash {
         token=token.toLowerCase(Locale.ROOT);//统一英文小写
         int[] v = new int[hashbits];
 
-        List<Term> termList = ToAnalysis.parse(token.toString().replaceAll(",", ""))
+        List<Term> termList = NlpAnalysis.parse(token.toString().replaceAll(",", ""))
                 .recognition(filter).getTerms(); // 对字符串进行分词
 
         //对分词的一些特殊处理 : 比如: 根据词性添加权重 , 过滤掉标点符号 , 过滤超频词汇等;
@@ -73,6 +74,10 @@ public class AnsjSimHash {
             String word = term.getName(); //分词字符串
             String nature = term.getNatureStr(); // 分词属性;
             //log.info("word: "+word+" nature:"+nature);
+            //过滤单个词
+            if(word.length()<=1){
+                continue;
+            }
             //  过滤超频词
             if (wordCount.containsKey(word)) {
                 int count = wordCount.get(word);

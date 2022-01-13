@@ -8,7 +8,8 @@ import com.originfinding.config.KafkaTopic;
 import com.originfinding.entity.SimRecord;
 import com.originfinding.entity.SpiderRecord;
 import com.originfinding.entity.UrlRecord;
-import com.originfinding.listener.message.SparkTaskMessage;
+import com.originfinding.listener.message.SparkLdaMessage;
+import com.originfinding.listener.message.SparkTfidfTaskMessage;
 import com.originfinding.service.sql.SimRecordService;
 import com.originfinding.service.sql.SpiderRecordService;
 import com.originfinding.service.feign.SpiderService;
@@ -78,7 +79,7 @@ public class MyKafkaListener {
         log.info("spider crawl:" + gson.toJson(res));
 
         //步骤2 保存当前url的爬虫记录
-        saveSpiderRecord(res);
+        //saveSpiderRecord(res);
 
         //步骤3 计算simhash 64位长度
         AnsjSimHash titleAnsjSimHash = new AnsjSimHash(res.getTitle());
@@ -96,19 +97,33 @@ public class MyKafkaListener {
         if (temp != null) {
             log.info("CommonpageConsumer db:" + gson.toJson(temp));
             //根据url查询数据库 因为不知道是更新还是
-            SparkTaskMessage sparkTaskMessage = SparkTaskMessage.fromSimRecord(temp, res.getContent());
+            SparkTfidfTaskMessage sparkTfidfTaskMessage = SparkTfidfTaskMessage.fromSimRecord(temp);
             //步骤6 任务添加至sparktask队列
-            kafkaTemplate.send(KafkaTopic.sparktask, gson.toJson(sparkTaskMessage)).addCallback(new SuccessCallback() {
+            kafkaTemplate.send(KafkaTopic.sparktfidftask, gson.toJson(sparkTfidfTaskMessage)).addCallback(new SuccessCallback() {
                 @Override
                 public void onSuccess(Object o) {
-                    log.info("sparktask send success " + res.getUrl());
+                    log.info("TfidfTask send success " + res.getUrl());
                 }
             }, new FailureCallback() {
                 @Override
                 public void onFailure(Throwable throwable) {
-                    log.error("sparktask send error " + res.getUrl() + " " + throwable.getMessage());
+                    log.error("TfidfTask send error " + res.getUrl() + " " + throwable.getMessage());
                 }
             });
+
+            SparkLdaMessage sparkLdaMessage=SparkLdaMessage.fromSimRecord(temp,res.getContent());
+            kafkaTemplate.send(KafkaTopic.sparklda, gson.toJson(sparkTfidfTaskMessage)).addCallback(new SuccessCallback() {
+                @Override
+                public void onSuccess(Object o) {
+                    log.info("sparklda send success " + res.getUrl());
+                }
+            }, new FailureCallback() {
+                @Override
+                public void onFailure(Throwable throwable) {
+                    log.error("sparklda send error " + res.getUrl() + " " + throwable.getMessage());
+                }
+            });
+
             kafkaTemplate.flush();
             //其余操作成功后添加至布隆过滤器
             if (!bloomFilter.contains(res.getUrl())) {
@@ -127,11 +142,10 @@ public class MyKafkaListener {
         //分词
         for (ConsumerRecord<String, String> temp : list) {
             log.info(temp.value());
-            SparkTaskMessage message = gson.fromJson(temp.value(), SparkTaskMessage.class);
+            SparkTfidfTaskMessage message = gson.fromJson(temp.value(), SparkTfidfTaskMessage.class);
 
         }
     }
-
 
     public void saveSpiderRecord(UrlRecord res) {
         Date date = new Date();
@@ -178,14 +192,17 @@ public class MyKafkaListener {
 
             temp.setUrl(res.getUrl());
             temp.setTitle(res.getTitle());
-            temp.setTag(tagString);
+            temp.setTag(res.getTag());
+            temp.setTfidftag(tagString);
             temp.setTime(res.getTime());
 
             temp.setSimhash(simhash);
             temp.setCreateTime(date);
             temp.setUpdateTime(date);
 
-            temp.setParentId(-1);//默认原创 未找到关联的原创文章
+            //默认原创 未找到关联的原创文章
+            temp.setSimparentId(-1);
+            temp.setEarlyparentId(-1);
             operation = simRecordService.save(temp);
             log.info("simRecordService.save: "+operation);
         }
@@ -196,11 +213,9 @@ public class MyKafkaListener {
             log.info("getOne " + gson.toJson(temp));
             if (temp != null) {
                 temp.setUrl(res.getUrl());
-                temp.setParentId(-1);//默认原创 未找到关联的原创文章
-
-                temp.setUrl(res.getUrl());
                 temp.setTitle(res.getTitle());
-                temp.setTag(tagString);
+                temp.setTfidftag(tagString);
+                temp.setTag(res.getTag());
                 temp.setTime(res.getTime());
 
                 temp.setSimhash(simhash);
@@ -210,19 +225,20 @@ public class MyKafkaListener {
             }
             else {
                 log.warn("simRecordService.getOne: error");
-
                 temp = new SimRecord();
 
                 temp.setUrl(res.getUrl());
                 temp.setTitle(res.getTitle());
-                temp.setTag(tagString);
+                temp.setTfidftag(tagString);
+                temp.setTag(res.getTag());
                 temp.setTime(res.getTime());
 
                 temp.setSimhash(simhash);
                 temp.setCreateTime(date);
                 temp.setUpdateTime(date);
-
-                temp.setParentId(-1);//默认原创 未找到关联的原创文章
+                //默认原创 未找到关联的原创文章
+                temp.setSimparentId(-1);
+                temp.setEarlyparentId(-1);
                 operation = simRecordService.save(temp);
                 log.info("simRecordService.save: "+operation);
             }

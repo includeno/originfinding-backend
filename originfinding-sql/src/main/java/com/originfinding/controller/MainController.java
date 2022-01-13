@@ -151,25 +151,39 @@ public class MainController {
                     entity.setUrl(url);
                     entity.setSim3(simRecord.getSim3());
                     entity.setSim4(simRecord.getSim4());
-                    entity.setSim5(simRecord.getSim5());
+
                     entity.setUpdateTime(simRecord.getUpdateTime());//此url已处理过并且有记录 已提交新的处理
-                    if(simRecord.getParentId().equals(-1)){
-                        entity.setParentUrl("");
-                    }
-                    else{
+                    //simparentId
+                    if(!simRecord.getSimparentId().equals(-1)){
                         //查询关联数据
                         QueryWrapper<SimRecord> parentQuery = new QueryWrapper();
-                        parentQuery.eq("id",simRecord.getParentId());
+                        parentQuery.eq("id",simRecord.getSimparentId());
                         SimRecord parent = simRecordService.getOne(parentQuery);
                         if(parent==null){
-                            log.info("/submit parent doesn't exist "+url);
-                            entity.setParentUrl("");
+                            log.info("/submit earlyparentId doesn't exist "+url);
+                            entity.setSimparentUrl("");
                         }
                         else{
-                            log.info("/submit parent exists "+url);
-                            entity.setParentUrl(parent.getUrl());
+                            log.info("/submit earlyparentId exists "+url);
+                            entity.setSimparentUrl(parent.getUrl());
                         }
                     }
+                    //earlyparentId
+                    if(!simRecord.getEarlyparentId().equals(-1)){
+                        //查询关联数据
+                        QueryWrapper<SimRecord> parentQuery = new QueryWrapper();
+                        parentQuery.eq("id",simRecord.getEarlyparentId());
+                        SimRecord parent = simRecordService.getOne(parentQuery);
+                        if(parent==null){
+                            log.info("/submit earlyparentId doesn't exist "+url);
+                            entity.setEarlyparentUrl("");
+                        }
+                        else{
+                            log.info("/submit earlyparentId exists "+url);
+                            entity.setEarlyparentUrl(parent.getUrl());
+                        }
+                    }
+
                     stringRedisTemplate.opsForValue().set(url,gson.toJson(entity), Duration.ofHours(24));//更新时过期时间设置长一些
                     answer.add(entity);
                 }
