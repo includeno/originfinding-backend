@@ -56,7 +56,6 @@ public class MyKafkaListener {
     String instance_id;
 
 
-
     @Transactional(rollbackFor = Exception.class)
     @KafkaListener(id = "CommonpageConsumer", topics = KafkaTopic.commonpage)
     public void listenCommonpage(String message) throws Exception {
@@ -76,25 +75,25 @@ public class MyKafkaListener {
             //投递重试topic
             return;
         }
-        log.info("spider crawl:"+gson.toJson(res));
+        log.info("spider crawl:" + gson.toJson(res));
 
         //步骤2 保存当前url的爬虫记录
         saveSpiderRecord(res);
 
         //步骤3 计算simhash 64位长度
-        AnsjSimHash titleAnsjSimHash=new AnsjSimHash(res.getTitle());
-        AnsjSimHash contentAnsjSimHash=new AnsjSimHash(res.getContent());
+        AnsjSimHash titleAnsjSimHash = new AnsjSimHash(res.getTitle());
+        AnsjSimHash contentAnsjSimHash = new AnsjSimHash(res.getContent());
 
         //步骤4 获取标签
-        List<WordPair> tagWordPair=countTags(titleAnsjSimHash,contentAnsjSimHash,res);
-        List<String> tags=tagWordPair.stream().map(pair->pair.getWord()).collect(Collectors.toList());
-        String tagString= gson.toJson(tags);
-        String simhash=contentAnsjSimHash.getStrSimHash().toString();
+        List<WordPair> tagWordPair = countTags(titleAnsjSimHash, contentAnsjSimHash, res);
+        List<String> tags = tagWordPair.stream().map(pair -> pair.getWord()).collect(Collectors.toList());
+        String tagString = gson.toJson(tags);
+        String simhash = contentAnsjSimHash.getStrSimHash().toString();
 
         //TODO redis 判断记录存在=>url转化为相同长度的hash值
         SimRecord temp = saveSimRecord(res, tagString, simhash);
         //步骤5 数据库操作成功
-        if (temp!=null) {
+        if (temp != null) {
             log.info("CommonpageConsumer db:" + gson.toJson(temp));
             //根据url查询数据库 因为不知道是更新还是
             SparkTaskMessage sparkTaskMessage = SparkTaskMessage.fromSimRecord(temp, res.getContent());
@@ -102,12 +101,12 @@ public class MyKafkaListener {
             kafkaTemplate.send(KafkaTopic.sparktask, gson.toJson(sparkTaskMessage)).addCallback(new SuccessCallback() {
                 @Override
                 public void onSuccess(Object o) {
-                    log.info("sparktask send success "+res.getUrl());
+                    log.info("sparktask send success " + res.getUrl());
                 }
             }, new FailureCallback() {
                 @Override
                 public void onFailure(Throwable throwable) {
-                    log.error("sparktask send error "+res.getUrl()+" "+throwable.getMessage());
+                    log.error("sparktask send error " + res.getUrl() + " " + throwable.getMessage());
                 }
             });
             kafkaTemplate.flush();
@@ -134,13 +133,13 @@ public class MyKafkaListener {
     }
 
 
-    public void saveSpiderRecord(UrlRecord res){
+    public void saveSpiderRecord(UrlRecord res) {
         Date date = new Date();
         //保存当前url的爬虫记录
         QueryWrapper<SpiderRecord> spiderQueryWrapper = new QueryWrapper();
         spiderQueryWrapper.eq("url", res.getUrl());
         SpiderRecord spiderRecord = spiderRecordService.getOne(spiderQueryWrapper);
-        log.info("spiderRecordService.getOne: "+gson.toJson(spiderRecord));
+        log.info("spiderRecordService.getOne: " + gson.toJson(spiderRecord));
         if (spiderRecord == null) {
             //无记录
             spiderRecord = new SpiderRecord();
@@ -153,20 +152,20 @@ public class MyKafkaListener {
 
             spiderRecord.setCreateTime(date);
             spiderRecord.setUpdateTime(date);
-            boolean op=spiderRecordService.save(spiderRecord);
-            log.info("spiderRecordService.save: "+op);
+            boolean op = spiderRecordService.save(spiderRecord);
+            log.info("spiderRecordService.save: " + op);
         } else {
             spiderRecord.setTag(res.getTag());
             spiderRecord.setContent(res.getContent());
             spiderRecord.setTime(res.getTime());
 
             spiderRecord.setUpdateTime(date);
-            boolean op=spiderRecordService.updateById(spiderRecord);
-            log.info("spiderRecordService.updateById: "+op);
+            boolean op = spiderRecordService.updateById(spiderRecord);
+            log.info("spiderRecordService.updateById: " + op);
         }
     }
 
-    public SimRecord saveSimRecord(UrlRecord res,String tagString,String simhash){
+    public SimRecord saveSimRecord(UrlRecord res, String tagString, String simhash) {
         Date date = new Date();
         //判断url存在于布隆过滤器中 很可能MySQL中
         boolean exist = bloomFilter.contains(res.getUrl());
@@ -174,22 +173,39 @@ public class MyKafkaListener {
         SimRecord temp = null;
         if (exist) {
             log.info("bloomFilter exists ");
-            //已存在记录
+            //布隆过滤器中已存在记录
             QueryWrapper<SimRecord> queryWrapper = new QueryWrapper();
             queryWrapper.eq("url", res.getUrl());
             temp = new SimRecord();
-            temp.setUrl(res.getUrl());
-            temp.setParentId(-1);//默认原创 未找到关联的原创文章
+            if (temp != null) {
+                temp.setUrl(res.getUrl());
+                temp.setParentId(-1);//默认原创 未找到关联的原创文章
 
-            temp.setUrl(res.getUrl());
-            temp.setTitle(res.getTitle());
-            temp.setTag(tagString);
-            temp.setTime(res.getTime());
+                temp.setUrl(res.getUrl());
+                temp.setTitle(res.getTitle());
+                temp.setTag(tagString);
+                temp.setTime(res.getTime());
 
-            temp.setSimhash(simhash);
-            temp.setUpdateTime(date);
+                temp.setSimhash(simhash);
+                temp.setUpdateTime(date);
+                operation = simRecordService.update(temp, queryWrapper);//按照url更新
+            } else {
+                //数据库不存在记录并且布隆过滤器中存在记录 非正常情况下
+                temp = new SimRecord();
 
-            operation = simRecordService.update(temp, queryWrapper);//按照url更新
+                temp.setUrl(res.getUrl());
+                temp.setTitle(res.getTitle());
+                temp.setTag(tagString);
+                temp.setTime(res.getTime());
+
+                temp.setSimhash(simhash);
+                temp.setCreateTime(date);
+                temp.setUpdateTime(date);
+
+                temp.setParentId(-1);//默认原创 未找到关联的原创文章
+                operation = simRecordService.save(temp);
+            }
+
         } else {
             log.info("bloomFilter doesn't exist ");
             QueryWrapper<SimRecord> queryWrapper = new QueryWrapper();
@@ -214,7 +230,6 @@ public class MyKafkaListener {
                 operation = simRecordService.save(temp);
             } else {
                 log.warn("查询到 已知url的SimRecord记录");
-                //测试环境下 布隆过滤器中未出现
                 temp.setParentId(-1);//默认原创 未找到关联的原创文章
 
                 temp.setUrl(res.getUrl());
@@ -229,10 +244,9 @@ public class MyKafkaListener {
             }
         }
         //数据库失败
-        if(operation==false){
-            temp=null;
-        }
-        else{
+        if (operation == false) {
+            temp = null;
+        } else {
             QueryWrapper<SimRecord> queryWrapper = new QueryWrapper();
             queryWrapper.eq("url", res.getUrl());
             temp = simRecordService.getOne(queryWrapper);
@@ -240,46 +254,46 @@ public class MyKafkaListener {
         return temp;
     }
 
-    public List<WordPair> countTags(AnsjSimHash title,AnsjSimHash content,UrlRecord res){
-        HashMap<String,WordPair> wordPairMap=new HashMap<>();
+    public List<WordPair> countTags(AnsjSimHash title, AnsjSimHash content, UrlRecord res) {
+        HashMap<String, WordPair> wordPairMap = new HashMap<>();
         //存储爬取的标签
-        if(res.getTag().length()>0){
-            List<String> tags=Arrays.asList(res.getTag().split(" "));
-            for(String tag:tags){
-                if(tag.replace(" ","").length()>0){
-                    WordPair pair=new WordPair(tag,5);
-                    wordPairMap.put(tag,pair);
+        if (res.getTag().length() > 0) {
+            List<String> tags = Arrays.asList(res.getTag().split(" "));
+            for (String tag : tags) {
+                if (tag.replace(" ", "").length() > 0) {
+                    WordPair pair = new WordPair(tag, 5);
+                    wordPairMap.put(tag, pair);
                 }
             }
         }
 
         List<WordPair> titleTags = title.getWordsPair();
-        for(WordPair pair:titleTags){
-            String tag=pair.getWord();
-            if(wordPairMap.get(tag)!=null){
-                WordPair newPair=wordPairMap.get(tag);
-                newPair.setCount(newPair.getCount()+pair.getCount());
-                wordPairMap.put(tag,newPair);
-            }
-            else{
-                wordPairMap.put(tag,pair);
+        for (WordPair pair : titleTags) {
+            String tag = pair.getWord();
+            if (wordPairMap.get(tag) != null) {
+                WordPair newPair = wordPairMap.get(tag);
+                newPair.setCount(newPair.getCount() + pair.getCount());
+                wordPairMap.put(tag, newPair);
+            } else {
+                wordPairMap.put(tag, pair);
             }
         }
 
         List<WordPair> contentTags = content.getWordsPair();
-        for(WordPair pair:contentTags){
-            String tag=pair.getWord();
-            if(wordPairMap.get(tag)!=null){
-                WordPair newPair=wordPairMap.get(tag);
-                newPair.setCount(newPair.getCount()+pair.getCount());
-                wordPairMap.put(tag,newPair);
-            }
-            else{
-                wordPairMap.put(tag,pair);
+        for (WordPair pair : contentTags) {
+            String tag = pair.getWord();
+            if (wordPairMap.get(tag) != null) {
+                WordPair newPair = wordPairMap.get(tag);
+                newPair.setCount(newPair.getCount() + pair.getCount());
+                wordPairMap.put(tag, newPair);
+            } else {
+                wordPairMap.put(tag, pair);
             }
         }
-        List<WordPair> allPair=wordPairMap.entrySet().stream().map(entry->entry.getValue()).collect(Collectors.toList());
-        List<WordPair> sortedPair=allPair.stream().sorted((a,b)->{return b.getCount()-a.getCount();}).collect(Collectors.toList());
+        List<WordPair> allPair = wordPairMap.entrySet().stream().map(entry -> entry.getValue()).collect(Collectors.toList());
+        List<WordPair> sortedPair = allPair.stream().sorted((a, b) -> {
+            return b.getCount() - a.getCount();
+        }).collect(Collectors.toList());
 
         return sortedPair;
     }

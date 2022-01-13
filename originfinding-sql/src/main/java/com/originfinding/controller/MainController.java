@@ -53,7 +53,7 @@ public class MainController {
     //submit 提交批处理请求
     @PostMapping("/submit")
     public SubmitResponse submit(SubmitRequest request) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        List<SubmitResponse.SubmitResponseEntity> answer=submitFunction(request);
+        List<SubmitResponse.SubmitResponseEntity> answer=submitFunction(request,false);
         SubmitResponse response=new SubmitResponse();
         response.setList(answer);
         log.info("/submit response:"+gson.toJson(response));
@@ -63,12 +63,29 @@ public class MainController {
     //schedule submit 提交批处理请求，省略返回值
     @PostMapping("/schedule/submit")
     public String submitSchedule(SubmitRequest request) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        submitFunction(request);
+        submitFunction(request,false);
         return "ok";
     }
 
+    //schedule submit 提交批处理请求，省略返回值
+    @PostMapping("/test/schedule/submit")
+    public String testSubmitSchedule(SubmitRequest request) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        submitFunction(request,true);
+        return "ok";
+    }
 
-    public List<SubmitResponse.SubmitResponseEntity> submitFunction(SubmitRequest request){
+    //submit 提交批处理请求
+    @PostMapping("/test/submit")
+    public SubmitResponse submitForTest(SubmitRequest request) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        List<SubmitResponse.SubmitResponseEntity> answer=submitFunction(request,true);
+        SubmitResponse response=new SubmitResponse();
+        response.setList(answer);
+        log.info("/submit response:"+gson.toJson(response));
+        return response;
+    }
+
+
+    public List<SubmitResponse.SubmitResponseEntity> submitFunction(SubmitRequest request,Boolean skipRedis){
         List<String> list = request.getList().stream().distinct().collect(Collectors.toList());//url过滤重复url
         log.info("/submit begin filter"+gson.toJson(list));
         List<String> ans = null;//筛选出符合条件的URl
@@ -79,13 +96,19 @@ public class MainController {
         }
         log.info("/submit end filter"+gson.toJson(ans));
 
-
         List<SubmitResponse.SubmitResponseEntity> answer = new ArrayList<>();
         Date now=new Date();
         for (String url : ans) {
             SubmitResponse.SubmitResponseEntity entity=new SubmitResponse.SubmitResponseEntity();
             //redis判断此url在周期内是否存在 不存在则发送消息，存在则立即返回
-            String res = stringRedisTemplate.opsForValue().get(url);
+            String res = "";
+            if(skipRedis!=true){
+                res=stringRedisTemplate.opsForValue().get(url);
+            }
+            else {
+                log.warn("skipRedis!");
+            }
+
             if (res!=null&&!res.equals("")) {
                 //TODO redis 周期内存在记录 读取redis内数据
                 log.info("/submit redis record exists "+url);
