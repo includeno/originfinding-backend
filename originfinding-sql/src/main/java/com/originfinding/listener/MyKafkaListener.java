@@ -112,7 +112,7 @@ public class MyKafkaListener {
             });
 
             SparkLdaMessage sparkLdaMessage=SparkLdaMessage.fromSimRecord(temp,res.getContent());
-            kafkaTemplate.send(KafkaTopic.sparklda, gson.toJson(sparkTfidfTaskMessage)).addCallback(new SuccessCallback() {
+            kafkaTemplate.send(KafkaTopic.sparklda, gson.toJson(sparkLdaMessage)).addCallback(new SuccessCallback() {
                 @Override
                 public void onSuccess(Object o) {
                     log.info("sparklda send success " + res.getUrl());
