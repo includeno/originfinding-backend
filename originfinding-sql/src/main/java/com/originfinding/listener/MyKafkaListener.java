@@ -9,6 +9,7 @@ import com.originfinding.entity.SimRecord;
 import com.originfinding.entity.SpiderRecord;
 import com.originfinding.entity.UrlRecord;
 import com.originfinding.enums.SpiderCode;
+import com.originfinding.listener.message.LdaMessage;
 import com.originfinding.listener.message.SparkLdaMessage;
 import com.originfinding.listener.message.SparkTaskMessage;
 import com.originfinding.listener.message.SparkTfidfTaskMessage;
@@ -108,17 +109,17 @@ public class MyKafkaListener {
         if (temp != null) {
             log.info("CommonpageConsumer db:" + gson.toJson(temp));
             //根据url查询数据库 因为不知道是更新还是
-            SparkTaskMessage sparkTaskMessage = SparkTaskMessage.fromSimRecord(temp);
+            LdaMessage ldaMessage = LdaMessage.fromSimRecord(temp,record.getContent());
             //步骤6 任务添加至sparktask队列
-            kafkaTemplate.send(KafkaTopic.sparktfidftask, gson.toJson(sparkTaskMessage)).addCallback(new SuccessCallback() {
+            kafkaTemplate.send(KafkaTopic.sparklda, gson.toJson(ldaMessage)).addCallback(new SuccessCallback() {
                 @Override
                 public void onSuccess(Object o) {
-                    log.info("TfidfTask send success " + record.getUrl());
+                    log.info("LdaMessage send success " + record.getUrl());
                 }
             }, new FailureCallback() {
                 @Override
                 public void onFailure(Throwable throwable) {
-                    log.error("TfidfTask send error " + record.getUrl() + " " + throwable.getMessage());
+                    log.error("LdaMessage send error " + record.getUrl() + " " + throwable.getMessage());
                 }
             });
 
