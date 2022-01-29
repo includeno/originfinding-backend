@@ -59,7 +59,8 @@ public class JianshuService implements ContentService, MatchService {
                 button.click();
             }
         } catch (NoSuchElementException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            log.warn("Unable to locate element: {\"method\":\"css selector\",\"selector\":\".nP21pp\"}");
         }
 
     }
