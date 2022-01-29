@@ -91,7 +91,7 @@ public class MyKafkaListener {
 
         UrlRecord record= response.getRecord();
         //步骤2 保存当前url的爬虫记录
-        saveSpiderRecord(record);
+        //saveSpiderRecord(record);
 
         //步骤3 计算simhash 64位长度
         AnsjSimHash titleAnsjSimHash = new AnsjSimHash(record.getTitle());
