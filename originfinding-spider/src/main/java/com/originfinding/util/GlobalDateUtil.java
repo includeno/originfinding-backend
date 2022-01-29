@@ -31,12 +31,21 @@ public class GlobalDateUtil {
     //转换格式 2018-08-15 18:18:20
     //适用网站 csdn
     public static Date convert3(String input) {
-        log.info("convert from convert3:"+input);
+        String patternFormat = "((19|20)[0-9]{2})-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01]) "
+                + "([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]";
+        Pattern pattern = Pattern.compile(patternFormat);
+        Matcher matcher = pattern.matcher(input);
+        String group=input;
+        if(matcher.find()){
+            group=matcher.group(0);
+        }
+        log.info("convert from convert3:"+group);
         SimpleDateFormat format = new SimpleDateFormat("yy-MM-dd hh:mm:ss");
         Date ans= null;
         try {
-            ans = format.parse(input);
+            ans = format.parse(group);
         } catch (ParseException e) {
+            ans=null;
             e.printStackTrace();
         }
         finally {
@@ -53,14 +62,16 @@ public class GlobalDateUtil {
         Pattern pattern = Pattern.compile(patternFormat);
         Matcher matcher = pattern.matcher(input);
         Date ans = null;
-        if (!matcher.matches()) {
-            return ans;
+        String group=input;
+        if(matcher.find()){
+            group=matcher.group(0);
         }
-        log.info("convert from convert2_1:" + input);
+        log.info("convert from convert2_1:" + group);
         SimpleDateFormat format = new SimpleDateFormat("yy/MM/dd hh:mm");
         try {
-            ans = format.parse(input);
+            ans = format.parse(group);
         } catch (ParseException e) {
+            ans=null;
             e.printStackTrace();
         } finally {
 
@@ -71,12 +82,21 @@ public class GlobalDateUtil {
     //转换格式 2021.11.19 17:08:03
     //适用网站 简书
     public static Date convertFull(String input) {
-        log.info("convertFull from:"+input);
+        String patternFormat = "((19|20)[0-9]{2}).(0?[1-9]|1[012]).(0?[1-9]|[12][0-9]|3[01]) "
+                + "([01]?[0-9]|2[0-3]):[0-5][0-9]";
+        Pattern pattern = Pattern.compile(patternFormat);
+        Matcher matcher = pattern.matcher(input);
+        Date ans = null;
+        String group=input;
+        if(matcher.find()){
+            group=matcher.group(0);
+        }
+        log.info("convertFull from:"+group);
         SimpleDateFormat format = new SimpleDateFormat("yy.MM.dd hh:mm:ss");
-        Date ans= null;
         try {
-            ans = format.parse(input);
+            ans = format.parse(group);
         } catch (ParseException e) {
+            ans=null;
             e.printStackTrace();
         }
         finally {

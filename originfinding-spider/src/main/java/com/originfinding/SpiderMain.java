@@ -24,10 +24,10 @@ public class SpiderMain {
             System.setProperty("webdriver.chrome.driver", "/tools/chromedriver");//linux
         }
         if(SystemConfig.isWindows()){
-            System.setProperty("webdriver.chrome.driver", "C:\\EnvironmentSoftwares\\chromedriver_win32\\chromedriver.exe");//windows
+            System.setProperty("webdriver.chrome.driver", "private/chromedriver.exe");//windows
         }
         if(SystemConfig.isMac()){
-            System.setProperty("webdriver.chrome.driver", "chromedriver");//mac
+            System.setProperty("webdriver.chrome.driver", "private/chromedriver");//mac
         }
 
         SpringApplication.run(SpiderMain.class, args);

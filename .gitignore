@@ -37,3 +37,4 @@ build/
 private
 compose/app.env
 */*/app.env
+private/chromedriver

@@ -164,6 +164,8 @@ public class CsdnService implements ContentService, MatchService {
         });
         String ans = content.getText();
         System.out.println("content.getText():"+content.getText());
+        //正则匹配获取字符串中的时间 于 2018-04-22 14:44:38 发布
+
         Date res = new Date();
         if (ans != null && !ans.equals("")) {
             res = GlobalDateUtil.convert3(ans);
