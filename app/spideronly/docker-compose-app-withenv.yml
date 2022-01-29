@@ -11,4 +11,4 @@ services:
       - consul_service_name=spider
       - consul_service_id=${machine_id}-spider1
       - server_port=8083
-      - spider_count=8
+      - spider_count=15

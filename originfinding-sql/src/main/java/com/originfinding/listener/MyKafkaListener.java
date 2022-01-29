@@ -111,7 +111,7 @@ public class MyKafkaListener {
             //根据url查询数据库 因为不知道是更新还是
             LdaMessage ldaMessage = LdaMessage.fromSimRecord(temp,record.getContent());
             //步骤6 任务添加至sparktask队列
-            kafkaTemplate.send(KafkaTopic.sparklda, gson.toJson(ldaMessage)).addCallback(new SuccessCallback() {
+            kafkaTemplate.send(KafkaTopic.sparklda,url, gson.toJson(ldaMessage)).addCallback(new SuccessCallback() {
                 @Override
                 public void onSuccess(Object o) {
                     log.info("LdaMessage send success " + record.getUrl());
