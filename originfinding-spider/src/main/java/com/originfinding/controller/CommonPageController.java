@@ -45,6 +45,7 @@ public class CommonPageController {
         else{
             response.setCode(SpiderCode.SPIDER_COUNT_LIMIT.getCode());//因为爬虫服务数量已满
         }
+        response.setRecord(record);
         return response;
     }
 }
