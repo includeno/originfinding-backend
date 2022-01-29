@@ -5,6 +5,7 @@ import com.originfinding.service.match.MatchService;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class UrlFilter {
 
@@ -29,7 +30,7 @@ public class UrlFilter {
                 }
             }
         }
-        return ans;
+        return ans.stream().distinct().collect(Collectors.toList());
     }
 
     public static String formatUrl(String url){
