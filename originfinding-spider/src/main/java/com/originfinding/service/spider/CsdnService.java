@@ -85,7 +85,7 @@ public class CsdnService implements ContentService, MatchService {
         }
         ans = content.getText();
         if (ans != null && !ans.equals("")) {
-            log.info("getMainContent completed:" + ans.length());
+            log.info("getMainContent completed: length " + ans.length());
             return ans;
         } else {
             log.error("getMainContent error:" + ans);

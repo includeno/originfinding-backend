@@ -1,19 +1,23 @@
 package com.originfinding;
 
 import com.originfinding.config.SystemConfig;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 import javax.annotation.PostConstruct;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.TimeZone;
 
 @EnableDiscoveryClient
 @SpringBootApplication
+@Slf4j
 public class SpiderMain {
 
     public static void main(String[] args) {
+        log.info("spider args:"+ Arrays.toString(args));
 
         //chromedriver http://npm.taobao.org/mirrors/chromedriver/
         if(SystemConfig.isLinux()){

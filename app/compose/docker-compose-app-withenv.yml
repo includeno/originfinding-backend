@@ -11,6 +11,7 @@ services:
       - consul_service_name=spider
       - consul_service_id=${machine_id}-spider1
       - server_port=8081
+      - spider_count=4
 
 
   spider2:
@@ -23,6 +24,7 @@ services:
       - consul_service_name=spider
       - consul_service_id=${machine_id}-spider2
       - server_port=8082
+      - spider_count=4
 
   api:
     image: includeno/originfinding-sql

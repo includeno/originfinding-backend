@@ -33,10 +33,12 @@ CREATE TABLE `sim_record` (
   `simhash` varchar(300) NOT NULL DEFAULT '',
   `create_time` datetime NOT NULL,
   `update_time` datetime NOT NULL,
-  `sim3` varchar(300) DEFAULT NULL,
-  `sim4` varchar(300) DEFAULT NULL,
+  `valid` int NOT NULL DEFAULT '1',
+  `simlevelfirst` varchar(300) DEFAULT NULL,
+  `simlevelsecond` varchar(300) DEFAULT NULL,
   `earlyparent_id` int NOT NULL DEFAULT '-1',
   `simparent_id` int NOT NULL DEFAULT '-1',
+  `manulparent_id` int NOT NULL DEFAULT '-1',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;

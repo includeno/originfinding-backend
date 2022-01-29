@@ -23,4 +23,5 @@ public class SpiderRecord {
 
     Date createTime;
     Date updateTime;
+    Integer valid;//记录 有效1 无效0
 }

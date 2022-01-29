@@ -8,8 +8,11 @@ import com.originfinding.config.KafkaTopic;
 import com.originfinding.entity.SimRecord;
 import com.originfinding.entity.SpiderRecord;
 import com.originfinding.entity.UrlRecord;
+import com.originfinding.enums.SpiderCode;
 import com.originfinding.listener.message.SparkLdaMessage;
+import com.originfinding.listener.message.SparkTaskMessage;
 import com.originfinding.listener.message.SparkTfidfTaskMessage;
+import com.originfinding.response.SpiderResponse;
 import com.originfinding.service.sql.SimRecordService;
 import com.originfinding.service.sql.SpiderRecordService;
 import com.originfinding.service.feign.SpiderService;
@@ -56,7 +59,6 @@ public class MyKafkaListener {
     @Value("${spring.cloud.consul.discovery.instance-id}")
     String instance_id;
 
-
     @Transactional(rollbackFor = Exception.class)
     @KafkaListener(id = "CommonpageConsumer", topics = KafkaTopic.commonpage)
     public void listenCommonpage(String message) throws Exception {
@@ -65,69 +67,57 @@ public class MyKafkaListener {
         String url = message;
 
         //步骤1 远程调用spider爬虫服务
-        UrlRecord res = api.crawl(url);
-        if (res == null) {
+        SpiderResponse response = api.crawl(url);
+        if (response == null) {
             log.error("error: 爬虫服务出错");
             return;
-        } else if (res.getContent() == null) {
+        } else if (response.getCode().equals(SpiderCode.SPIDER_COUNT_LIMIT.getCode())) {
             throw new Exception("爬虫服务处于暂时休息中");
-        } else if (res.getContent().length() == 0 || res.getTitle().length() == 0) {
-            log.error("error: 爬虫服务无法爬取此网页，请稍后重试" + gson.toJson(res));
+        } else if (response.getRecord().getContent().length() == 0 || response.getRecord().getTitle().length() == 0) {
+            log.error("error: 爬虫服务无法爬取此网页，请稍后重试" + gson.toJson(response));
             //投递重试topic
             return;
         }
-        log.info("spider crawl:" + gson.toJson(res));
+        log.info("spider crawl:" + gson.toJson(response));
 
+        UrlRecord record= response.getRecord();
         //步骤2 保存当前url的爬虫记录
-        //saveSpiderRecord(res);
+        saveSpiderRecord(record);
 
         //步骤3 计算simhash 64位长度
-        AnsjSimHash titleAnsjSimHash = new AnsjSimHash(res.getTitle());
-        AnsjSimHash contentAnsjSimHash = new AnsjSimHash(res.getContent());
+        AnsjSimHash titleAnsjSimHash = new AnsjSimHash(record.getTitle());
+        AnsjSimHash contentAnsjSimHash = new AnsjSimHash(record.getContent());
 
         //步骤4 获取标签
-        List<WordPair> tagWordPair = countTags(titleAnsjSimHash, contentAnsjSimHash, res);
+        List<WordPair> tagWordPair = countTags(titleAnsjSimHash, contentAnsjSimHash, record);
         List<String> tags = tagWordPair.stream().map(pair -> pair.getWord()).collect(Collectors.toList());
         String tagString = gson.toJson(tags);
         String simhash = contentAnsjSimHash.getStrSimHash().toString();
 
         //TODO redis 判断记录存在=>url转化为相同长度的hash值
-        SimRecord temp = saveSimRecord(res, tagString, simhash);
+        SimRecord temp = saveSimRecord(record, tagString, simhash);
         //步骤5 数据库操作成功
         if (temp != null) {
             log.info("CommonpageConsumer db:" + gson.toJson(temp));
             //根据url查询数据库 因为不知道是更新还是
-            SparkTfidfTaskMessage sparkTfidfTaskMessage = SparkTfidfTaskMessage.fromSimRecord(temp);
+            SparkTaskMessage sparkTaskMessage = SparkTaskMessage.fromSimRecord(temp);
             //步骤6 任务添加至sparktask队列
-            kafkaTemplate.send(KafkaTopic.sparktfidftask, gson.toJson(sparkTfidfTaskMessage)).addCallback(new SuccessCallback() {
+            kafkaTemplate.send(KafkaTopic.sparktfidftask, gson.toJson(sparkTaskMessage)).addCallback(new SuccessCallback() {
                 @Override
                 public void onSuccess(Object o) {
-                    log.info("TfidfTask send success " + res.getUrl());
+                    log.info("TfidfTask send success " + record.getUrl());
                 }
             }, new FailureCallback() {
                 @Override
                 public void onFailure(Throwable throwable) {
-                    log.error("TfidfTask send error " + res.getUrl() + " " + throwable.getMessage());
-                }
-            });
-
-            SparkLdaMessage sparkLdaMessage=SparkLdaMessage.fromSimRecord(temp,res.getContent());
-            kafkaTemplate.send(KafkaTopic.sparklda, gson.toJson(sparkLdaMessage)).addCallback(new SuccessCallback() {
-                @Override
-                public void onSuccess(Object o) {
-                    log.info("sparklda send success " + res.getUrl());
-                }
-            }, new FailureCallback() {
-                @Override
-                public void onFailure(Throwable throwable) {
-                    log.error("sparklda send error " + res.getUrl() + " " + throwable.getMessage());
+                    log.error("TfidfTask send error " + record.getUrl() + " " + throwable.getMessage());
                 }
             });
 
             kafkaTemplate.flush();
             //其余操作成功后添加至布隆过滤器
-            if (!bloomFilter.contains(res.getUrl())) {
-                bloomFilter.add(res.getUrl());
+            if (!bloomFilter.contains(record.getUrl())) {
+                bloomFilter.add(record.getUrl());
             }
         } else {
             log.error("CommonpageConsumer 数据库操作失败");
@@ -166,6 +156,10 @@ public class MyKafkaListener {
 
             spiderRecord.setCreateTime(date);
             spiderRecord.setUpdateTime(date);
+            spiderRecord.setValid(1);
+            if(res.getContent().length()==0||res.getTitle().length()==0){
+                spiderRecord.setValid(0);
+            }
             boolean op = spiderRecordService.save(spiderRecord);
             log.info("spiderRecordService.save: " + op);
         } else {
@@ -174,6 +168,10 @@ public class MyKafkaListener {
             spiderRecord.setTime(res.getTime());
 
             spiderRecord.setUpdateTime(date);
+            spiderRecord.setValid(1);
+            if(res.getContent().length()==0||res.getTitle().length()==0){
+                spiderRecord.setValid(0);
+            }
             boolean op = spiderRecordService.updateById(spiderRecord);
             log.info("spiderRecordService.updateById: " + op);
         }

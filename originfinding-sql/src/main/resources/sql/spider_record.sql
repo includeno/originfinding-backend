@@ -27,6 +27,7 @@ CREATE TABLE `spider_record` (
   `time` datetime NOT NULL,
   `create_time` datetime NOT NULL,
   `update_time` datetime NOT NULL,
+  `valid` int NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;

@@ -13,11 +13,11 @@ ENV consul_port="8500"
 ENV consul_service_name="spider"
 ENV consul_service_id="service"
 ENV server_port="8080"
-
+ENV spider_count="4"
 
 #add jar file
 ADD ${NAME}/target/${NAME}-${VERSION}.jar /app/application.jar
 #ENTRYPOINT ["java","-jar","/app/application.jar","--dockerconfig=true"]
-CMD java -jar /app/application.jar --server.port=${server_port} \
+CMD java -jar /app/application.jar --server.port=${server_port} --spider.count=${spider_count} \
  --spring.cloud.consul.host=${consul_host} --spring.cloud.consul.port=${consul_port} \
  --spring.cloud.consul.discovery.service-name=${consul_service_name} --spring.cloud.consul.discovery.instance-id=${consul_service_id}

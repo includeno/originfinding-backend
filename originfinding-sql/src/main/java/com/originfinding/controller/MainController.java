@@ -149,8 +149,8 @@ public class MainController {
                     log.info("/submit simRecord != null "+url);
                     //补充数据库数据
                     entity.setUrl(url);
-                    entity.setSim3(simRecord.getSim3());
-                    entity.setSim4(simRecord.getSim4());
+                    entity.setSim3(simRecord.getSimlevelfirst());
+                    entity.setSim4(simRecord.getSimlevelsecond());
 
                     entity.setUpdateTime(simRecord.getUpdateTime());//此url已处理过并且有记录 已提交新的处理
                     //simparentId

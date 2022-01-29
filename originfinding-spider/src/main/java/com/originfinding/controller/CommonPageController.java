@@ -1,8 +1,10 @@
 package com.originfinding.controller;
 
-import com.google.common.util.concurrent.RateLimiter;
 import com.google.gson.Gson;
+import com.originfinding.config.SpiderLimit;
 import com.originfinding.entity.UrlRecord;
+import com.originfinding.enums.SpiderCode;
+import com.originfinding.response.SpiderResponse;
 import com.originfinding.service.CommonPageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RestController
@@ -23,23 +23,22 @@ public class CommonPageController {
     @Autowired
     Gson gson;
 
-    //创建令牌桶
-    private RateLimiter rateLimiter= RateLimiter.create(2);//每1秒放行2个请求
-
     //读取网页的主要内容
     @PostMapping("/crawl")
-    public UrlRecord crawl(@RequestParam("url") String url) {
+    public SpiderResponse crawl(@RequestParam("url") String url) {
+        SpiderResponse response=new SpiderResponse();
         UrlRecord record = new UrlRecord();
         record.setUrl(url);
-        if (rateLimiter.tryAcquire(2, TimeUnit.SECONDS)) {
+        if (SpiderLimit.spiders.size()<SpiderLimit.countOfSpider&&!SpiderLimit.spiders.contains(url)) {
+            SpiderLimit.spiders.add(url);
             log.info("crawl begin:"+gson.toJson(record));
             record=commonPageService.crawl(record);
             log.info("crawl end:"+gson.toJson(record));
-            return record;
+            SpiderLimit.spiders.remove(url);
         }
         else{
-            record.setContent(null);//因为爬虫服务 休息间隔而暂停爬取
+            response.setCode(SpiderCode.SPIDER_COUNT_LIMIT.getCode());//因为爬虫服务数量已满
         }
-        return record;
+        return response;
     }
 }

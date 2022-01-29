@@ -1,6 +1,7 @@
 package com.originfinding.service.feign;
 
 import com.originfinding.entity.UrlRecord;
+import com.originfinding.response.SpiderResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -10,5 +11,5 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface SpiderService {
 
     @PostMapping("/crawl")
-    UrlRecord crawl(@RequestParam("url") String url) ;
+    SpiderResponse crawl(@RequestParam("url") String url) ;
 }
