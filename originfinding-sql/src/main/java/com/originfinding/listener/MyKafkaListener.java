@@ -76,7 +76,6 @@ public class MyKafkaListener {
         } else if (response.getCode().equals(SpiderCode.SPIDER_UNREACHABLE.getCode())) {
             log.error("error: 爬虫服务无法爬取此网页，请稍后重试" + gson.toJson(response));
             //如果之前爬取成功过 则标记valid为0
-            UrlRecord record= response.getRecord();
             QueryWrapper<SimRecord> queryWrapper = new QueryWrapper();
             queryWrapper.eq("url", url);
             SimRecord temp = simRecordService.getOne(queryWrapper);
