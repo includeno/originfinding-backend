@@ -80,9 +80,11 @@ public class MyKafkaListener {
             QueryWrapper<SimRecord> queryWrapper = new QueryWrapper();
             queryWrapper.eq("url", url);
             SimRecord temp = simRecordService.getOne(queryWrapper);
-            temp.setValid(0);
-            log.info("mark sim_record valid=0 :" + gson.toJson(temp));
-            simRecordService.updateById(temp);
+            if(temp!=null){
+                temp.setValid(0);
+                log.info("mark sim_record valid=0 :" + gson.toJson(temp));
+                simRecordService.updateById(temp);
+            }
             return;
         }
         log.info("spider crawl:" + gson.toJson(response));
