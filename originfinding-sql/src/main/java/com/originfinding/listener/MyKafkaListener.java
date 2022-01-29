@@ -73,9 +73,8 @@ public class MyKafkaListener {
             return;
         } else if (response.getCode().equals(SpiderCode.SPIDER_COUNT_LIMIT.getCode())) {
             throw new Exception("爬虫服务处于暂时休息中");
-        } else if (response.getRecord().getContent().length() == 0 || response.getRecord().getTitle().length() == 0) {
+        } else if (response.getCode().equals(SpiderCode.SPIDER_UNREACHABLE.getCode())) {
             log.error("error: 爬虫服务无法爬取此网页，请稍后重试" + gson.toJson(response));
-            //投递重试topic
             return;
         }
         log.info("spider crawl:" + gson.toJson(response));

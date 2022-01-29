@@ -1,6 +1,6 @@
 # dockercompose command for app
 
-root /originfinding-backend
+cd app/docker-compose
 
 ## pull
 ```

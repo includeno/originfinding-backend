@@ -35,6 +35,12 @@ public class CommonPageController {
             record=commonPageService.crawl(record);
             log.info("crawl end:"+gson.toJson(record));
             SpiderLimit.spiders.remove(url);
+            if(record!=null&&record.getTitle().length()>0&&record.getContent().length()>0){
+                response.setCode(SpiderCode.SUCCESS.getCode());
+            }
+            else {
+                response.setCode(SpiderCode.SPIDER_UNREACHABLE.getCode());
+            }
         }
         else{
             response.setCode(SpiderCode.SPIDER_COUNT_LIMIT.getCode());//因为爬虫服务数量已满

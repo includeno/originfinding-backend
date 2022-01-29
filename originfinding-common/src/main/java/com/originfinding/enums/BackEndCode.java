@@ -5,7 +5,7 @@ public enum BackEndCode {
     SUCCESS(200),
 
     ;
-    public int code;
+    private int code;
     BackEndCode(int code){
         this.code=code;
     }
