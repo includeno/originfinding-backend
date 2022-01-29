@@ -34,7 +34,13 @@ public class UrlFilter {
 
     public static String formatUrl(String url){
         if(url.endsWith("/")){
-            return url.substring(0,url.length()-1);
+            url=url.substring(0,url.length()-1);
+        }
+        if(url.contains("?")){
+            url=url.split("/?")[0];
+        }
+        if(url.contains("#")){
+            url=url.split("#")[0];
         }
         return url;
     }
