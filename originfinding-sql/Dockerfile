@@ -10,11 +10,14 @@ ENV NAME="originfinding-sql"
 #server
 ENV server_port="8080"
 
-#consul
+#Consul
 ENV consul_host="127.0.0.1"
 ENV consul_port="8500"
 ENV consul_service_name="api"
 ENV consul_service_id="service"
+
+#Admin
+ENV admin_server="127.0.0.1"
 
 #kafka
 ENV kafka_server="127.0.0.1:9092"
@@ -34,6 +37,7 @@ ENV redis_database="1"
 ADD ${NAME}/target/${NAME}-${VERSION}.jar /app/application.jar
 #ENTRYPOINT ["java","-jar","/app/application.jar","--dockerconfig=true"]
 CMD java -jar /app/application.jar --server.port=${server_port} \
+ --spring.boot.admin.client.url=${admin_server} \
  --spring.cloud.consul.host=${consul_host} --spring.cloud.consul.port=${consul_port} \
  --spring.cloud.consul.discovery.service-name=${consul_service_name} --spring.cloud.consul.discovery.instance-id=${consul_service_id} \
  --spring.kafka.bootstrap-servers=${kafka_server} \

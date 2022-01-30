@@ -7,13 +7,16 @@ WORKDIR /app
 ENV VERSION="1.0-SNAPSHOT"
 ENV NAME="originfinding-spider"
 
-#Environment
+#Server
+ENV server_port="8080"
+
+#Consul
 ENV consul_host="127.0.0.1"
 ENV consul_port="8500"
 ENV consul_service_name="spider"
 ENV consul_service_id="service"
-ENV server_port="8080"
-ENV spider_count="4"
+#Admin
+ENV admin_server="127.0.0.1"
 
 #kafka
 ENV kafka_server="127.0.0.1:9092"
@@ -23,10 +26,13 @@ ENV datasource='jdbc:mysql://127.0.0.1:3306/demo?useUnicode=true&characterEncodi
 ENV datasource_username='root'
 ENV datasource_password='root'
 
+ENV spider_count="4"
+
 #add jar file
 ADD ${NAME}/target/${NAME}-${VERSION}.jar /app/application.jar
 #ENTRYPOINT ["java","-jar","/app/application.jar","--dockerconfig=true"]
 CMD java -jar /app/application.jar --server.port=${server_port} --spider.count=${spider_count} \
+ --spring.boot.admin.client.url=${admin_server} \
  --spring.cloud.consul.host=${consul_host} --spring.cloud.consul.port=${consul_port} \
  --spring.kafka.bootstrap-servers=${kafka_server} \
  --spring.datasource.url="${datasource}" --spring.datasource.username=${datasource_username} --spring.datasource.password="${datasource_password}" \
