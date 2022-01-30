@@ -12,7 +12,7 @@ public class SpiderRecordServiceImpl extends ServiceImpl<SpiderRecordMapper, Spi
     @Autowired
     SpiderRecordMapper spiderRecordMapper;
 
-    public int getLastId(){
-        return spiderRecordMapper.getLastId();
+    public int getLastId(String url){
+        return spiderRecordMapper.getLastId(url);
     }
 }
