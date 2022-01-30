@@ -71,8 +71,15 @@ public class MyKafkaListener {
         String url=spiderRecord.getUrl();
         UrlRecord record=SpiderRecord.toUrlRecord(spiderRecord);
 
-        //步骤2 保存当前url的爬虫记录
-        //saveSpiderRecord(record);
+        if(spiderRecord.getValid().equals(0)){
+            QueryWrapper<SimRecord> queryWrapper = new QueryWrapper();
+            queryWrapper.eq("url", url);
+            SimRecord temp = simRecordService.getOne(queryWrapper);
+            temp.setValid(0);
+            simRecordService.updateById(temp);
+            log.warn("invalid url:"+url+" "+gson.toJson(spiderRecord));
+            return;
+        }
 
         //步骤3 计算simhash 64位长度
         AnsjSimHash titleAnsjSimHash = new AnsjSimHash(record.getTitle());

@@ -20,14 +20,14 @@ public class KafkaTopic {
     @Bean
     public NewTopic sparklda() {
         return TopicBuilder.name(KafkaTopic.sparklda)
-                .partitions(10)
+                .partitions(12)
                 .replicas(1)
                 .build();
     }
     @Bean
     public NewTopic sparkPairAnalyze() {
         return TopicBuilder.name(KafkaTopic.sparkPairAnalyze)
-                .partitions(10)
+                .partitions(12)
                 .replicas(1)
                 .build();
     }
@@ -35,7 +35,7 @@ public class KafkaTopic {
     @Bean
     public NewTopic tfidf() {
         return TopicBuilder.name(KafkaTopic.sparkPairAnalyzeResult)
-                .partitions(10)
+                .partitions(12)
                 .replicas(1)
                 .build();
     }
@@ -43,7 +43,7 @@ public class KafkaTopic {
     @Bean
     public NewTopic task() {
         return TopicBuilder.name(KafkaTopic.sparktask)
-                .partitions(10)
+                .partitions(12)
                 .replicas(1)
                 .build();
     }

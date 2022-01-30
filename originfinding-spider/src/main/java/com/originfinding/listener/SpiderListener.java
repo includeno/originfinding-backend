@@ -80,6 +80,9 @@ public class SpiderListener {
             }
             else {
                 response.setCode(SpiderCode.SPIDER_UNREACHABLE.getCode());
+                response.setRecord(record);
+                //保存数据
+                saveSpiderRecord(response.getRecord());
             }
         }
         else{
