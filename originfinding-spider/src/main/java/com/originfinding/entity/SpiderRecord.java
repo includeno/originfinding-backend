@@ -24,14 +24,4 @@ public class SpiderRecord {
     Date createTime;
     Date updateTime;
     Integer valid;//记录 有效1 无效0
-
-    public static UrlRecord toUrlRecord(SpiderRecord spiderRecord) {
-        UrlRecord urlRecord=new UrlRecord();
-        urlRecord.setUrl(spiderRecord.getUrl());
-        urlRecord.setContent(spiderRecord.getContent());
-        urlRecord.setTitle(spiderRecord.getTitle());
-        urlRecord.setTag(spiderRecord.getTag());
-        urlRecord.setTime(spiderRecord.getTime());
-        return urlRecord;
-    }
 }

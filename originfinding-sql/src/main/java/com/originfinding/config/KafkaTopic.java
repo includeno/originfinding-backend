@@ -17,20 +17,6 @@ public class KafkaTopic {
     public static final String sparkPairAnalyze="sparkPairAnalyze";//Spark 分析原创文章和非原创文章配对任务
     public static final String sparkPairAnalyzeResult="sparkPairAnalyzeResult";//Spark 分析原创文章和非原创文章配对 处理结果
 
-    //普通网页爬虫监听
-    public static final String commonpage="commonpage";
-
-
-    @Bean
-    public NewTopic commonpage() {
-        return TopicBuilder.name(KafkaTopic.commonpage)
-                .partitions(10)
-                .replicas(1)
-                .build();
-    }
-
-
-
     @Bean
     public NewTopic sparklda() {
         return TopicBuilder.name(KafkaTopic.sparklda)
@@ -39,7 +25,7 @@ public class KafkaTopic {
                 .build();
     }
     @Bean
-    public NewTopic queue() {
+    public NewTopic sparkPairAnalyze() {
         return TopicBuilder.name(KafkaTopic.sparkPairAnalyze)
                 .partitions(10)
                 .replicas(1)
@@ -58,6 +44,29 @@ public class KafkaTopic {
     public NewTopic task() {
         return TopicBuilder.name(KafkaTopic.sparktask)
                 .partitions(10)
+                .replicas(1)
+                .build();
+    }
+
+    //spider
+    public static final String spidertask ="spidertask";//spidertask
+    public static final String spiderresult="spiderresult";//spiderresult
+
+
+    @Bean
+    public NewTopic spidertask() {
+        return TopicBuilder.name(KafkaTopic.spidertask)
+                .partitions(12)
+                .replicas(1)
+                .build();
+    }
+
+
+
+    @Bean
+    public NewTopic spiderresult() {
+        return TopicBuilder.name(KafkaTopic.spiderresult)
+                .partitions(12)
                 .replicas(1)
                 .build();
     }

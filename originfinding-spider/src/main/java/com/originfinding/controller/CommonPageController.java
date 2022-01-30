@@ -26,14 +26,16 @@ public class CommonPageController {
     //读取网页的主要内容
     @PostMapping("/crawl")
     public SpiderResponse crawl(@RequestParam("url") String url) {
+        long start=System.currentTimeMillis();
+        log.info("crawl begin:"+url+" "+start);
         SpiderResponse response=new SpiderResponse();
         UrlRecord record = new UrlRecord();
         record.setUrl(url);
         if (SpiderLimit.spiders.size()<SpiderLimit.countOfSpider&&!SpiderLimit.spiders.contains(url)) {
             SpiderLimit.spiders.add(url);
-            log.info("crawl begin:"+gson.toJson(record));
+            log.info("commonPageService crawl begin:"+gson.toJson(record));
             record=commonPageService.crawl(record);
-            log.info("crawl end:"+gson.toJson(record));
+            log.info("commonPageService crawl end:"+gson.toJson(record));
             SpiderLimit.spiders.remove(url);
             if(record!=null&&record.getTitle().length()>0&&record.getContent().length()>0){
                 response.setCode(SpiderCode.SUCCESS.getCode());
@@ -46,6 +48,7 @@ public class CommonPageController {
             response.setCode(SpiderCode.SPIDER_COUNT_LIMIT.getCode());//因为爬虫服务数量已满
         }
         response.setRecord(record);
+        log.info("crawl end:"+url+" "+(System.currentTimeMillis()-start));
         return response;
     }
 }

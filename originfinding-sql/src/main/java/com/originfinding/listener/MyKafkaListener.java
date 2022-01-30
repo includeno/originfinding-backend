@@ -13,6 +13,7 @@ import com.originfinding.listener.message.LdaMessage;
 import com.originfinding.listener.message.SparkLdaMessage;
 import com.originfinding.listener.message.SparkTaskMessage;
 import com.originfinding.listener.message.SparkTfidfTaskMessage;
+import com.originfinding.message.SpiderResultMessage;
 import com.originfinding.response.SpiderResponse;
 import com.originfinding.service.sql.SimRecordService;
 import com.originfinding.service.sql.SpiderRecordService;
@@ -61,35 +62,15 @@ public class MyKafkaListener {
     String instance_id;
 
     @Transactional(rollbackFor = Exception.class)
-    @KafkaListener(id = "CommonpageConsumer", topics = KafkaTopic.commonpage)
+    @KafkaListener(id = "SpiderresultConsumer", topics = KafkaTopic.spiderresult)
     public void listenCommonpage(String message) throws Exception {
-        log.info("CommonpageConsumer receive:" + message);
-        //监听controller发送的消息 message=url
-        String url = message;
+        log.info("SpiderresultConsumer receive:" + message);
+        SpiderResultMessage spiderResultMessage=gson.fromJson(message,SpiderResultMessage.class);
 
-        //步骤1 远程调用spider爬虫服务
-        SpiderResponse response = api.crawl(url);
-        if (response == null) {
-            log.error("error: 爬虫服务出错");
-            return;
-        } else if (response.getCode().equals(SpiderCode.SPIDER_COUNT_LIMIT.getCode())) {
-            throw new Exception("爬虫服务处于暂时休息中");
-        } else if (response.getCode().equals(SpiderCode.SPIDER_UNREACHABLE.getCode())) {
-            log.error("error: 爬虫服务无法爬取此网页，请稍后重试" + gson.toJson(response));
-            //如果之前爬取成功过 则标记valid为0
-            QueryWrapper<SimRecord> queryWrapper = new QueryWrapper();
-            queryWrapper.eq("url", url);
-            SimRecord temp = simRecordService.getOne(queryWrapper);
-            if(temp!=null){
-                temp.setValid(0);
-                log.info("mark sim_record valid=0 :" + gson.toJson(temp));
-                simRecordService.updateById(temp);
-            }
-            return;
-        }
-        log.info("spider crawl:" + gson.toJson(response));
+        SpiderRecord spiderRecord = spiderRecordService.getById(spiderResultMessage.getId());
+        String url=spiderRecord.getUrl();
+        UrlRecord record=SpiderRecord.toUrlRecord(spiderRecord);
 
-        UrlRecord record= response.getRecord();
         //步骤2 保存当前url的爬虫记录
         //saveSpiderRecord(record);
 
@@ -107,7 +88,6 @@ public class MyKafkaListener {
         SimRecord temp = saveSimRecord(record, tagString, simhash);
         //步骤5 数据库操作成功
         if (temp != null) {
-            log.info("CommonpageConsumer db:" + gson.toJson(temp));
             //根据url查询数据库 因为不知道是更新还是
             LdaMessage ldaMessage = LdaMessage.fromSimRecord(temp,record.getContent());
             //步骤6 任务添加至sparktask队列

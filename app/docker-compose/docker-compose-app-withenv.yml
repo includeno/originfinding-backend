@@ -11,6 +11,10 @@ services:
       - consul_service_name=spider
       - consul_service_id=${machine_id}-spider1
       - server_port=8081
+      - kafka_server=${kafka_server}
+      - datasource=${datasource}
+      - datasource_username=${datasource_username}
+      - datasource_password=${datasource_password}
       - spider_count=8
 
   api:

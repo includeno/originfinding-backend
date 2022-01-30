@@ -121,15 +121,15 @@ public class MainController {
                 stringRedisTemplate.opsForValue().set(url,gson.toJson(entity), Duration.ofHours(1));
                 //redis 周期内不存在记录
                 //提交spark处理
-                kafkaTemplate.send(KafkaTopic.commonpage, url).addCallback(new SuccessCallback() {
+                kafkaTemplate.send(KafkaTopic.spidertask,url, url).addCallback(new SuccessCallback() {
                     @Override
                     public void onSuccess(Object o) {
-                        log.info("kafkaTemplate send success "+url);
+                        log.info("spidertask send success "+url);
                     }
                 }, new FailureCallback() {
                     @Override
                     public void onFailure(Throwable throwable) {
-                        log.error("kafkaTemplate send error "+url+" "+throwable.getMessage());
+                        log.error("spidertask send error "+url+" "+throwable.getMessage());
                     }
                 });
                 kafkaTemplate.flush();
