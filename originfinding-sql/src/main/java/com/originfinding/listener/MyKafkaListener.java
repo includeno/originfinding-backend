@@ -182,23 +182,40 @@ public class MyKafkaListener {
         //第一次
         if(exist==false){
             log.info("BloomFilter doesn't exist ");
-            temp = new SimRecord();
+            QueryWrapper<SimRecord> queryWrapper = new QueryWrapper();
+            queryWrapper.eq("url", res.getUrl());
+            temp = simRecordService.getOne(queryWrapper);
+            log.info("getOne " + gson.toJson(temp));
+            if (temp != null) {
+                temp.setUrl(res.getUrl());
+                temp.setTitle(res.getTitle());
+                temp.setTfidftag(tagString);
+                temp.setTag(res.getTag());
+                temp.setTime(res.getTime());
 
-            temp.setUrl(res.getUrl());
-            temp.setTitle(res.getTitle());
-            temp.setTag(res.getTag());
-            temp.setTfidftag(tagString);
-            temp.setTime(res.getTime());
+                temp.setSimhash(simhash);
+                temp.setUpdateTime(date);
+                operation = simRecordService.update(temp, queryWrapper);//按照url更新
+                log.info("simRecordService.update: "+operation);
+            }
+            else {
+                temp = new SimRecord();
 
-            temp.setSimhash(simhash);
-            temp.setCreateTime(date);
-            temp.setUpdateTime(date);
+                temp.setUrl(res.getUrl());
+                temp.setTitle(res.getTitle());
+                temp.setTfidftag(tagString);
+                temp.setTag(res.getTag());
+                temp.setTime(res.getTime());
 
-            //默认原创 未找到关联的原创文章
-            temp.setSimparentId(-1);
-            temp.setEarlyparentId(-1);
-            operation = simRecordService.save(temp);
-            log.info("simRecordService.save: "+operation);
+                temp.setSimhash(simhash);
+                temp.setCreateTime(date);
+                temp.setUpdateTime(date);
+                //默认原创 未找到关联的原创文章
+                temp.setSimparentId(-1);
+                temp.setEarlyparentId(-1);
+                operation = simRecordService.save(temp);
+                log.info("simRecordService.save: "+operation);
+            }
         }
         else{
             QueryWrapper<SimRecord> queryWrapper = new QueryWrapper();
