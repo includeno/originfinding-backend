@@ -53,7 +53,7 @@ public class MainController {
     //submit 提交批处理请求
     @PostMapping("/submit")
     public SubmitResponse submit(SubmitRequest request) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        List<SubmitResponse.SubmitResponseEntity> answer=submitFunction(request,false);
+        List<SubmitResponse.SubmitResponseEntity> answer=submitFunction(request,Boolean.FALSE);
         SubmitResponse response=new SubmitResponse();
         response.setList(answer);
         log.info("/submit response:"+gson.toJson(response));
@@ -63,21 +63,21 @@ public class MainController {
     //schedule submit 提交批处理请求，省略返回值
     @PostMapping("/schedule/submit")
     public String submitSchedule(SubmitRequest request) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        updateFunction(request,false);
+        updateFunction(request,Boolean.FALSE);
         return "ok";
     }
 
     //schedule submit 提交批处理请求，省略返回值
     @PostMapping("/test/schedule/submit")
     public String testSubmitSchedule(SubmitRequest request) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        submitFunction(request,true);
+        submitFunction(request,Boolean.TRUE);
         return "ok";
     }
 
     //submit 提交批处理请求
     @PostMapping("/test/submit")
     public SubmitResponse submitForTest(SubmitRequest request) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        List<SubmitResponse.SubmitResponseEntity> answer=submitFunction(request,true);
+        List<SubmitResponse.SubmitResponseEntity> answer=submitFunction(request,Boolean.TRUE);
         SubmitResponse response=new SubmitResponse();
         response.setList(answer);
         log.info("/submit response:"+gson.toJson(response));
