@@ -8,13 +8,9 @@ import com.originfinding.config.KafkaTopic;
 import com.originfinding.entity.SimRecord;
 import com.originfinding.entity.SpiderRecord;
 import com.originfinding.entity.UrlRecord;
-import com.originfinding.enums.SpiderCode;
 import com.originfinding.listener.message.LdaMessage;
-import com.originfinding.listener.message.SparkLdaMessage;
-import com.originfinding.listener.message.SparkTaskMessage;
 import com.originfinding.listener.message.SparkTfidfTaskMessage;
 import com.originfinding.message.SpiderResultMessage;
-import com.originfinding.response.SpiderResponse;
 import com.originfinding.service.sql.SimRecordService;
 import com.originfinding.service.sql.SpiderRecordService;
 import com.originfinding.service.feign.SpiderService;
@@ -95,10 +91,10 @@ public class MyKafkaListener {
         SimRecord temp = saveSimRecord(record, tagString, simhash);
         //步骤5 数据库操作成功
         if (temp != null) {
-            //根据url查询数据库 因为不知道是更新还是
+            //发送lda处理请求
             LdaMessage ldaMessage = LdaMessage.fromSimRecord(temp,record.getContent());
             //步骤6 任务添加至sparktask队列
-            kafkaTemplate.send(KafkaTopic.sparklda,url, gson.toJson(ldaMessage)).addCallback(new SuccessCallback() {
+            kafkaTemplate.send(KafkaTopic.submitsparklda,url, gson.toJson(ldaMessage)).addCallback(new SuccessCallback() {
                 @Override
                 public void onSuccess(Object o) {
                     log.info("LdaMessage send success " + record.getUrl());

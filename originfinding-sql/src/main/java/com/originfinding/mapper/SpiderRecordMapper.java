@@ -6,4 +6,5 @@ import org.springframework.stereotype.Component;
 
 @Component
 public interface SpiderRecordMapper extends BaseMapper<SpiderRecord> {
+    public int getLastId(String url);
 }

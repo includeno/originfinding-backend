@@ -13,13 +13,21 @@ public class KafkaTopic {
     public static final String sparktask ="sparktask";//Spark task
     public static final String sparkresult="sparkresult";//Spark 结果
 
-    public static final String sparklda ="sparklda";//Spark lda步骤处理
+    public static final String updateRedis ="updateRedis";//跳过爬虫部分直接获取最新爬取结果进行Spark lda步骤
+    public static final String submitsparklda ="submitsparklda";//Spark lda步骤处理 提交
     public static final String sparkPairAnalyze="sparkPairAnalyze";//Spark 分析原创文章和非原创文章配对任务
     public static final String sparkPairAnalyzeResult="sparkPairAnalyzeResult";//Spark 分析原创文章和非原创文章配对 处理结果
 
     @Bean
+    public NewTopic updateRedis() {
+        return TopicBuilder.name(KafkaTopic.updateRedis)
+                .partitions(12)
+                .replicas(1)
+                .build();
+    }
+    @Bean
     public NewTopic sparklda() {
-        return TopicBuilder.name(KafkaTopic.sparklda)
+        return TopicBuilder.name(KafkaTopic.submitsparklda)
                 .partitions(12)
                 .replicas(1)
                 .build();
