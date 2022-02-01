@@ -22,6 +22,18 @@ public class RedissonConfig {
     @Value("${spring.redis.password:}")
     private String redisPassword;
 
+    @Value("${spring.redis.database:}")
+    private Integer database;
+
+    @Value("${spring.redis.pool.minidle}")
+    private int connectionMinimumIdleSize = 4;//从节点最小空闲连接数）
+    @Value("${spring.redis.pool.subminidle}")
+    private int subscriptionConnectionMinimumIdleSize = 1; //从节点发布和订阅连接的最小空闲连接数）
+    @Value("${spring.redis.pool.maxidle}")
+    private int subscriptionConnectionPoolSize = 24; //（从节点发布和订阅连接池大小）
+    @Value("${spring.redis.pool.maxactive}")
+    private int connectionPoolSize = 48;//连接池大小）
+
     /**
      * RedissonClient bean
      *
@@ -35,7 +47,11 @@ public class RedissonConfig {
         config.setCodec(new JsonJacksonCodec())
                 .useSingleServer()
                 .setAddress("redis://" + redisHost + ":" + redisPort)
-                .setPassword(redisPassword).setConnectionMinimumIdleSize(10);
+                .setPassword(redisPassword).setDatabase(database)
+                .setConnectionMinimumIdleSize(connectionMinimumIdleSize)
+                .setSubscriptionConnectionMinimumIdleSize(subscriptionConnectionMinimumIdleSize)
+                .setSubscriptionConnectionPoolSize(subscriptionConnectionPoolSize)
+                .setConnectionPoolSize(connectionPoolSize);
         return Redisson.create(config);
     }
 }
