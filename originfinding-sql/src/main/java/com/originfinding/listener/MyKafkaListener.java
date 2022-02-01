@@ -218,7 +218,6 @@ public class MyKafkaListener {
                 log.info("simRecordService.update: "+operation);
             }
             else {
-                log.warn("simRecordService.getOne: error");
                 temp = new SimRecord();
 
                 temp.setUrl(res.getUrl());

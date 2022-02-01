@@ -51,7 +51,8 @@ public class RedissonConfig {
                 .setConnectionMinimumIdleSize(connectionMinimumIdleSize)
                 .setSubscriptionConnectionMinimumIdleSize(subscriptionConnectionMinimumIdleSize)
                 .setSubscriptionConnectionPoolSize(subscriptionConnectionPoolSize)
-                .setConnectionPoolSize(connectionPoolSize);
+                .setConnectionPoolSize(connectionPoolSize)
+                .setConnectTimeout(300000);
         return Redisson.create(config);
     }
 }
