@@ -35,6 +35,7 @@ public class RedisUpdateListener {
 
     @KafkaListener(id = "UpdateRedisConsumer", topics = KafkaTopic.updateRedis)
     public void updateRedis(String message) throws Exception {
+        log.info("updateRedis:"+message);
         String url=message;
         //查询上一次的爬虫记录id
         Integer id=spiderRecordService.getLastId(url);
