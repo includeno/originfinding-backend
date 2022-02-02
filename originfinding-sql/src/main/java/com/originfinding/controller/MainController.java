@@ -101,13 +101,7 @@ public class MainController {
         for (String url : ans) {
             SubmitResponse.SubmitResponseEntity entity=new SubmitResponse.SubmitResponseEntity();
             //redis判断此url在周期内是否存在 不存在则发送消息，存在则立即返回
-            String res = "";
-            if(skipRedis.equals(Boolean.TRUE)){
-                res=stringRedisTemplate.opsForValue().get(url);
-            }
-            else {
-                log.warn("skipRedis!");
-            }
+            String res =stringRedisTemplate.opsForValue().get(url);
 
             if (res!=null&&!res.equals("")) {
                 //TODO redis 周期内存在记录 读取redis内数据
@@ -115,7 +109,7 @@ public class MainController {
                 entity=gson.fromJson(res,SubmitResponse.SubmitResponseEntity.class);
                 answer.add(entity);
                 //发送更新请求
-                kafkaTemplate.send(KafkaTopic.updateRedis,url, url).addCallback(new SuccessCallback() {
+                kafkaTemplate.send(KafkaTopic.updateRedis, url).addCallback(new SuccessCallback() {
                     @Override
                     public void onSuccess(Object o) {
                         log.info("spidertask send success "+url);
@@ -133,7 +127,7 @@ public class MainController {
                 stringRedisTemplate.opsForValue().set(url,gson.toJson(entity), Duration.ofHours(7*24));
                 //redis 周期内不存在记录
                 //提交spark处理
-                kafkaTemplate.send(KafkaTopic.spidertask,url, url).addCallback(new SuccessCallback() {
+                kafkaTemplate.send(KafkaTopic.spidertask, url).addCallback(new SuccessCallback() {
                     @Override
                     public void onSuccess(Object o) {
                         log.info("spidertask send success "+url);
@@ -231,7 +225,7 @@ public class MainController {
                 //TODO redis 周期内存在记录 读取redis内数据
                 log.info("/submit redis record exists "+url);
                 //发送更新请求
-                kafkaTemplate.send(KafkaTopic.updateRedis,url, url).addCallback(new SuccessCallback() {
+                kafkaTemplate.send(KafkaTopic.updateRedis, url).addCallback(new SuccessCallback() {
                     @Override
                     public void onSuccess(Object o) {
                         log.info("spidertask send success "+url);
@@ -249,7 +243,7 @@ public class MainController {
                 stringRedisTemplate.opsForValue().set(url,gson.toJson(entity), Duration.ofHours(7*24));
                 //redis 周期内不存在记录
                 //提交spark处理
-                kafkaTemplate.send(KafkaTopic.spidertask,url, url).addCallback(new SuccessCallback() {
+                kafkaTemplate.send(KafkaTopic.spidertask, url).addCallback(new SuccessCallback() {
                     @Override
                     public void onSuccess(Object o) {
                         log.info("spidertask send success "+url);

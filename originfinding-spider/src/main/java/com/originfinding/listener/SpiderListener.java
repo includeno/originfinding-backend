@@ -65,7 +65,7 @@ public class SpiderListener {
                 Integer id=spiderRecordService.getLastId(url);
                 spiderResultMessage.setId(id);
                 //步骤6 任务添加至sparktask队列
-                kafkaTemplate.send(KafkaTopic.spiderresult,url, gson.toJson(spiderResultMessage)).addCallback(new SuccessCallback() {
+                kafkaTemplate.send(KafkaTopic.spiderresult, gson.toJson(spiderResultMessage)).addCallback(new SuccessCallback() {
                     @Override
                     public void onSuccess(Object o) {
                         log.info("SpiderResultMessage send success " + url);

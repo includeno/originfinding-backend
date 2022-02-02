@@ -55,7 +55,7 @@ public class RedisUpdateListener {
             //发送lda处理请求
             LdaMessage ldaMessage = LdaMessage.fromSimRecord(temp,record.getContent());
             //步骤6 任务添加至sparktask队列
-            kafkaTemplate.send(KafkaTopic.sparklda,url, gson.toJson(ldaMessage)).addCallback(new SuccessCallback() {
+            kafkaTemplate.send(KafkaTopic.sparklda, gson.toJson(ldaMessage)).addCallback(new SuccessCallback() {
                 @Override
                 public void onSuccess(Object o) {
                     log.info("LdaMessage send success " + record.getUrl());
