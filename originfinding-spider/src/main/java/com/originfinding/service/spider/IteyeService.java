@@ -110,7 +110,27 @@ public class IteyeService implements ContentService, MatchService {
         }
         res=new Date();
         return res;
+    }
 
-
+    @Override
+    public Integer getView(WebDriver chrome, String url) {
+        WebElement bottom = chrome.findElement(By.className("blog_bottom"));
+        List<WebElement> list = bottom.findElements(By.tagName("li"));
+        Integer view=-1;
+        for (WebElement entry : list) {
+            String ans = entry.getText();
+            if(ans.startsWith("浏览")){
+                try {
+                    ans= ans.split(" ")[1];
+                    view=Integer.parseInt(ans);
+                    log.info("getView completed " + view);
+                    return view;
+                }
+                catch (Exception e){
+                    continue;
+                }
+            }
+        }
+        return view;
     }
 }

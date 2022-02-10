@@ -24,4 +24,7 @@ public interface ContentService {
 
     //抓取时间的方法
     Date getTime(WebDriver chrome, String url);
+
+    //抓取浏览量的方法
+    Integer getView(WebDriver chrome, String url);
 }

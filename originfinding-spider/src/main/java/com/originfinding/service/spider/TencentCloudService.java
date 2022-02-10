@@ -132,4 +132,31 @@ public class TencentCloudService implements MatchService, ContentService {
         log.info("getTime completed:" + res);
         return res;
     }
+
+    @Override
+    public Integer getView(WebDriver chrome, String url) {
+        WebElement content = chrome.findElement(By.className("article-info"));
+        Integer view=-1;
+        String ans = content.getText();
+        if(ans.startsWith("阅读")){
+            try {
+                ans=ans.split(" ")[1];
+                if(ans.endsWith("K")){
+                    ans=ans.split("K")[0];
+                    Double base=Double.parseDouble(ans);
+                    view=(int)(base*1000);
+                    log.info("getView completed " + view);
+                }
+                else{
+                    view=Integer.parseInt(ans);
+                    log.info("getView completed " + view);
+                }
+                return view;
+            }
+            catch (Exception e){
+                log.info("getView error ");
+            }
+        }
+        return view;
+    }
 }

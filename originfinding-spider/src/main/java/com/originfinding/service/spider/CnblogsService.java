@@ -129,5 +129,15 @@ public class CnblogsService implements ContentService, MatchService {
         return res;
     }
 
+    @Override
+    public Integer getView(WebDriver chrome, String url) {
+        WebElement content = chrome.findElement(By.id("post_view_count"));
+        String ans = content.getText();
+        Integer view=-1;
+        view=Integer.parseInt(ans);
+        log.info("getView completed " + view);
+        return view;
+    }
+
 
 }

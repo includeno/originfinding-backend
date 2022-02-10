@@ -138,5 +138,12 @@ public class ZhihuzhuanlanService implements ContentService, MatchService {
         log.info("getTime completed " + res.toString());
         return res;
     }
+
+    @Override
+    public Integer getView(WebDriver chrome, String url) {
+        //非公开数据
+        Integer view=-1;
+        return view;
+    }
 }
 

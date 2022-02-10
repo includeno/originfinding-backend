@@ -10,18 +10,15 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
-@Service
 @Slf4j
-public class OschinaService implements ContentService, MatchService {
+public class ItpubService implements MatchService, ContentService {
     public static final String[] patterns = new String[]{
-            "https://my.oschina.net/(.+)/blog/(.+)",//https://my.oschina.net/xcafe/blog/5389937
-            "https://my.oschina.net/u/(.+)/blog/(.+)",//https://my.oschina.net/u/729507/blog/78144
+            "http://blog.itpub.net/(.+)/(.+)",//http://blog.itpub.net/70012008/viewspace-2855203/
     };
 
     @Override
@@ -37,7 +34,7 @@ public class OschinaService implements ContentService, MatchService {
 
     @Override
     public WebDriver getDriver() {
-        WebDriver chrome = SeleniumConfig.getWebDriver(false);
+        WebDriver chrome = SeleniumConfig.getWebDriver(true);
         return chrome;
     }
 
@@ -47,7 +44,7 @@ public class OschinaService implements ContentService, MatchService {
         WebElement searchInput = wait.until(new ExpectedCondition<WebElement>() {
             @Override
             public WebElement apply(WebDriver text) {
-                return text.findElement(By.className("article-box__content"));
+                return text.findElement(By.id("doc-content"));
             }
         });
         log.info("wait article completed");
@@ -55,7 +52,7 @@ public class OschinaService implements ContentService, MatchService {
 
     @Override
     public String getMainContent(WebDriver chrome, String url) {
-        WebElement content = chrome.findElement(By.className("article-box__content"));
+        WebElement content = chrome.findElement(By.id("doc-content"));
         String ans = content.getText();
         if (ans != null && !ans.equals("")) {
             log.info("getMainContent completed:" + ans.length());
@@ -68,7 +65,7 @@ public class OschinaService implements ContentService, MatchService {
 
     @Override
     public String getTitle(WebDriver chrome, String url) {
-        WebElement content = chrome.findElement(By.className("article-box__title"));
+        WebElement content = chrome.findElement(By.className("preview-title"));
         String ans = content.getText();
         if (ans != null && !ans.equals("")) {
             log.info("getTitle completed " + ans);
@@ -82,64 +79,35 @@ public class OschinaService implements ContentService, MatchService {
     @Override
     public String getTag(WebDriver chrome, String url) {
         String ans = "";
+
         return ans;
     }
 
     @Override
     public Date getTime(WebDriver chrome, String url) {
-        //class item匹配时间
-        List<WebElement> list = chrome.findElements(By.className("lm"));
-        Date res = null;
-        for (WebElement element : list) {
-            String ans = element.getText();
-            ans=ans.strip();
+        //class mess 寻找时间
+        List<WebElement> mess = chrome.findElements(By.className("mess"));
+        Date res = new Date();
+        for(WebElement content:mess){
+            String ans = content.getText();
             if (ans != null && !ans.equals("")) {
-                try{
-                    log.warn("getTime item:"+ans);
-                    res = GlobalDateUtil.convert2_1(ans);
+                res = GlobalDateUtil.convert3(ans);
+                if(res!=null){
                     break;
-                }
-                catch (Exception e){
-                    continue;
                 }
             }
         }
-        if(res==null){
-            log.error("getTime error no matches");
-        }
-        else{
-            log.info("getTime completed "+res);
-        }
+        log.info("getTime completed " + res.toString());
         return res;
     }
 
     @Override
     public Integer getView(WebDriver chrome, String url) {
+        WebElement content = chrome.findElement(By.className("icon-see"));
+        String ans = content.getText();
         Integer view=-1;
-
-        List<WebElement> list = chrome.findElements(By.className("lm"));
-        for (WebElement element : list) {
-            String ans = element.getText();
-            if (ans != null && ans.startsWith("阅读数")) {
-                try{
-                    ans=ans.split(" ")[1];
-                    if(ans.endsWith("K")){
-                        ans=ans.split("K")[0];
-                        Double base=Double.parseDouble(ans);
-                        view=(int)(base*1000);
-                        log.info("getView completed " + view);
-                    }
-                    else{
-                        view=Integer.parseInt(ans);
-                        log.info("getView completed " + view);
-                    }
-                    return view;
-                }
-                catch (Exception e){
-                    continue;
-                }
-            }
-        }
+        view=Integer.parseInt(ans);
+        log.info("getView completed " + view);
         return view;
     }
 

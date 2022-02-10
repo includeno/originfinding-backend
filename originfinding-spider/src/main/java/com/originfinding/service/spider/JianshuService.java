@@ -11,6 +11,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Pattern;
 
 @Slf4j
@@ -112,10 +113,32 @@ public class JianshuService implements ContentService, MatchService {
         String ans = content.getText();
         Date res = new Date();
         if (ans != null && !ans.equals("")) {
-            res = GlobalDateUtil.convertFull(ans);
+            res = GlobalDateUtil.convertFull_3(ans);
         }
         log.info("getTime completed:" + res.toString());
         return res;
+    }
+
+    @Override
+    public Integer getView(WebDriver chrome, String url) {
+        //寻找 阅读 49,528
+        List<WebElement> list = chrome.findElements(By.tagName("span"));
+        Integer view=-1;
+        for(WebElement content:list){
+            String ans = content.getText();
+            if(ans.startsWith("阅读")){
+                try {
+                    ans=ans.split(" ")[1];
+                    view=Integer.parseInt(ans);
+                    log.info("getView completed " + view);
+                    return view;
+                }
+                catch (Exception e){
+                    continue;
+                }
+            }
+        }
+        return view;
     }
 
 }

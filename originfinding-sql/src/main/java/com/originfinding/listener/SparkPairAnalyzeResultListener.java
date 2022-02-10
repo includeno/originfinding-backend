@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
+
 @Slf4j
 @Configuration
 public class SparkPairAnalyzeResultListener {
@@ -34,6 +36,7 @@ public class SparkPairAnalyzeResultListener {
         simrecord.setSimlevelsecond(pairTaskResultMessage.getSimlevelsecond());
         simrecord.setSimparentId(pairTaskResultMessage.getSimparentId());
         simrecord.setEarlyparentId(pairTaskResultMessage.getEarlyparentId());
+        simrecord.setUpdateTime(new Date());
         boolean operation=simRecordService.updateById(simrecord);
         log.info("PairAnalyzeResult update:"+operation);
 
