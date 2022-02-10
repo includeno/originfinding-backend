@@ -8,14 +8,12 @@ import com.originfinding.config.KafkaTopic;
 import com.originfinding.entity.SimRecord;
 import com.originfinding.entity.SpiderRecord;
 import com.originfinding.entity.UrlRecord;
-import com.originfinding.listener.message.LdaMessage;
-import com.originfinding.listener.message.SparkTfidfTaskMessage;
+import com.originfinding.listener.message.PairTaskMessage;
 import com.originfinding.message.SpiderResultMessage;
 import com.originfinding.service.sql.SimRecordService;
 import com.originfinding.service.sql.SpiderRecordService;
 import com.originfinding.service.feign.SpiderService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.redisson.api.RBloomFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -91,10 +89,10 @@ public class MyKafkaListener {
         SimRecord temp = saveSimRecord(record, tagString, simhash);
         //步骤5 数据库操作成功
         if (temp != null) {
-            //发送lda处理请求
-            LdaMessage ldaMessage = LdaMessage.fromSimRecord(temp,record.getContent());
+            //发送pair处理请求
+            PairTaskMessage pairTaskMessage = PairTaskMessage.fromSimRecord(temp);
             //步骤6 任务添加至sparktask队列
-            kafkaTemplate.send(KafkaTopic.sparklda, gson.toJson(ldaMessage)).addCallback(new SuccessCallback() {
+            kafkaTemplate.send(KafkaTopic.sparkPairAnalyze, gson.toJson(pairTaskMessage)).addCallback(new SuccessCallback() {
                 @Override
                 public void onSuccess(Object o) {
                     log.info("LdaMessage send success " + record.getUrl());
@@ -116,17 +114,6 @@ public class MyKafkaListener {
             throw new Exception("数据库操作失败");
         }
 
-    }
-
-    //@KafkaListener(id = "QueueConsumer", topics = KafkaTopic.queue, containerFactory = "batchFactory")
-    public void listenQueue(List<ConsumerRecord<String, String>> list) {
-        log.info("QueueConsumer receive :" + list.size());
-        //分词
-        for (ConsumerRecord<String, String> temp : list) {
-            log.info(temp.value());
-            SparkTfidfTaskMessage message = gson.fromJson(temp.value(), SparkTfidfTaskMessage.class);
-
-        }
     }
 
     public void saveSpiderRecord(UrlRecord res) {
@@ -185,9 +172,9 @@ public class MyKafkaListener {
             if (temp != null) {
                 temp.setUrl(res.getUrl());
                 temp.setTitle(res.getTitle());
-                temp.setTfidftag(tagString);
                 temp.setTag(res.getTag());
                 temp.setTime(res.getTime());
+                temp.setView(res.getView());
 
                 temp.setSimhash(simhash);
                 temp.setUpdateTime(date);
@@ -199,9 +186,9 @@ public class MyKafkaListener {
 
                 temp.setUrl(res.getUrl());
                 temp.setTitle(res.getTitle());
-                temp.setTfidftag(tagString);
                 temp.setTag(res.getTag());
                 temp.setTime(res.getTime());
+                temp.setView(res.getView());
 
                 temp.setSimhash(simhash);
                 temp.setCreateTime(date);
@@ -221,9 +208,9 @@ public class MyKafkaListener {
             if (temp != null) {
                 temp.setUrl(res.getUrl());
                 temp.setTitle(res.getTitle());
-                temp.setTfidftag(tagString);
                 temp.setTag(res.getTag());
                 temp.setTime(res.getTime());
+                temp.setView(res.getView());
 
                 temp.setSimhash(simhash);
                 temp.setUpdateTime(date);
@@ -235,9 +222,9 @@ public class MyKafkaListener {
 
                 temp.setUrl(res.getUrl());
                 temp.setTitle(res.getTitle());
-                temp.setTfidftag(tagString);
                 temp.setTag(res.getTag());
                 temp.setTime(res.getTime());
+                temp.setView(res.getView());
 
                 temp.setSimhash(simhash);
                 temp.setCreateTime(date);

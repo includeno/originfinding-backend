@@ -1,5 +1,6 @@
 package com.originfinding.listener.message;
 
+import com.originfinding.entity.SimRecord;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -13,27 +14,26 @@ public class PairTaskMessage implements Serializable {
     String title;//文章标题
     String tag;//文章显示的标签
     Date time;//文章时间
+    Integer view=-1;//文章浏览量 -1代表无法获取数据
     Integer valid;//记录 有效1 无效0
 
-    String tfidftag;//根据LDA计算的标签
-    String ldatag;//根据LDA计算的标签
     String simhash;
     Date updateTime;
 
-    public static PairTaskMessage fromLdaMessage(LdaMessage message){
-        PairTaskMessage pairTaskMessage =new PairTaskMessage();
-        pairTaskMessage.setId(message.getId());
+    public static PairTaskMessage fromSimRecord(SimRecord temp) {
+        PairTaskMessage pairTaskMessage=new PairTaskMessage();
+        pairTaskMessage.setId(temp.getId());
 
-        pairTaskMessage.setUrl(message.getUrl());
-        pairTaskMessage.setTag(message.getTag());
-        pairTaskMessage.setTitle(message.getTitle());
-        pairTaskMessage.setTime(message.getTime());
-        pairTaskMessage.setValid(message.getValid());
+        pairTaskMessage.setUrl(temp.getUrl());
+        pairTaskMessage.setTitle(temp.getTitle());
+        pairTaskMessage.setTag(temp.getTag());
+        pairTaskMessage.setTime(temp.getTime());
+        pairTaskMessage.setView(temp.getView());
+        pairTaskMessage.setId(temp.getId());
 
-        pairTaskMessage.setSimhash(message.getSimhash());
-        pairTaskMessage.setLdatag(message.getLdatag());
-        pairTaskMessage.setTfidftag(message.getTfidftag());
-        pairTaskMessage.setUpdateTime(message.getUpdateTime());
+        pairTaskMessage.setSimhash(temp.getSimhash());
+        pairTaskMessage.setUpdateTime(temp.getUpdateTime());
+
         return pairTaskMessage;
     }
 }

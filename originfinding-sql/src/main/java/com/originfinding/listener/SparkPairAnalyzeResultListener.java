@@ -29,9 +29,6 @@ public class SparkPairAnalyzeResultListener {
         PairTaskResultMessage pairTaskResultMessage=gson.fromJson(message, PairTaskResultMessage.class);
         SimRecord simrecord = simRecordService.getById(pairTaskResultMessage.getId());
 
-        simrecord.setTfidftag(pairTaskResultMessage.getTfidftag());
-        simrecord.setLdatag(pairTaskResultMessage.getLdatag());
-
         simrecord.setSimlevelfirst(pairTaskResultMessage.getSimlevelfirst());
         simrecord.setSimlevelsecond(pairTaskResultMessage.getSimlevelsecond());
         simrecord.setSimparentId(pairTaskResultMessage.getSimparentId());

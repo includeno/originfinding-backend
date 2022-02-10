@@ -101,6 +101,7 @@ public class SpiderListener {
         spiderRecord.setTag(res.getTag());
         spiderRecord.setTitle(res.getTitle());
         spiderRecord.setContent(res.getContent());
+        spiderRecord.setView(res.getView());
         spiderRecord.setTime(res.getTime());
 
         spiderRecord.setCreateTime(date);

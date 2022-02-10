@@ -8,8 +8,6 @@ import java.io.Serializable;
 public class PairTaskResultMessage implements Serializable {
     Integer id;
 
-    String tfidftag;//根据LDA计算的标签
-    String ldatag;//根据LDA计算的标签
     //特征指标
     String simlevelfirst ="";
     String simlevelsecond ="";

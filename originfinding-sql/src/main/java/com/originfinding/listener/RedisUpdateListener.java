@@ -6,7 +6,7 @@ import com.originfinding.config.KafkaTopic;
 import com.originfinding.entity.SimRecord;
 import com.originfinding.entity.SpiderRecord;
 import com.originfinding.entity.UrlRecord;
-import com.originfinding.listener.message.LdaMessage;
+import com.originfinding.listener.message.PairTaskMessage;
 import com.originfinding.service.sql.SimRecordService;
 import com.originfinding.service.sql.SpiderRecordService;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.concurrent.FailureCallback;
 import org.springframework.util.concurrent.SuccessCallback;
 
@@ -53,9 +52,9 @@ public class RedisUpdateListener {
         SimRecord temp = simRecordService.getOne(queryWrapper);
         if(temp!=null &&temp.getValid()==1){
             //发送lda处理请求
-            LdaMessage ldaMessage = LdaMessage.fromSimRecord(temp,record.getContent());
+            PairTaskMessage pairTaskMessage = PairTaskMessage.fromSimRecord(temp);
             //步骤6 任务添加至sparktask队列
-            kafkaTemplate.send(KafkaTopic.sparklda, gson.toJson(ldaMessage)).addCallback(new SuccessCallback() {
+            kafkaTemplate.send(KafkaTopic.sparkPairAnalyze, gson.toJson(pairTaskMessage)).addCallback(new SuccessCallback() {
                 @Override
                 public void onSuccess(Object o) {
                     log.info("LdaMessage send success " + record.getUrl());

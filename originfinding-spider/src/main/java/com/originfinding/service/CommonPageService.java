@@ -103,10 +103,13 @@ public class CommonPageService {
                     Method getMainContent = c.getMethod("getMainContent", new Class[]{WebDriver.class, String.class});
                     String content = (String) getMainContent.invoke(service, chrome, url);
                     record.setContent(content);
-                    log.warn("record:" + gson.toJson(record));
+
+                    Method getView = c.getMethod("getView", new Class[]{WebDriver.class, String.class});
+                    Integer view = (Integer) getView.invoke(service, chrome, url);
+                    record.setView(view);
+
+                    log.warn("record: len+" +record.getContent().length()+" time"+record.getTime());
                     break;//在找到匹配的爬虫之后跳出循环节省时间
-                } else {
-                    log.info("not match:" + c.getClass());
                 }
             } catch (NoSuchMethodException e) {
                 e.printStackTrace();

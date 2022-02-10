@@ -19,6 +19,7 @@ public class SpiderRecord {
     String title="";//文章标题
     String tag="";//文章显示的标签
     String content="";//文章内容
+    Integer view=-1;//文章浏览量
     Date time;//文章时间
 
     Date createTime;
@@ -30,6 +31,7 @@ public class SpiderRecord {
         urlRecord.setUrl(spiderRecord.getUrl());
         urlRecord.setContent(spiderRecord.getContent());
         urlRecord.setTitle(spiderRecord.getTitle());
+        urlRecord.setView(spiderRecord.getView());
         urlRecord.setTag(spiderRecord.getTag());
         urlRecord.setTime(spiderRecord.getTime());
         return urlRecord;

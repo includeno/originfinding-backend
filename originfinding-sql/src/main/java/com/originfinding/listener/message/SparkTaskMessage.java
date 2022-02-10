@@ -30,8 +30,6 @@ public class SparkTaskMessage {
         sparkTfidfTaskMessage.setTime(simRecord.getTime());
         sparkTfidfTaskMessage.setValid(simRecord.getValid());
 
-        sparkTfidfTaskMessage.setTfidftag(simRecord.getTfidftag());
-        sparkTfidfTaskMessage.setLdatag(simRecord.getLdatag());
         sparkTfidfTaskMessage.setSimhash(simRecord.getSimhash());
         sparkTfidfTaskMessage.setUpdateTime(simRecord.getUpdateTime());
 

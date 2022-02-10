@@ -19,6 +19,7 @@ public class SpiderRecord {
     String title="";//文章标题
     String tag="";//文章显示的标签
     String content="";//文章内容
+    Integer view=-1;//文章浏览量
     Date time;//文章时间
 
     Date createTime;

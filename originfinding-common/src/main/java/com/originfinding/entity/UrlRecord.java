@@ -11,4 +11,5 @@ public class UrlRecord {
     String content;//文章主体内容
     String tag;//文章显示标注的tag 不一定存在
     Date time;//文章时间
+    Integer view=-1;//文章浏览量 -1代表无法获取数据
 }

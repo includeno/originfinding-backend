@@ -25,6 +25,7 @@ CREATE TABLE `spider_record` (
   `tag` varchar(300) NOT NULL DEFAULT '',
   `content` mediumtext,
   `time` datetime ,
+  `view` int NOT NULL DEFAULT '-1',
   `create_time` datetime NOT NULL,
   `update_time` datetime NOT NULL,
   `valid` int NOT NULL DEFAULT '1',

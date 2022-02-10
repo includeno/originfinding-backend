@@ -17,10 +17,8 @@ public class SimRecord {
     String url="";//文章地址
     String title="";//文章标题
     String tag="";//文章显示的标签
+    Integer view=-1;//文章浏览量 -1代表无法获取数据
     Date time;//文章时间
-
-    String tfidftag;//根据频率计算的标签
-    String ldatag;//根据LDA计算的标签
 
     String simhash="";
     Date createTime;
