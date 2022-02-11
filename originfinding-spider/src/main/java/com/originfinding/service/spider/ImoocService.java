@@ -5,9 +5,7 @@ import com.originfinding.service.ContentService;
 import com.originfinding.service.MatchService;
 import com.originfinding.util.GlobalDateUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -48,6 +46,21 @@ public class ImoocService implements MatchService, ContentService {
             }
         });
         log.info("wait article completed");
+        //class showMore
+        //拉到页面底部
+        JavascriptExecutor javascriptExecutor = (JavascriptExecutor) chrome;
+        javascriptExecutor.executeScript("window.scrollTo(0, document.body.scrollHeight)");
+        //class nP21pp 展开阅读全文
+        try {
+            WebElement button = chrome.findElement(By.className("showMore"));
+            if (button != null) {
+                log.warn("检测到showMore按钮");
+                button.click();
+            }
+        } catch (NoSuchElementException e) {
+            //e.printStackTrace();
+            log.warn("Unable to locate element: {\"method\":\"css selector\",\"selector\":\".showMore\"}");
+        }
     }
 
     @Override
