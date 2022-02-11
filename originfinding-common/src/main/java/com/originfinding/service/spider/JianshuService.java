@@ -14,8 +14,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
-@Slf4j
 @Service
+@Slf4j
 public class JianshuService implements ContentService, MatchService {
     public static final String[] patterns = new String[]{
             "https://www.jianshu.com/p/(.+)",//https://www.jianshu.com/p/f0ad0f80fd2c
