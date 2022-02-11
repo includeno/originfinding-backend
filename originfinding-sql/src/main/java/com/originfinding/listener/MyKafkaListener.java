@@ -12,7 +12,6 @@ import com.originfinding.listener.message.PairTaskMessage;
 import com.originfinding.message.SpiderResultMessage;
 import com.originfinding.service.sql.SimRecordService;
 import com.originfinding.service.sql.SpiderRecordService;
-import com.originfinding.service.feign.SpiderService;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBloomFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +30,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Configuration
 public class MyKafkaListener {
-    @Autowired
-    SpiderService api;
 
     @Autowired
     SimRecordService simRecordService;

@@ -1,6 +1,4 @@
-package com.originfinding.service.match;
-
-import lombok.extern.slf4j.Slf4j;
+package com.originfinding.service;
 
 import java.net.MalformedURLException;
 import java.net.URL;

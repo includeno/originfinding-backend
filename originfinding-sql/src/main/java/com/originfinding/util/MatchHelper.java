@@ -1,6 +1,6 @@
 package com.originfinding.util;
 
-import com.originfinding.service.match.MatchService;
+import com.originfinding.service.MatchService;
 import lombok.extern.slf4j.Slf4j;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;

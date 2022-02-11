@@ -1,6 +1,6 @@
 package com.originfinding.util;
 
-import com.originfinding.service.match.MatchService;
+import com.originfinding.service.MatchService;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;

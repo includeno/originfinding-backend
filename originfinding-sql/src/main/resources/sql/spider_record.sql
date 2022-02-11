@@ -31,15 +31,4 @@ CREATE TABLE `spider_record` (
   `valid` int NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `spider_record`
---
-
-LOCK TABLES `sim_record` WRITE;
-/*!40000 ALTER TABLE `spider_record` DISABLE KEYS */;
-/*!40000 ALTER TABLE `spider_record` ENABLE KEYS */;
-UNLOCK TABLES;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
