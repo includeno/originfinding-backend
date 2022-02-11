@@ -20,14 +20,5 @@ public class RedisBloomFilterConfig {
         return filter;
     }
 
-    @Autowired
-    RBloomFilter<String> bloomFilter;
 
-    public void test(String url){
-
-        boolean exist=bloomFilter.contains(url);
-        if(exist){
-            return;
-        }
-    }
 }
