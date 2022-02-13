@@ -19,7 +19,7 @@ import org.springframework.util.concurrent.SuccessCallback;
 
 @Slf4j
 @Configuration
-public class RedisUpdateListener {
+public class UpdateSparkListener {
     @Autowired
     SimRecordService simRecordService;
 
@@ -32,7 +32,7 @@ public class RedisUpdateListener {
     @Autowired
     KafkaTemplate kafkaTemplate;
 
-    @KafkaListener(id = "UpdateRedisConsumer", topics = KafkaTopic.updateSpark)
+    @KafkaListener(id = "UpdateSparkConsumer", topics = KafkaTopic.updateSpark)
     public void updateSpark(String message) throws Exception {
         log.info("updateSpark:"+message);
         String url=message;

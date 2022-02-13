@@ -61,7 +61,11 @@ public class MyKafkaListener {
         SpiderResultMessage spiderResultMessage=gson.fromJson(message,SpiderResultMessage.class);
 
         SpiderRecord spiderRecord = spiderRecordService.getById(spiderResultMessage.getId());
-        String url=spiderRecord.getUrl();
+        log.warn("spiderRecord:"+gson.toJson(spiderRecord));
+        if(spiderRecord==null){
+            return;
+        }
+        String url=spiderResultMessage.getUrl();
         UrlRecord record=SpiderRecord.toUrlRecord(spiderRecord);
 
         if(spiderRecord.getValid().equals(0)){

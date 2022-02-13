@@ -5,4 +5,5 @@ import lombok.Data;
 @Data
 public class SpiderResultMessage {
     Integer id;
+    String url;
 }
