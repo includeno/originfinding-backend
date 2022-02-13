@@ -107,7 +107,8 @@ public class MainController {
             String spiderValue =stringRedisTemplate.opsForValue().get(RedisKey.spiderKey(url));
             if (spiderValue!=null&&!spiderValue.equals("")) {
                 log.info("/submit redis spider record exists "+url);
-                entity=gson.fromJson(spiderValue,SubmitResponse.SubmitResponseEntity.class);
+                String responseValue =stringRedisTemplate.opsForValue().get(RedisKey.responseKey(url));
+                entity=gson.fromJson(responseValue,SubmitResponse.SubmitResponseEntity.class);
                 answer.add(entity);
                 //发送更新请求
                 kafkaTemplate.send(KafkaTopic.updateSpark, url).addCallback(new SuccessCallback() {
