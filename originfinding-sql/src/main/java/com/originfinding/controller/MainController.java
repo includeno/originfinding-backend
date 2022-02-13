@@ -224,7 +224,7 @@ public class MainController {
             else {
                 log.info("/submit redis record doesn't exist "+url);
                 //TODO redis内添加周期数据
-                stringRedisTemplate.opsForValue().set(url,gson.toJson(entity), Duration.ofHours(7*24));
+                stringRedisTemplate.opsForValue().set(RedisKey.spiderKey(url),gson.toJson(entity), Duration.ofHours(7*24));
                 //redis 周期内不存在记录
                 //提交spark处理
                 kafkaTemplate.send(KafkaTopic.spidertask, url).addCallback(new SuccessCallback() {
@@ -249,7 +249,7 @@ public class MainController {
                     log.info("/submit simRecord == null "+url);
                     entity.setUrl(url);
                     entity.setUpdateTime(null);//标记为未处理状态
-                    stringRedisTemplate.opsForValue().set(url,gson.toJson(entity), Duration.ofHours(7*24));//首次处理时过期时间设置短一些
+                    stringRedisTemplate.opsForValue().set(RedisKey.responseKey(url),gson.toJson(entity), Duration.ofHours(7*24));//首次处理时过期时间设置短一些
                 } else {
                     log.info("/submit simRecord != null "+url);
                     //补充数据库数据
@@ -288,7 +288,7 @@ public class MainController {
                             entity.setEarlyparentUrl(parent.getUrl());
                         }
                     }
-                    stringRedisTemplate.opsForValue().set(url,gson.toJson(entity), Duration.ofHours(7*24));//更新时过期时间设置长一些
+                    stringRedisTemplate.opsForValue().set(RedisKey.responseKey(url),gson.toJson(entity), Duration.ofHours(7*24));//更新时过期时间设置长一些
                 }
             }
         }

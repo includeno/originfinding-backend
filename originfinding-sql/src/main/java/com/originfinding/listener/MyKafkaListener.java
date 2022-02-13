@@ -98,7 +98,7 @@ public class MyKafkaListener {
             kafkaTemplate.send(KafkaTopic.sparkPairAnalyze, gson.toJson(pairTaskMessage)).addCallback(new SuccessCallback() {
                 @Override
                 public void onSuccess(Object o) {
-                    log.info("PairTaskMessage send success " + record.getUrl());
+                    log.info("PairTaskMessage send success " + record.getUrl()+" "+gson.toJson(pairTaskMessage));
                     //爬虫任务成功后再更新Redis内缓存数据
                     stringRedisTemplate.opsForValue().set(RedisKey.spiderKey(url),gson.toJson(new Date()), Duration.ofHours(7*24));
                 }
