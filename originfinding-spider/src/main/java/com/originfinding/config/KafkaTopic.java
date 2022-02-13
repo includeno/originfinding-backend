@@ -17,7 +17,7 @@ public class KafkaTopic {
     @Bean
     public NewTopic spidertask() {
         return TopicBuilder.name(KafkaTopic.spidertask)
-                .partitions(12)
+                .partitions(100)
                 .replicas(1)
                 .build();
     }
@@ -27,7 +27,7 @@ public class KafkaTopic {
     @Bean
     public NewTopic spiderresult() {
         return TopicBuilder.name(KafkaTopic.spiderresult)
-                .partitions(12)
+                .partitions(100)
                 .replicas(1)
                 .build();
     }

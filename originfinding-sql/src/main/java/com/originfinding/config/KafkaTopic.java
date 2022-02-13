@@ -21,7 +21,7 @@ public class KafkaTopic {
     @Bean
     public NewTopic updateSpark() {
         return TopicBuilder.name(KafkaTopic.updateSpark)
-                .partitions(12)
+                .partitions(100)
                 .replicas(1)
                 .build();
     }
@@ -29,23 +29,23 @@ public class KafkaTopic {
     @Bean
     public NewTopic sparkPairAnalyze() {
         return TopicBuilder.name(KafkaTopic.sparkPairAnalyze)
-                .partitions(12)
+                .partitions(100)
                 .replicas(1)
                 .build();
     }
 
     @Bean
-    public NewTopic tfidf() {
+    public NewTopic sparkPairAnalyzeResult() {
         return TopicBuilder.name(KafkaTopic.sparkPairAnalyzeResult)
-                .partitions(12)
+                .partitions(100)
                 .replicas(1)
                 .build();
     }
 
     @Bean
-    public NewTopic task() {
+    public NewTopic sparktask() {
         return TopicBuilder.name(KafkaTopic.sparktask)
-                .partitions(12)
+                .partitions(100)
                 .replicas(1)
                 .build();
     }
@@ -53,21 +53,4 @@ public class KafkaTopic {
     //spider
     public static final String spidertask ="spidertask";//spidertask
     public static final String spiderresult="spiderresult";//spiderresult
-
-
-    @Bean
-    public NewTopic spidertask() {
-        return TopicBuilder.name(KafkaTopic.spidertask)
-                .partitions(12)
-                .replicas(1)
-                .build();
-    }
-
-    @Bean
-    public NewTopic spiderresult() {
-        return TopicBuilder.name(KafkaTopic.spiderresult)
-                .partitions(12)
-                .replicas(1)
-                .build();
-    }
 }
