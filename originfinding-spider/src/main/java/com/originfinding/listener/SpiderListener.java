@@ -52,7 +52,13 @@ public class SpiderListener {
             SpiderLimit.spiders.add(url);
             record=commonPageService.crawl(record);
             SpiderLimit.spiders.remove(url);
-            if(record!=null&&record.getTitle().length()>0&&record.getContent().length()>0){
+            if(record!=null&&(record.getTitle()==null||record.getContent()==null)){
+                response.setCode(SpiderCode.SPIDER_UNREACHABLE.getCode());
+                response.setRecord(record);
+                //保存数据
+                saveSpiderRecord(response.getRecord());
+            }
+            else if(record!=null&&record.getTitle().length()>0&&record.getContent().length()>0){
                 response.setCode(SpiderCode.SUCCESS.getCode());
 
                 response.setRecord(record);
@@ -107,11 +113,14 @@ public class SpiderListener {
         spiderRecord.setCreateTime(date);
         spiderRecord.setUpdateTime(date);
         spiderRecord.setValid(1);
-        if(res.getContent().length()==0||res.getTitle().length()==0){
-            spiderRecord.setValid(0);
+        if(res.getContent()==null||res.getTitle()==null||res.getContent().length()==0||res.getTitle().length()==0){
+            spiderRecord.setValid(0);//无效文本
+        }
+        else if(res.getContent().length()<150){
+            spiderRecord.setValid(2);//短文本
         }
         boolean op = spiderRecordService.save(spiderRecord);
-        log.info("spiderRecordService.save: " + op);
+        log.info("spiderRecordService.save: " + op+" valid:"+spiderRecord.getValid());
     }
 
     public void saveSpiderRecordOld(UrlRecord res) {

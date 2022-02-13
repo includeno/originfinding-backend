@@ -3,6 +3,7 @@ package com.originfinding.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.gson.Gson;
 import com.originfinding.config.KafkaTopic;
+import com.originfinding.config.RedisKey;
 import com.originfinding.entity.SimRecord;
 import com.originfinding.request.QueryRequest;
 import com.originfinding.request.SubmitRequest;
@@ -102,16 +103,14 @@ public class MainController {
         Date now=new Date();
         for (String url : ans) {
             SubmitResponse.SubmitResponseEntity entity=new SubmitResponse.SubmitResponseEntity();
-            //redis判断此url在周期内是否存在 不存在则发送消息，存在则立即返回
-            String res =stringRedisTemplate.opsForValue().get(url);
-
-            if (res!=null&&!res.equals("")) {
-                //TODO redis 周期内存在记录 读取redis内数据
-                log.info("/submit redis record exists "+url);
-                entity=gson.fromJson(res,SubmitResponse.SubmitResponseEntity.class);
+            //redis判断url爬虫记录存在
+            String spiderValue =stringRedisTemplate.opsForValue().get(RedisKey.spiderKey(url));
+            if (spiderValue!=null&&!spiderValue.equals("")) {
+                log.info("/submit redis spider record exists "+url);
+                entity=gson.fromJson(spiderValue,SubmitResponse.SubmitResponseEntity.class);
                 answer.add(entity);
                 //发送更新请求
-                kafkaTemplate.send(KafkaTopic.updateRedis, url).addCallback(new SuccessCallback() {
+                kafkaTemplate.send(KafkaTopic.updateSpark, url).addCallback(new SuccessCallback() {
                     @Override
                     public void onSuccess(Object o) {
                         log.info("spidertask send success "+url);
@@ -124,10 +123,10 @@ public class MainController {
                 });
             }
             else {
-                log.info("/submit redis record doesn't exist "+url);
-                //TODO redis内添加周期数据
-                stringRedisTemplate.opsForValue().set(url,gson.toJson(entity), Duration.ofHours(7*24));
-                //redis 周期内不存在记录
+                log.info("/submit redis spider record doesn't exist "+url);
+                stringRedisTemplate.opsForValue().set(RedisKey.responseKey(url),"", Duration.ofHours(7*24));
+                stringRedisTemplate.opsForValue().set(RedisKey.spiderKey(url),gson.toJson(new Date()), Duration.ofHours(7*24));
+
                 //提交spark处理
                 kafkaTemplate.send(KafkaTopic.spidertask, url).addCallback(new SuccessCallback() {
                     @Override
@@ -140,7 +139,6 @@ public class MainController {
                         log.error("spidertask send error "+url+" "+throwable.getMessage());
                     }
                 });
-                kafkaTemplate.flush();
 
                 //读取数据库
                 QueryWrapper<SimRecord> queryWrapper = new QueryWrapper();
@@ -151,8 +149,9 @@ public class MainController {
                     log.info("/submit simRecord == null "+url);
                     entity.setUrl(url);
                     entity.setUpdateTime(null);//标记为未处理状态
+
+                    stringRedisTemplate.opsForValue().set(RedisKey.responseKey(url),gson.toJson(entity), Duration.ofHours(7*24));//首次处理时过期时间设置短一些
                     answer.add(entity);
-                    stringRedisTemplate.opsForValue().set(url,gson.toJson(entity), Duration.ofHours(7*24));//首次处理时过期时间设置短一些
                 } else {
                     log.info("/submit simRecord != null "+url);
                     //补充数据库数据
@@ -192,7 +191,7 @@ public class MainController {
                         }
                     }
 
-                    stringRedisTemplate.opsForValue().set(url,gson.toJson(entity), Duration.ofHours(7*24));//更新时过期时间设置长一些
+                    stringRedisTemplate.opsForValue().set(RedisKey.responseKey(url),gson.toJson(entity), Duration.ofHours(7*24));//更新时过期时间设置长一些
                     answer.add(entity);
                 }
             }
@@ -214,30 +213,12 @@ public class MainController {
 
         for (String url : ans) {
             SubmitResponse.SubmitResponseEntity entity=new SubmitResponse.SubmitResponseEntity();
-            //redis判断此url在周期内是否存在 不存在则发送消息，存在则立即返回
-            String res = "";
-            if(skipRedis.equals(Boolean.TRUE)){
-                res=stringRedisTemplate.opsForValue().get(url);
-            }
-            else {
-                log.warn("skipRedis!");
-            }
+
+            String res=stringRedisTemplate.opsForValue().get(RedisKey.spiderKey(url));
 
             if (res!=null&&!res.equals("")) {
-                //TODO redis 周期内存在记录 读取redis内数据
-                log.info("/submit redis record exists "+url);
-                //发送更新请求
-                kafkaTemplate.send(KafkaTopic.updateRedis, url).addCallback(new SuccessCallback() {
-                    @Override
-                    public void onSuccess(Object o) {
-                        log.info("spidertask send success "+url);
-                    }
-                }, new FailureCallback() {
-                    @Override
-                    public void onFailure(Throwable throwable) {
-                        log.error("updateRedis send error "+url+" "+throwable.getMessage());
-                    }
-                });
+                //除非找到新的链接否则不进行Spark分析
+                continue;
             }
             else {
                 log.info("/submit redis record doesn't exist "+url);

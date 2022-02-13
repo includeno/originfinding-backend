@@ -12,6 +12,7 @@
         <module>originfinding-sql</module>
         <module>originfinding-spider</module>
         <module>originfinding-common</module>
+        <module>originfinding-test</module>
     </modules>
 
 

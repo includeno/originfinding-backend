@@ -32,14 +32,14 @@ public class RedisUpdateListener {
     @Autowired
     KafkaTemplate kafkaTemplate;
 
-    @KafkaListener(id = "UpdateRedisConsumer", topics = KafkaTopic.updateRedis)
-    public void updateRedis(String message) throws Exception {
-        log.info("updateRedis:"+message);
+    @KafkaListener(id = "UpdateRedisConsumer", topics = KafkaTopic.updateSpark)
+    public void updateSpark(String message) throws Exception {
+        log.info("updateSpark:"+message);
         String url=message;
         //查询上一次的爬虫记录id
         Integer id=spiderRecordService.getLastId(url);
         if(id==null){
-            log.error("updateRedis 无上一次爬取结果");
+            log.error("updateSpark 无上一次爬取结果");
             return;
         }
         //获取爬虫记录content
@@ -57,12 +57,12 @@ public class RedisUpdateListener {
             kafkaTemplate.send(KafkaTopic.sparkPairAnalyze, gson.toJson(pairTaskMessage)).addCallback(new SuccessCallback() {
                 @Override
                 public void onSuccess(Object o) {
-                    log.info("LdaMessage send success " + record.getUrl());
+                    log.info("PairTaskMessage send success " + record.getUrl());
                 }
             }, new FailureCallback() {
                 @Override
                 public void onFailure(Throwable throwable) {
-                    log.error("LdaMessage send error " + record.getUrl() + " " + throwable.getMessage());
+                    log.error("PairTaskMessage send error " + record.getUrl() + " " + throwable.getMessage());
                 }
             });
             kafkaTemplate.flush();

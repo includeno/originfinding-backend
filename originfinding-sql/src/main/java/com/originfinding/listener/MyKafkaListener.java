@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.originfinding.algorithm.WordPair;
 import com.originfinding.algorithm.ansj.AnsjSimHash;
 import com.originfinding.config.KafkaTopic;
+import com.originfinding.config.RedisKey;
 import com.originfinding.entity.SimRecord;
 import com.originfinding.entity.SpiderRecord;
 import com.originfinding.entity.UrlRecord;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.concurrent.FailureCallback;
 import org.springframework.util.concurrent.SuccessCallback;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,29 +34,29 @@ import java.util.stream.Collectors;
 public class MyKafkaListener {
 
     @Autowired
-    SimRecordService simRecordService;
+    private SimRecordService simRecordService;
 
     @Autowired
-    SpiderRecordService spiderRecordService;
+    private SpiderRecordService spiderRecordService;
 
     @Autowired
-    KafkaTemplate kafkaTemplate;
+    private KafkaTemplate kafkaTemplate;
 
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
     @Autowired
-    RBloomFilter<String> bloomFilter;
+    private RBloomFilter<String> bloomFilter;
 
     @Autowired
-    Gson gson;
+    private Gson gson;
 
     @Value("${spring.cloud.consul.discovery.instance-id}")
     String instance_id;
 
     @Transactional(rollbackFor = Exception.class)
-    @KafkaListener(id = "SpiderresultConsumer", topics = KafkaTopic.spiderresult)
-    public void listenCommonpage(String message) throws Exception {
+    @KafkaListener(id = "SpiderResultConsumer", topics = KafkaTopic.spiderresult)
+    public void listenSpiderResult(String message) throws Exception {
         log.info("SpiderresultConsumer receive:" + message);
         SpiderResultMessage spiderResultMessage=gson.fromJson(message,SpiderResultMessage.class);
 
@@ -92,12 +94,14 @@ public class MyKafkaListener {
             kafkaTemplate.send(KafkaTopic.sparkPairAnalyze, gson.toJson(pairTaskMessage)).addCallback(new SuccessCallback() {
                 @Override
                 public void onSuccess(Object o) {
-                    log.info("LdaMessage send success " + record.getUrl());
+                    log.info("PairTaskMessage send success " + record.getUrl());
+                    //爬虫任务成功后再更新Redis内缓存数据
+                    stringRedisTemplate.opsForValue().set(RedisKey.spiderKey(url),gson.toJson(new Date()), Duration.ofHours(7*24));
                 }
             }, new FailureCallback() {
                 @Override
                 public void onFailure(Throwable throwable) {
-                    log.error("LdaMessage send error " + record.getUrl() + " " + throwable.getMessage());
+                    log.error("PairTaskMessage send error " + record.getUrl() + " " + throwable.getMessage());
                 }
             });
 

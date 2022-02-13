@@ -1,5 +1,5 @@
 package com.originfinding.service;
 
-public interface UrlCleanService {
+public interface CleanService {
     public String cleanUrl(String url);
 }

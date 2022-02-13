@@ -1,12 +1,12 @@
-package com.originfinding.service;
+package com.originfinding.util;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public interface MatchService {
+public class HostUtil {
 
     //抓取主机名的方法
-    default String getHost(String url){
+    String getHost(String url){
         URL resource = null;
         String host="";
         try {
@@ -19,7 +19,4 @@ public interface MatchService {
             return host;
         }
     }
-
-    //验证URL和爬虫匹配
-    boolean match(String url);
 }

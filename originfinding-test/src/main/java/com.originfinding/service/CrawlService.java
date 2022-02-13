@@ -1,31 +1,25 @@
-package com.originfinding.controller;
+package com.originfinding.service;
 
 import com.google.gson.Gson;
 import com.originfinding.config.SpiderLimit;
 import com.originfinding.entity.UrlRecord;
 import com.originfinding.enums.SpiderCode;
 import com.originfinding.response.SpiderResponse;
-import com.originfinding.service.CommonPageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.stereotype.Service;
 
 @Slf4j
-@RestController
-public class CommonPageController {
+@Service
+public class CrawlService {
 
     @Autowired
-    CommonPageService commonPageService;
+    private CommonPageService commonPageService;
 
     @Autowired
-    Gson gson;
+    private Gson gson;
 
-    //读取网页的主要内容
-    @PostMapping("/crawl")
-    public SpiderResponse crawl(@RequestParam("url") String url) {
+    public SpiderResponse crawl(String url) {
         long start=System.currentTimeMillis();
         log.info("crawl begin:"+url+" "+start);
         SpiderResponse response=new SpiderResponse();

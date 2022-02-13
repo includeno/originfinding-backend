@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 @Slf4j
 public class TencentCloudService implements MatchService, ContentService {
     public static final String[] patterns = new String[]{
-            "https://cloud.tencent.com/developer/article/(.+)",//https://blog.csdn.net/qq_16214677/article/details/84863046
+            "https://cloud.tencent.com/developer/article/(.+)",//https://cloud.tencent.com/developer/article/1927707
     };
 
     @Override
@@ -60,7 +60,11 @@ public class TencentCloudService implements MatchService, ContentService {
                 button.click();
             }
         } catch (NoSuchElementException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+
+        }
+        finally {
+            return;
         }
     }
 
@@ -115,46 +119,59 @@ public class TencentCloudService implements MatchService, ContentService {
 
     @Override
     public Date getTime(WebDriver chrome, String url) {
-        //tag time
-        WebDriverWait wait = new WebDriverWait(chrome, 30, 10);
-        WebElement time = wait.until(new ExpectedCondition<WebElement>() {
-            @Override
-            public WebElement apply(WebDriver text) {
-                return text.findElement(By.tagName("time"));
+        //class article-info -> tag time
+        List<WebElement> list = chrome.findElements(By.className("article-info"));
+        Date res = null;
+        for(WebElement element:list){
+            try {
+                WebElement timeElement=element.findElement(By.tagName("time"));
+                if(timeElement!=null){
+
+                    String ans = timeElement.getAttribute("title");
+                    System.out.println("timeElement.getAttribute():"+ans);
+
+                    if (ans != null && !ans.equals("")) {
+                        res = GlobalDateUtil.convert3(ans);
+                    }
+                    log.info("getTime completed:" + res);
+                    return res;
+                }
             }
-        });
-        String ans = time.getText();
-        System.out.println("content.getText():"+ans);
-        Date res = new Date();
-        if (ans != null && !ans.equals("")) {
-            res = GlobalDateUtil.convert3(ans);
+            catch (Exception e){
+                continue;
+            }
         }
-        log.info("getTime completed:" + res);
         return res;
     }
 
     @Override
     public Integer getView(WebDriver chrome, String url) {
-        WebElement content = chrome.findElement(By.className("article-info"));
+        List<WebElement> list = chrome.findElements(By.className("article-info"));
         Integer view=-1;
-        String ans = content.getText();
-        if(ans.startsWith("阅读")){
-            try {
-                ans=ans.split(" ")[1];
-                if(ans.endsWith("K")){
-                    ans=ans.split("K")[0];
-                    Double base=Double.parseDouble(ans);
-                    view=(int)(base*1000);
-                    log.info("getView completed " + view);
+        for(WebElement element:list){
+            if(element!=null){
+                String ans = element.getText();
+                log.warn("getView:"+ans);
+                if(ans.startsWith("阅读")){
+                    try {
+                        ans=ans.split(" ")[1];
+                        if(ans.endsWith("K")){
+                            ans=ans.split("K")[0];
+                            Double base=Double.parseDouble(ans);
+                            view=(int)(base*1000);
+                            log.info("getView completed " + view);
+                        }
+                        else{
+                            view=Integer.parseInt(ans);
+                            log.info("getView completed " + view);
+                        }
+                        return view;
+                    }
+                    catch (Exception e){
+                        log.info("getView error ");
+                        continue;
+                    }
                 }
-                else{
-                    view=Integer.parseInt(ans);
-                    log.info("getView completed " + view);
-                }
-                return view;
-            }
-            catch (Exception e){
-                log.info("getView error ");
             }
         }
         return view;
