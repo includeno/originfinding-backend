@@ -41,14 +41,15 @@ public class SparkPairAnalyzeResultListener {
         simRecord.setSimlevelsecond(pairTaskResultMessage.getSimlevelsecond());
         simRecord.setSimparentId(pairTaskResultMessage.getSimparentId());
         simRecord.setEarlyparentId(pairTaskResultMessage.getEarlyparentId());
+        simRecord.setVersion(simRecord.getVersion()+1);
         simRecord.setUpdateTime(new Date());
         boolean operation=simRecordService.updateById(simRecord);
         log.info("PairAnalyzeResult update:"+operation);
 
         SubmitResponse.SubmitResponseEntity entity=new SubmitResponse.SubmitResponseEntity();
         entity.setUrl(simRecord.getUrl());
-        entity.setSim3(simRecord.getSimlevelfirst());
-        entity.setSim4(simRecord.getSimlevelsecond());
+        entity.setSim3(simRecord.getSimlevelfirst().toString());
+        entity.setSim4(simRecord.getSimlevelsecond().toString());
         //simparentId
         if(!simRecord.getSimparentId().equals(-1)){
             //查询关联数据

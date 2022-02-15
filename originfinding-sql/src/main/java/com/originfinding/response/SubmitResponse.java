@@ -18,6 +18,7 @@ public class SubmitResponse {
         Date updateTime;//上一次更新时间
         String simparentUrl;//根据parentId转换为对应的url
         String earlyparentUrl;//根据parentId转换为对应的url
+        Integer manulsymbol =0;
 
         public SubmitResponseEntity(){
             this.url="";
@@ -26,6 +27,7 @@ public class SubmitResponse {
             this.updateTime=new Date();
             this.simparentUrl="";
             this.earlyparentUrl="";
+            this.manulsymbol=0;
         }
     }
 }

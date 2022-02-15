@@ -121,46 +121,6 @@ public class MyKafkaListener {
 
     }
 
-    public void saveSpiderRecord(UrlRecord res) {
-        Date date = new Date();
-        //保存当前url的爬虫记录
-        QueryWrapper<SpiderRecord> spiderQueryWrapper = new QueryWrapper();
-        spiderQueryWrapper.eq("url", res.getUrl());
-        SpiderRecord spiderRecord = spiderRecordService.getOne(spiderQueryWrapper);
-        log.info("spiderRecordService.getOne: " + gson.toJson(spiderRecord));
-        if (spiderRecord == null) {
-            //无记录
-            spiderRecord = new SpiderRecord();
-            spiderRecord.setUrl(res.getUrl());
-
-            spiderRecord.setTag(res.getTag());
-            spiderRecord.setTitle(res.getTitle());
-            spiderRecord.setContent(res.getContent());
-            spiderRecord.setTime(res.getTime());
-
-            spiderRecord.setCreateTime(date);
-            spiderRecord.setUpdateTime(date);
-            spiderRecord.setValid(1);
-            if(res.getContent().length()==0||res.getTitle().length()==0){
-                spiderRecord.setValid(0);
-            }
-            boolean op = spiderRecordService.save(spiderRecord);
-            log.info("spiderRecordService.save: " + op);
-        } else {
-            spiderRecord.setTag(res.getTag());
-            spiderRecord.setContent(res.getContent());
-            spiderRecord.setTime(res.getTime());
-
-            spiderRecord.setUpdateTime(date);
-            spiderRecord.setValid(1);
-            if(res.getContent().length()==0||res.getTitle().length()==0){
-                spiderRecord.setValid(0);
-            }
-            boolean op = spiderRecordService.updateById(spiderRecord);
-            log.info("spiderRecordService.updateById: " + op);
-        }
-    }
-
     public SimRecord saveSimRecord(UrlRecord res, String tagString, String simhash) {
         Date date = new Date();
         //判断url存在于布隆过滤器中 很可能MySQL中
@@ -176,8 +136,6 @@ public class MyKafkaListener {
             log.info("getOne " + gson.toJson(temp));
             if (temp != null) {
                 temp.setUrl(res.getUrl());
-                temp.setTitle(res.getTitle());
-                temp.setTag(res.getTag());
                 temp.setTime(res.getTime());
                 temp.setView(res.getView());
 
@@ -190,8 +148,6 @@ public class MyKafkaListener {
                 temp = new SimRecord();
 
                 temp.setUrl(res.getUrl());
-                temp.setTitle(res.getTitle());
-                temp.setTag(res.getTag());
                 temp.setTime(res.getTime());
                 temp.setView(res.getView());
 
@@ -212,8 +168,6 @@ public class MyKafkaListener {
             log.info("getOne " + gson.toJson(temp));
             if (temp != null) {
                 temp.setUrl(res.getUrl());
-                temp.setTitle(res.getTitle());
-                temp.setTag(res.getTag());
                 temp.setTime(res.getTime());
                 temp.setView(res.getView());
 
@@ -226,8 +180,6 @@ public class MyKafkaListener {
                 temp = new SimRecord();
 
                 temp.setUrl(res.getUrl());
-                temp.setTitle(res.getTitle());
-                temp.setTag(res.getTag());
                 temp.setTime(res.getTime());
                 temp.setView(res.getView());
 

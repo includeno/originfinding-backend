@@ -15,8 +15,6 @@ public class SimRecord {
     Integer id;
 
     String url="";//文章地址
-    String title="";//文章标题
-    String tag="";//文章显示的标签
     Integer view=-1;//文章浏览量 -1代表无法获取数据
     Date time;//文章时间
 
@@ -26,11 +24,12 @@ public class SimRecord {
     Integer valid=1;//记录 有效1 无效0
 
     //特征指标
-    String simlevelfirst ="";
-    String simlevelsecond ="";
+    Integer simlevelfirst =-1;
+    Integer simlevelsecond =-1;
     Integer simparentId=-1;//如果是原创的直接为-1 短文本为-2 最相似的父亲 时间在文章时间之前
     Integer earlyparentId=-1;//如果是原创的直接为-1 短文本为-2 相似度在一定范围内的最早的父亲
 
-    //手动标记 优先度最高
-    Integer manulparentId=-1;//手动标记关联的原创文章id -1表示未设置 -2表示已设置为原创 正数表示关联的原创文章id
+    //人工审核标记
+    Integer manulsymbol =0;//人工审核标记关联的原创文章id 0表示未设置 1表示人工标识为原创
+    Integer version=1;
 }

@@ -25,19 +25,18 @@ DROP TABLE IF EXISTS `sim_record`;
 CREATE TABLE `sim_record` (
   `id` int NOT NULL AUTO_INCREMENT,
   `url` varchar(300) NOT NULL DEFAULT '',
-  `title` varchar(300) NOT NULL DEFAULT '',
-  `tag` varchar(1000) NOT NULL DEFAULT '',
   `time` datetime NOT NULL,
   `view` int NOT NULL DEFAULT '-1',
   `simhash` varchar(300) NOT NULL DEFAULT '',
   `create_time` datetime NOT NULL,
   `update_time` datetime NOT NULL,
   `valid` int NOT NULL DEFAULT '1',
-  `simlevelfirst` varchar(300) DEFAULT NULL,
-  `simlevelsecond` varchar(300) DEFAULT NULL,
+  `simlevelfirst` int NOT NULL DEFAULT '-1',
+  `simlevelsecond` int NOT NULL DEFAULT '-1',
   `earlyparent_id` int NOT NULL DEFAULT '-1',
   `simparent_id` int NOT NULL DEFAULT '-1',
-  `manulparent_id` int NOT NULL DEFAULT '-1',
+  `manulsymbol` int NOT NULL DEFAULT '0',
+  `version` int NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
