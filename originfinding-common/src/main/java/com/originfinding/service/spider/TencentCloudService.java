@@ -100,20 +100,20 @@ public class TencentCloudService implements MatchService, ContentService {
     public String getTag(WebDriver chrome, String url) {
         //class col-tag数组
         String ans = "";
-        try {
-            List<WebElement> tags = chrome.findElements(By.className("col-tag"));
-            if (tags != null && tags.size() > 0) {
-                StringBuffer stringBuffer = new StringBuffer();
-                for (WebElement element : tags) {
-                    stringBuffer.append(element.getText() + " ");
-                }
-                ans = stringBuffer.toString();
-                log.info("getTag completed " + ans);
-            }
-        } catch (NoSuchElementException e) {
-            e.printStackTrace();
-            log.error("getTag error " + ans);
-        }
+//        try {
+//            List<WebElement> tags = chrome.findElements(By.className("col-tag"));
+//            if (tags != null && tags.size() > 0) {
+//                StringBuffer stringBuffer = new StringBuffer();
+//                for (WebElement element : tags) {
+//                    stringBuffer.append(element.getText() + " ");
+//                }
+//                ans = stringBuffer.toString();
+//                log.info("getTag completed " + ans);
+//            }
+//        } catch (NoSuchElementException e) {
+//            e.printStackTrace();
+//            log.error("getTag error " + ans);
+//        }
         return ans;
     }
 

@@ -109,34 +109,35 @@ public class CsdnService implements ContentService, MatchService, CleanService {
 
     @Override
     public String getTag(WebDriver chrome, String url) {
-        JavascriptExecutor javascriptExecutor = (JavascriptExecutor) chrome;
-        javascriptExecutor.executeScript("window.scrollTo(0, document.body.scrollHeight)");
-        try {
-            WebElement content = chrome.findElement(By.className("passport-container"));
-            if (content != null) {
-                WebElement button = chrome.findElement(By.xpath("//span[contains(text(),'x')]"));
-                button.click();
-                log.info("wait passport completed");
-            }
-        } catch (NoSuchElementException exception) {
-            log.error("can't find passport");
-        }
-        //数组 tag-link
+//        JavascriptExecutor javascriptExecutor = (JavascriptExecutor) chrome;
+//        javascriptExecutor.executeScript("window.scrollTo(0, document.body.scrollHeight)");
+//        try {
+//            WebElement content = chrome.findElement(By.className("passport-container"));
+//            if (content != null) {
+//                WebElement button = chrome.findElement(By.xpath("//span[contains(text(),'x')]"));
+//                button.click();
+//                log.info("wait passport completed");
+//            }
+//        } catch (NoSuchElementException exception) {
+//            log.error("can't find passport");
+//        }
+//        //数组 tag-link
+//
+//        try {
+//            List<WebElement> tags = chrome.findElements(By.className("tag-link"));
+//            if (tags != null && tags.size() > 0) {
+//                StringBuffer stringBuffer = new StringBuffer();
+//                for (WebElement element : tags) {
+//                    stringBuffer.append(element.getText() + " ");
+//                }
+//                ans = stringBuffer.toString();
+//                log.info("getTag completed " + ans);
+//            }
+//        } catch (NoSuchElementException e) {
+//            e.printStackTrace();
+//            log.error("getTag error " + ans);
+//        }
         String ans = "";
-        try {
-            List<WebElement> tags = chrome.findElements(By.className("tag-link"));
-            if (tags != null && tags.size() > 0) {
-                StringBuffer stringBuffer = new StringBuffer();
-                for (WebElement element : tags) {
-                    stringBuffer.append(element.getText() + " ");
-                }
-                ans = stringBuffer.toString();
-                log.info("getTag completed " + ans);
-            }
-        } catch (NoSuchElementException e) {
-            e.printStackTrace();
-            log.error("getTag error " + ans);
-        }
         return ans;
     }
 

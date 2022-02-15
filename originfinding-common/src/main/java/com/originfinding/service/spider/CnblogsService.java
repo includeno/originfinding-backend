@@ -81,39 +81,7 @@ public class CnblogsService implements ContentService, MatchService {
 
     @Override
     public String getTag(WebDriver chrome, String url) {
-        //id BlogPostCategory->多个a text
-        String ans = "";
-        StringBuffer stringBuffer = new StringBuffer();
-        try {
-            WebElement list = chrome.findElement(By.id("BlogPostCategory"));
-            List<WebElement> tags = list.findElements(By.tagName("a"));
-
-            if (tags != null && tags.size() > 0) {
-                for (WebElement element : tags) {
-                    stringBuffer.append(element.getText() + " ");
-                }
-            }
-        } catch (org.openqa.selenium.NoSuchElementException e) {
-            e.printStackTrace();
-            log.error("getTag error when finding BlogPostCategory");
-        }
-
-        try {
-            WebElement list = chrome.findElement(By.id("EntryTag"));
-            List<WebElement> tags = list.findElements(By.tagName("a"));
-
-            if (tags != null && tags.size() > 0) {
-                for (WebElement element : tags) {
-                    stringBuffer.append(element.getText() + " ");
-                }
-            }
-        } catch (org.openqa.selenium.NoSuchElementException e) {
-            e.printStackTrace();
-            log.error("getTag error when finding EntryTag");
-        }
-        ans = stringBuffer.toString();
-        log.info("getTag completed " + ans);
-        return ans;
+        return "";
     }
 
     @Override
