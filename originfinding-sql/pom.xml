@@ -187,7 +187,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>2.3.12.RELEASE</version>
                 <configuration>
-                    <mainClass>com.originfinding.VerificationServerMain</mainClass>
+                    <mainClass>com.originfinding.SQLServerMain</mainClass>
                     <layout>ZIP</layout>
                 </configuration>
                 <executions>
