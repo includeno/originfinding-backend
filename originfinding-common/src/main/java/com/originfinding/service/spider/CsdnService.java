@@ -188,6 +188,6 @@ public class CsdnService implements ContentService, MatchService, CleanService {
 
     @Override
     public String cleanUrl(String url) {
-        return null;
+        return "";
     }
 }

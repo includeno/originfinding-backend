@@ -8,7 +8,7 @@ on: # push operation is operate
     branches: [main]
 # CI enviroment settings ${{ env.RELEASE_VERSION }} ${{ env.TAG_NAME }}
 env:
-  RELEASE_VERSION: "2.0.3" # version
+  RELEASE_VERSION: "2.0.4" # version
   TAG_NAME: "originfinding-spider" #tag 只能小写开头
 jobs:
   build:

@@ -1,6 +1,7 @@
 package com.originfinding.service.spider;
 
 import com.originfinding.config.SeleniumConfig;
+import com.originfinding.service.CleanService;
 import com.originfinding.service.ContentService;
 import com.originfinding.service.MatchService;
 import com.originfinding.util.GlobalDateUtil;
@@ -16,7 +17,7 @@ import java.util.regex.Pattern;
 
 @Service
 @Slf4j
-public class TencentCloudService implements MatchService, ContentService {
+public class TencentCloudService implements MatchService, ContentService, CleanService {
     public static final String[] patterns = new String[]{
             "https://cloud.tencent.com/developer/article/(.+)",//https://cloud.tencent.com/developer/article/1927707
     };
@@ -175,5 +176,10 @@ public class TencentCloudService implements MatchService, ContentService {
             }
         }
         return view;
+    }
+
+    @Override
+    public String cleanUrl(String url) {
+        return null;
     }
 }

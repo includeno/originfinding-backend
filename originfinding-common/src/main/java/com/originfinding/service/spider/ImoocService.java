@@ -1,6 +1,7 @@
 package com.originfinding.service.spider;
 
 import com.originfinding.config.SeleniumConfig;
+import com.originfinding.service.CleanService;
 import com.originfinding.service.ContentService;
 import com.originfinding.service.MatchService;
 import com.originfinding.util.GlobalDateUtil;
@@ -16,7 +17,7 @@ import java.util.regex.Pattern;
 
 @Service
 @Slf4j
-public class ImoocService implements MatchService, ContentService {
+public class ImoocService implements MatchService, ContentService, CleanService {
     public static final String[] patterns = new String[]{
             "https://www.imooc.com/article/(.+)",//https://www.imooc.com/article/303392
     };
@@ -124,5 +125,10 @@ public class ImoocService implements MatchService, ContentService {
         view=Integer.parseInt(ans);
         log.info("getView completed " + view);
         return view;
+    }
+
+    @Override
+    public String cleanUrl(String url) {
+        return null;
     }
 }

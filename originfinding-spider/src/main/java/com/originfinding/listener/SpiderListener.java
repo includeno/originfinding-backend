@@ -2,6 +2,7 @@ package com.originfinding.listener;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.gson.Gson;
+import com.originfinding.algorithm.ansj.AnsjSimHash;
 import com.originfinding.config.KafkaTopic;
 import com.originfinding.config.SpiderLimit;
 import com.originfinding.entity.SpiderRecord;
@@ -52,77 +53,55 @@ public class SpiderListener {
             SpiderLimit.spiders.add(url);
             record=commonPageService.crawl(record);
             SpiderLimit.spiders.remove(url);
+
+            String simhash="";
+
             if(record!=null&&(record.getTitle()==null||record.getContent()==null)){
                 response.setCode(SpiderCode.SPIDER_UNREACHABLE.getCode());
                 response.setRecord(record);
-                //保存数据
-                saveSpiderRecord(response.getRecord());
             }
             else if(record!=null&&record.getTitle().length()>0&&record.getContent().length()>0){
                 response.setCode(SpiderCode.SUCCESS.getCode());
-
                 response.setRecord(record);
-
                 log.info("crawl result:"+gson.toJson(response));
-                //保存数据
-                saveSpiderRecord(response.getRecord());
 
-                SpiderResultMessage spiderResultMessage = new SpiderResultMessage();
-                Integer id=spiderRecordService.getLastId(url);
-                spiderResultMessage.setId(id);
-                spiderResultMessage.setUrl(url);
-                //步骤6 任务添加至sparktask队列
-                kafkaTemplate.send(KafkaTopic.spiderresult, gson.toJson(spiderResultMessage)).addCallback(new SuccessCallback() {
-                    @Override
-                    public void onSuccess(Object o) {
-                        log.info("SpiderResultMessage send success " + url);
-                    }
-                }, new FailureCallback() {
-                    @Override
-                    public void onFailure(Throwable throwable) {
-                        log.error("SpiderResultMessage send error " + url + " " + throwable.getMessage());
-                    }
-                });
-                kafkaTemplate.flush();
+                //步骤3 计算simhash 64位长度
+                AnsjSimHash titleAnsjSimHash = new AnsjSimHash(record.getTitle());
+                AnsjSimHash contentAnsjSimHash = new AnsjSimHash(record.getContent());
+
+                simhash = contentAnsjSimHash.getStrSimHash().toString();
+
             }
             else {
                 response.setCode(SpiderCode.SPIDER_UNREACHABLE.getCode());
                 response.setRecord(record);
-                //保存数据
-                saveSpiderRecord(response.getRecord());
             }
+            SpiderResultMessage spiderResultMessage = SpiderResultMessage.copyUrlRecord(record);
+            spiderResultMessage.setMessage(response.getMessage());
+            spiderResultMessage.setCode(response.getCode());
+            spiderResultMessage.setSimhash(simhash);
+            //步骤6 任务添加至sparktask队列
+            kafkaTemplate.send(KafkaTopic.spiderresult, gson.toJson(spiderResultMessage)).addCallback(new SuccessCallback() {
+                @Override
+                public void onSuccess(Object o) {
+                    log.info("SpiderResultMessage send success " + url);
+                }
+            }, new FailureCallback() {
+                @Override
+                public void onFailure(Throwable throwable) {
+                    log.error("SpiderResultMessage send error " + url + " " + throwable.getMessage());
+                }
+            });
+            kafkaTemplate.flush();
         }
         else{
             response.setCode(SpiderCode.SPIDER_COUNT_LIMIT.getCode());//因为爬虫服务数量已满
+            throw new Exception(SpiderCode.SPIDER_COUNT_LIMIT.name());
         }
         log.info("crawl end:"+url+" "+(System.currentTimeMillis()-start));
-
     }
 
-    public void saveSpiderRecord(UrlRecord res) {
-        Date date = new Date();
-        //插入当前url的爬虫记录
-        SpiderRecord spiderRecord = new SpiderRecord();
-        spiderRecord.setUrl(res.getUrl());
 
-        spiderRecord.setTag(res.getTag());
-        spiderRecord.setTitle(res.getTitle());
-        spiderRecord.setContent(res.getContent());
-        spiderRecord.setView(res.getView());
-        spiderRecord.setTime(res.getTime());
-
-        spiderRecord.setCreateTime(date);
-        spiderRecord.setUpdateTime(date);
-        spiderRecord.setValid(1);
-        if(res.getContent()==null||res.getTitle()==null||res.getContent().length()==0||res.getTitle().length()==0){
-            spiderRecord.setValid(0);//无效文本
-        }
-        else if(res.getContent().length()<150){
-            spiderRecord.setValid(2);//短文本
-        }
-        boolean op = spiderRecordService.save(spiderRecord);
-        log.info("spiderRecordService.save: " + op+" valid:"+spiderRecord.getValid());
-    }
 
     public void saveSpiderRecordOld(UrlRecord res) {
         Date date = new Date();

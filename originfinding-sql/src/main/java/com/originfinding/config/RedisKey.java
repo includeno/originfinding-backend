@@ -10,4 +10,12 @@ public class RedisKey {
         return "response:"+url;
     }
 
+    public static String updateKey(String url){
+        return "update:"+url;
+    }
+
+    public static String simRecordKey(String url){
+        return "simrecord:"+url;
+    }
+
 }

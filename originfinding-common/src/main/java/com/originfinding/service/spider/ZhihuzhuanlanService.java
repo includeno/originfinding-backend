@@ -1,6 +1,7 @@
 package com.originfinding.service.spider;
 
 import com.originfinding.config.SeleniumConfig;
+import com.originfinding.service.CleanService;
 import com.originfinding.service.ContentService;
 import com.originfinding.service.MatchService;
 import com.originfinding.util.GlobalDateUtil;
@@ -20,7 +21,7 @@ import java.util.regex.Pattern;
 
 @Service
 @Slf4j
-public class ZhihuzhuanlanService implements ContentService, MatchService {
+public class ZhihuzhuanlanService implements ContentService, MatchService, CleanService {
     public static final String[] patterns = new String[]{
             "https://zhuanlan.zhihu.com/p/(.+)",//https://zhuanlan.zhihu.com/p/88403925
             "https://www.zhihu.com/column/p/(.+)",//https://www.zhihu.com/column/p/24172120
@@ -144,6 +145,11 @@ public class ZhihuzhuanlanService implements ContentService, MatchService {
         //非公开数据
         Integer view=-1;
         return view;
+    }
+
+    @Override
+    public String cleanUrl(String url) {
+        return null;
     }
 }
 

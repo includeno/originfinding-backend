@@ -1,6 +1,7 @@
 package com.originfinding.service.spider;
 
 import com.originfinding.config.SeleniumConfig;
+import com.originfinding.service.CleanService;
 import com.originfinding.service.ContentService;
 import com.originfinding.service.MatchService;
 import com.originfinding.util.GlobalDateUtil;
@@ -18,7 +19,7 @@ import java.util.regex.Pattern;
 
 @Service
 @Slf4j
-public class OschinaService implements ContentService, MatchService {
+public class OschinaService implements ContentService, MatchService, CleanService {
     public static final String[] patterns = new String[]{
             "https://my.oschina.net/(.+)/blog/(.+)",//https://my.oschina.net/xcafe/blog/5389937
             "https://my.oschina.net/u/(.+)/blog/(.+)",//https://my.oschina.net/u/729507/blog/78144
@@ -143,4 +144,8 @@ public class OschinaService implements ContentService, MatchService {
         return view;
     }
 
+    @Override
+    public String cleanUrl(String url) {
+        return null;
+    }
 }

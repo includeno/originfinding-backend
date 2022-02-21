@@ -26,6 +26,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -89,7 +90,9 @@ public class MainController {
 
 
     public List<SubmitResponse.SubmitResponseEntity> submitFunction(SubmitRequest request,Boolean skipRedis){
-        List<String> list = request.getList().stream().distinct().collect(Collectors.toList());//url过滤重复url
+        HashSet<String> set=new HashSet<>();
+        set.addAll(request.getList());
+        List<String> list = set.stream().distinct().collect(Collectors.toList());//url过滤重复url
         log.info("/submit begin filter"+gson.toJson(list));
         List<String> ans = null;//筛选出符合条件的URl
         try {
@@ -103,102 +106,57 @@ public class MainController {
         Date now=new Date();
         for (String url : ans) {
             SubmitResponse.SubmitResponseEntity entity=new SubmitResponse.SubmitResponseEntity();
-            //redis判断url爬虫记录存在
-            String spiderValue =stringRedisTemplate.opsForValue().get(RedisKey.spiderKey(url));
-            if (spiderValue!=null&&!spiderValue.equals("")) {
-                log.info("/submit redis spider record exists "+url);
-                String responseValue =stringRedisTemplate.opsForValue().get(RedisKey.responseKey(url));
-                entity=gson.fromJson(responseValue,SubmitResponse.SubmitResponseEntity.class);
-                answer.add(entity);
-                //发送更新请求
-                kafkaTemplate.send(KafkaTopic.updateSpark, url).addCallback(new SuccessCallback() {
-                    @Override
-                    public void onSuccess(Object o) {
-                        log.info("spidertask send success "+url);
-                    }
-                }, new FailureCallback() {
-                    @Override
-                    public void onFailure(Throwable throwable) {
-                        log.error("updateRedis send error "+url+" "+throwable.getMessage());
-                    }
-                });
-            }
-            else {
-                log.info("/submit redis spider record doesn't exist "+url);
-                stringRedisTemplate.opsForValue().set(RedisKey.responseKey(url),"", Duration.ofHours(7*24));
-                stringRedisTemplate.opsForValue().set(RedisKey.spiderKey(url),gson.toJson(new Date()), Duration.ofHours(7*24));
-
-                //提交spark处理
-                kafkaTemplate.send(KafkaTopic.spidertask, url).addCallback(new SuccessCallback() {
-                    @Override
-                    public void onSuccess(Object o) {
-                        log.info("spidertask send success "+url);
-                    }
-                }, new FailureCallback() {
-                    @Override
-                    public void onFailure(Throwable throwable) {
-                        log.error("spidertask send error "+url+" "+throwable.getMessage());
-                    }
-                });
-
-                //读取数据库
-                QueryWrapper<SimRecord> queryWrapper = new QueryWrapper();
-                queryWrapper.eq("url",url);
-                SimRecord simRecord = simRecordService.getOne(queryWrapper);
-                //数据库中不存在
-                if (simRecord == null) {
-                    log.info("/submit simRecord == null "+url);
-                    entity.setUrl(url);
-                    entity.setUpdateTime(null);//标记为未处理状态
-
-                    stringRedisTemplate.opsForValue().set(RedisKey.responseKey(url),gson.toJson(entity), Duration.ofHours(7*24));//首次处理时过期时间设置短一些
-                    answer.add(entity);
-                } else {
-                    log.info("/submit simRecord != null "+url);
-                    //补充数据库数据
-                    entity.setUrl(url);
-                    entity.setSim3(simRecord.getSimlevelfirst().toString());
-                    entity.setSim4(simRecord.getSimlevelsecond().toString());
-                    entity.setManulsymbol(simRecord.getManulsymbol());
-
-                    entity.setUpdateTime(simRecord.getUpdateTime());//此url已处理过并且有记录 已提交新的处理
-                    //simparentId
-                    if(!simRecord.getSimparentId().equals(-1)){
-                        //查询关联数据
-                        QueryWrapper<SimRecord> parentQuery = new QueryWrapper();
-                        parentQuery.eq("id",simRecord.getSimparentId());
-                        SimRecord parent = simRecordService.getOne(parentQuery);
-                        if(parent==null){
-                            log.info("/submit earlyparentId doesn't exist "+url);
-                            entity.setSimparentUrl("");
+            //响应缓存
+            String responseValue =stringRedisTemplate.opsForValue().get(RedisKey.responseKey(url));
+            //响应缓存不存在
+            if(responseValue==null){
+                //响应缓存设置临时值
+                entity.setUrl(url);
+                entity.setUpdateTime(null);//标记为未处理状态
+                stringRedisTemplate.opsForValue().set(RedisKey.responseKey(url),gson.toJson(entity), Duration.ofHours(7*24));
+                //爬虫缓存
+                String spiderValue =stringRedisTemplate.opsForValue().get(RedisKey.spiderKey(url));
+                //爬虫缓存不存在
+                if(spiderValue==null){
+                    stringRedisTemplate.opsForValue().set(RedisKey.spiderKey(url),"", Duration.ofHours(7*24));
+                    //发送爬虫请求
+                    kafkaTemplate.send(KafkaTopic.spidertask, url).addCallback(new SuccessCallback() {
+                        @Override
+                        public void onSuccess(Object o) {
+                            log.info("spidertask send success "+url);
                         }
-                        else{
-                            log.info("/submit earlyparentId exists "+url);
-                            entity.setSimparentUrl(parent.getUrl());
+                    }, new FailureCallback() {
+                        @Override
+                        public void onFailure(Throwable throwable) {
+                            log.error("spidertask send error "+url+" "+throwable.getMessage());
                         }
+                    });
+                }
+                else{
+                    String updateValue =stringRedisTemplate.opsForValue().get(RedisKey.updateKey(url));
+                    if(updateValue!=null){
+                        continue;
                     }
-                    //earlyparentId
-                    if(!simRecord.getEarlyparentId().equals(-1)){
-                        //查询关联数据
-                        QueryWrapper<SimRecord> parentQuery = new QueryWrapper();
-                        parentQuery.eq("id",simRecord.getEarlyparentId());
-                        SimRecord parent = simRecordService.getOne(parentQuery);
-                        if(parent==null){
-                            log.info("/submit earlyparentId doesn't exist "+url);
-                            entity.setEarlyparentUrl("");
+                    //发送更新请求
+                    kafkaTemplate.send(KafkaTopic.updateSpark, url).addCallback(new SuccessCallback() {
+                        @Override
+                        public void onSuccess(Object o) {
+                            log.info("spidertask send success "+url);
                         }
-                        else{
-                            log.info("/submit earlyparentId exists "+url);
-                            entity.setEarlyparentUrl(parent.getUrl());
+                    }, new FailureCallback() {
+                        @Override
+                        public void onFailure(Throwable throwable) {
+                            log.error("updateRedis send error "+url+" "+throwable.getMessage());
                         }
-                    }
-
-                    stringRedisTemplate.opsForValue().set(RedisKey.responseKey(url),gson.toJson(entity), Duration.ofHours(7*24));//更新时过期时间设置长一些
-                    answer.add(entity);
+                    });
+                    stringRedisTemplate.opsForValue().set(RedisKey.spiderKey(url),"", Duration.ofHours(4));
                 }
             }
+            else{
+                entity=gson.fromJson(responseValue,SubmitResponse.SubmitResponseEntity.class);
+                answer.add(entity);
+            }
         }
-
         return answer;
     }
 

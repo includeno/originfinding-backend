@@ -1,6 +1,7 @@
 package com.originfinding.service.spider;
 
 import com.originfinding.config.SeleniumConfig;
+import com.originfinding.service.CleanService;
 import com.originfinding.service.ContentService;
 import com.originfinding.service.MatchService;
 import com.originfinding.util.GlobalDateUtil;
@@ -19,7 +20,7 @@ import java.util.regex.Pattern;
 
 @Service
 @Slf4j
-public class IteyeService implements ContentService, MatchService {
+public class IteyeService implements ContentService, MatchService, CleanService {
     public static final String[] patterns = new String[]{
             "https://www.iteye.com/blog/(.+)",//https://www.iteye.com/blog/m17165851127-2524064
     };
@@ -132,5 +133,10 @@ public class IteyeService implements ContentService, MatchService {
             }
         }
         return view;
+    }
+
+    @Override
+    public String cleanUrl(String url) {
+        return null;
     }
 }

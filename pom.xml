@@ -13,6 +13,7 @@
         <module>originfinding-spider</module>
         <module>originfinding-common</module>
         <module>originfinding-test</module>
+        <module>originfinding-verification</module>
     </modules>
 
 

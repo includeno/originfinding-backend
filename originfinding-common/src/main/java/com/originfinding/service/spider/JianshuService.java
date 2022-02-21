@@ -1,6 +1,7 @@
 package com.originfinding.service.spider;
 
 import com.originfinding.config.SeleniumConfig;
+import com.originfinding.service.CleanService;
 import com.originfinding.service.ContentService;
 import com.originfinding.service.MatchService;
 import com.originfinding.util.GlobalDateUtil;
@@ -16,7 +17,7 @@ import java.util.regex.Pattern;
 
 @Service
 @Slf4j
-public class JianshuService implements ContentService, MatchService {
+public class JianshuService implements ContentService, MatchService, CleanService {
     public static final String[] patterns = new String[]{
             "https://www.jianshu.com/p/(.+)",//https://www.jianshu.com/p/f0ad0f80fd2c
     };
@@ -140,5 +141,8 @@ public class JianshuService implements ContentService, MatchService {
         }
         return view;
     }
-
+    @Override
+    public String cleanUrl(String url) {
+        return null;
+    }
 }

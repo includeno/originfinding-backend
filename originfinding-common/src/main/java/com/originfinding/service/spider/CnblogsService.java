@@ -1,6 +1,7 @@
 package com.originfinding.service.spider;
 
 import com.originfinding.config.SeleniumConfig;
+import com.originfinding.service.CleanService;
 import com.originfinding.service.ContentService;
 import com.originfinding.service.MatchService;
 import com.originfinding.util.GlobalDateUtil;
@@ -18,7 +19,7 @@ import java.util.regex.Pattern;
 
 @Service
 @Slf4j
-public class CnblogsService implements ContentService, MatchService {
+public class CnblogsService implements ContentService, MatchService, CleanService {
     public static final String[] patterns = new String[]{
             "https://www.cnblogs.com/(.+)/p/(.+)",//https://www.cnblogs.com/frankdeng/p/9310684.html
             "https://www.cnblogs.com/(.+)/archive/(.+)",//https://www.cnblogs.com/fengys-moving/archive/2012/05/27/2520549.html
@@ -108,4 +109,8 @@ public class CnblogsService implements ContentService, MatchService {
     }
 
 
+    @Override
+    public String cleanUrl(String url) {
+        return null;
+    }
 }

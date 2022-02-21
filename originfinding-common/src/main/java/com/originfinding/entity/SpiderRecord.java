@@ -21,10 +21,11 @@ public class SpiderRecord {
     String content="";//文章内容
     Integer view=-1;//文章浏览量
     Date time;//文章时间
+    Integer valid;//记录 有效1 无效0
 
     Date createTime;
     Date updateTime;
-    Integer valid;//记录 有效1 无效0
+
 
     public static UrlRecord toUrlRecord(SpiderRecord spiderRecord) {
         UrlRecord urlRecord=new UrlRecord();
@@ -34,6 +35,8 @@ public class SpiderRecord {
         urlRecord.setView(spiderRecord.getView());
         urlRecord.setTag(spiderRecord.getTag());
         urlRecord.setTime(spiderRecord.getTime());
+        urlRecord.setValid(spiderRecord.getValid());
         return urlRecord;
     }
+
 }
