@@ -21,7 +21,7 @@ import java.util.Map;
 @EnableKafka
 public class SingleKafkaConfig {
     @Value("${spring.kafka.bootstrap-servers}")
-    String bootstrapServers="host.docker.internal:9092";
+    String bootstrapServers;
 
 //    @Bean
 //    public RecordMessageConverter converter() {
@@ -50,8 +50,10 @@ public class SingleKafkaConfig {
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         // See https://kafka.apache.org/documentation/#producerconfigs for more properties
-        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 120000);
-        props.put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, 180000);
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 4); //设置每次接收Message的数量
+        props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "100");
+        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 20000);
+        props.put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, 18000);
         return props;
     }
 }

@@ -54,23 +54,28 @@ public class SpiderResultListener {
     @Transactional(rollbackFor = Exception.class)
     @KafkaListener(id = "SpiderResultConsumer", topics = KafkaTopic.spiderresult)
     public void listenSpiderResult(String message) throws Exception {
-        log.info("SpiderresultConsumer receive:" + message);
-        SpiderResultMessage spiderResultMessage=gson.fromJson(message,SpiderResultMessage.class);
+        log.info("SpiderResultConsumer receive:" + message);
+        SpiderResultMessage spiderResultMessage = null;
+        try {
+            spiderResultMessage = gson.fromJson(message, SpiderResultMessage.class);
+            log.warn("spiderRecord:" + gson.toJson(spiderResultMessage));
+        } catch (Exception e) {
+            spiderResultMessage = null;
+        }
 
-        log.warn("spiderRecord:"+gson.toJson(spiderResultMessage));
-        if(spiderResultMessage==null){
+        if (spiderResultMessage == null) {
             return;
         }
-        String url=spiderResultMessage.getUrl();
+        String url = spiderResultMessage.getUrl();
         saveSpiderRecord(spiderResultMessage);
 
-        if(spiderResultMessage.getValid().equals(0)){
+        if (spiderResultMessage.getValid().equals(0)) {
             QueryWrapper<SimRecord> queryWrapper = new QueryWrapper();
             queryWrapper.eq("url", url);
             SimRecord temp = simRecordService.getOne(queryWrapper);
             temp.setValid(0);
             simRecordService.updateById(temp);
-            log.warn("invalid url:"+url+" "+gson.toJson(spiderResultMessage));
+            log.warn("invalid url:" + url + " " + gson.toJson(spiderResultMessage));
             return;
         }
 
@@ -84,14 +89,14 @@ public class SpiderResultListener {
             kafkaTemplate.send(KafkaTopic.sparkPairAnalyze, gson.toJson(pairTaskMessage)).addCallback(new SuccessCallback() {
                 @Override
                 public void onSuccess(Object o) {
-                    log.info("PairTaskMessage send success " + spiderResultMessage.getUrl()+" "+gson.toJson(pairTaskMessage));
+                    log.info("PairTaskMessage send success " + url + " " + gson.toJson(pairTaskMessage));
                     //爬虫任务成功后再更新Redis内缓存数据
-                    stringRedisTemplate.opsForValue().set(RedisKey.spiderKey(url),gson.toJson(new Date()), Duration.ofHours(7*24));
+                    stringRedisTemplate.opsForValue().set(RedisKey.spiderKey(url), gson.toJson(new Date()), Duration.ofHours(7 * 24));
                 }
             }, new FailureCallback() {
                 @Override
                 public void onFailure(Throwable throwable) {
-                    log.error("PairTaskMessage send error " + spiderResultMessage.getUrl() + " " + throwable.getMessage());
+                    log.error("PairTaskMessage send error " + url + " " + throwable.getMessage());
                 }
             });
 
@@ -102,6 +107,9 @@ public class SpiderResultListener {
         }
 
     }
+
+
+    //批量写入
 
     private SimRecord saveSimRecord(SpiderResultMessage res) {
         Date date = new Date();
@@ -119,9 +127,8 @@ public class SpiderResultListener {
             temp.setSimhash(res.getSimhash());
             temp.setUpdateTime(date);
             operation = simRecordService.update(temp, queryWrapper);//按照url更新
-            log.info("simRecordService.update: "+operation);
-        }
-        else {
+            log.info("simRecordService.update: " + operation);
+        } else {
             temp = new SimRecord();
 
             temp.setUrl(res.getUrl());
@@ -135,19 +142,18 @@ public class SpiderResultListener {
             temp.setSimparentId(-1);
             temp.setEarlyparentId(-1);
             operation = simRecordService.save(temp);
-            log.info("simRecordService.save: "+operation);
+            log.info("simRecordService.save: " + operation);
         }
 
-        String simRecordId =stringRedisTemplate.opsForValue().get(RedisKey.simRecordKey(res.getUrl()));
-        if(simRecordId!=null){
-            Integer id=Integer.parseInt(simRecordId);
+        String simRecordId = stringRedisTemplate.opsForValue().get(RedisKey.simRecordKey(res.getUrl()));
+        if (simRecordId != null) {
+            Integer id = Integer.parseInt(simRecordId);
             temp = simRecordService.getById(id);
-        }
-        else {
-            queryWrapper=new QueryWrapper<>();
+        } else {
+            queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("url", res.getUrl());
             temp = simRecordService.getOne(queryWrapper);
-            stringRedisTemplate.opsForValue().set(RedisKey.simRecordKey(res.getUrl()),temp.getId().toString());
+            stringRedisTemplate.opsForValue().set(RedisKey.simRecordKey(res.getUrl()), temp.getId().toString());
         }
         return temp;
     }
@@ -167,13 +173,12 @@ public class SpiderResultListener {
         spiderRecord.setCreateTime(date);
         spiderRecord.setUpdateTime(date);
         spiderRecord.setValid(1);
-        if(res.getContent()==null||res.getTitle()==null||res.getContent().length()==0||res.getTitle().length()==0){
+        if (res.getContent() == null || res.getTitle() == null || res.getContent().length() == 0 || res.getTitle().length() == 0) {
             spiderRecord.setValid(0);//无效文本
-        }
-        else if(res.getContent().length()<150){
+        } else if (res.getContent().length() < 150) {
             spiderRecord.setValid(2);//短文本
         }
         boolean op = spiderRecordService.save(spiderRecord);
-        log.info("spiderRecordService.save: " + op+" valid:"+spiderRecord.getValid());
+        log.info("spiderRecordService.save: " + op + " valid:" + spiderRecord.getValid());
     }
 }

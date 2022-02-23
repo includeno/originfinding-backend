@@ -34,49 +34,47 @@ public class SparkPairAnalyzeResultListener {
     @KafkaListener(id = "PairAnalyzeResultConsumer", topics = KafkaTopic.sparkPairAnalyzeResult)
     public void listen(String message) throws Exception {
         log.info("PairAnalyzeResultConsumer receive:" + message);
-        PairTaskResultMessage pairTaskResultMessage=gson.fromJson(message, PairTaskResultMessage.class);
+        PairTaskResultMessage pairTaskResultMessage = gson.fromJson(message, PairTaskResultMessage.class);
         SimRecord simRecord = simRecordService.getById(pairTaskResultMessage.getId());
 
         simRecord.setSimlevelfirst(pairTaskResultMessage.getSimlevelfirst());
         simRecord.setSimlevelsecond(pairTaskResultMessage.getSimlevelsecond());
         simRecord.setSimparentId(pairTaskResultMessage.getSimparentId());
         simRecord.setEarlyparentId(pairTaskResultMessage.getEarlyparentId());
-        simRecord.setVersion(simRecord.getVersion()+1);
+        simRecord.setVersion(simRecord.getVersion() + 1);
         simRecord.setUpdateTime(new Date());
-        boolean operation=simRecordService.updateById(simRecord);
-        log.info("PairAnalyzeResult update:"+operation);
+        boolean operation = simRecordService.updateById(simRecord);
+        log.info("PairAnalyzeResult update:" + operation);
 
-        SubmitResponse.SubmitResponseEntity entity=new SubmitResponse.SubmitResponseEntity();
+        SubmitResponse.SubmitResponseEntity entity = new SubmitResponse.SubmitResponseEntity();
         entity.setUrl(simRecord.getUrl());
         entity.setSim3(simRecord.getSimlevelfirst().toString());
         entity.setSim4(simRecord.getSimlevelsecond().toString());
         //simparentId
-        if(!simRecord.getSimparentId().equals(-1)){
+        if (!simRecord.getSimparentId().equals(-1)) {
             //查询关联数据
             QueryWrapper<SimRecord> parentQuery = new QueryWrapper();
-            parentQuery.eq("id",simRecord.getSimparentId());
+            parentQuery.eq("id", simRecord.getSimparentId());
             SimRecord parent = simRecordService.getOne(parentQuery);
-            if(parent==null){
+            if (parent == null) {
                 entity.setSimparentUrl("");
-            }
-            else{
+            } else {
                 entity.setSimparentUrl(parent.getUrl());
             }
         }
         //earlyparentId
-        if(!simRecord.getEarlyparentId().equals(-1)){
+        if (!simRecord.getEarlyparentId().equals(-1)) {
             //查询关联数据
             QueryWrapper<SimRecord> parentQuery = new QueryWrapper();
-            parentQuery.eq("id",simRecord.getEarlyparentId());
+            parentQuery.eq("id", simRecord.getEarlyparentId());
             SimRecord parent = simRecordService.getOne(parentQuery);
-            if(parent==null){
+            if (parent == null) {
                 entity.setEarlyparentUrl("");
-            }
-            else{
+            } else {
                 entity.setEarlyparentUrl(parent.getUrl());
             }
         }
-        stringRedisTemplate.opsForValue().set(RedisKey.responseKey(simRecord.getUrl()),gson.toJson(entity), Duration.ofHours(7*24));//更新时过期时间设置长一些
+        stringRedisTemplate.opsForValue().set(RedisKey.responseKey(simRecord.getUrl()), gson.toJson(entity), Duration.ofHours(7 * 24));//更新时过期时间设置长一些
 
     }
 }

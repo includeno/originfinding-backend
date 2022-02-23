@@ -38,7 +38,6 @@ public class SpiderListener {
     @Autowired
     SpiderRecordService spiderRecordService;
 
-    @Transactional(rollbackFor = Exception.class)
     @KafkaListener(id = "SpidertaskConsumer", topics = KafkaTopic.spidertask)
     public void spidertask(String message) throws Exception {
         log.info("spider receive:" + message);
@@ -96,7 +95,7 @@ public class SpiderListener {
         }
         else{
             response.setCode(SpiderCode.SPIDER_COUNT_LIMIT.getCode());//因为爬虫服务数量已满
-            throw new Exception(SpiderCode.SPIDER_COUNT_LIMIT.name());
+            //throw new Exception(SpiderCode.SPIDER_COUNT_LIMIT.name());
         }
         log.info("crawl end:"+url+" "+(System.currentTimeMillis()-start));
     }
