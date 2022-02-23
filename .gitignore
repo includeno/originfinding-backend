@@ -38,3 +38,6 @@ private
 compose/app.env
 */*/app.env
 private/chromedriver
+originfinding-sql/src/main/resources/application-aws.properties
+originfinding-sql/src/main/resources/application-aliyun.properties
+
