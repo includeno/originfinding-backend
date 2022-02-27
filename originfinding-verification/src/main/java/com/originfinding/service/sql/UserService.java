@@ -2,19 +2,14 @@ package com.originfinding.service.sql;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.originfinding.entity.User;
-import com.originfinding.enums.UserCode;
+import com.originfinding.vo.RolePermissionVo;
+import com.originfinding.vo.UserRoleVo;
+
+import java.util.List;
 
 public interface UserService extends IService<User> {
 
-    //创建
-    public UserCode createNewUser(String username, String password, String email);
-    public UserCode createNewAuditor(String username,String password,String email);
-    public UserCode createNewAdmin(String username,String password,String email);
+    public List<UserRoleVo> selectRoles(Integer id);
 
-    //查看
-    public boolean isNameAvaible(String username);
-    public boolean isEmailAvaible(String username);
-    //修改
-
-    //逻辑删除
+    public List<RolePermissionVo> selectPermissions(List<Integer> roleIds);
 }

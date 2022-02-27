@@ -1,14 +1,18 @@
 package com.originfinding.enums;
 
-public enum RoleCode {
+public enum LoginCode {
+    USER_DOESNT_EXIST(1,"用户名不存在"),
+    EMAIL_DOESNT_EXIST(2,"邮箱不存在"),
+    PASSWORD_ERROR(0,"密码错误"),
+
+    DB_ERROR(500,"数据库错误"),
 
     OK(200,"成功"),
-    DB_ERROR(500,"数据库错误"),
     ;
 
     Integer code;
     String message;
-    RoleCode(Integer code, String message){
+    LoginCode(Integer code, String message){
         this.code=code;
         this.message=message;
     }

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.originfinding.mapper.UserMapper">
+
+
+    <select id="selectRoles" parameterType="java.lang.Integer" resultType="com.originfinding.vo.UserRoleVo">
+        select
+               role.role_id as id,role.rolename as name,role.code
+        from role,user_role
+        where
+              user_role.user_id = #{id,jdbcType=INTEGER} and user_role.role_id=role.role_id
+    </select>
+
+    <select id="selectPermissions" resultType="com.originfinding.vo.RolePermissionVo">
+        select
+            permission.permission_id as id,permission.permissionname as name,permission.operation
+        from role_permission,permission
+        where
+        role_permission.permission_id=permission.permission_id
+        and 1=1 and
+            role_permission.role_id in
+        <foreach  item="item" collection="list" index="index"  open="(" separator="," close=")">
+            #{item}
+        </foreach>
+
+    </select>
+
+
+</mapper>

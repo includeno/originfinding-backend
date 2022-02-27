@@ -6,20 +6,22 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class User {
+public class CopyrightRequest {
 
     @TableId(type = IdType.AUTO)
     Integer id;
-    String username;
-    String password;
-    String salt;
-    String email;
-    Integer status;//UserStatus内定义
+
+    Integer userId;
+    String url;
+    String platform;
+    String platformHash;
+    String comment;
+    Integer status;//CopyrightStatus内定义
 
     @TableField(fill = FieldFill.INSERT)
     Date createTime;
     @TableField(fill = FieldFill.INSERT_UPDATE)
     Date updateTime;
-    @TableLogic
-    Integer deleted;
+    @Version
+    Integer version;
 }

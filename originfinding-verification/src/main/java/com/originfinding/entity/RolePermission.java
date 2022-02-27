@@ -6,15 +6,12 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class User {
+public class RolePermission {
 
     @TableId(type = IdType.AUTO)
     Integer id;
-    String username;
-    String password;
-    String salt;
-    String email;
-    Integer status;//UserStatus内定义
+    Integer roleId;
+    Integer permissionId;
 
     @TableField(fill = FieldFill.INSERT)
     Date createTime;
