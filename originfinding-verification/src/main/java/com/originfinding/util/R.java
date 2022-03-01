@@ -1,5 +1,6 @@
 package com.originfinding.util;
 
+import com.originfinding.enums.CodeInterface;
 import com.originfinding.enums.HTTPCode;
 import lombok.Data;
 
@@ -9,6 +10,14 @@ public class R {
     String message;
     Integer code;
     Object data;
+
+    public static R build(CodeInterface<Integer,String> entity, Object data){
+        R result=new R();
+        result.setCode(entity.getCode());
+        result.setMessage(entity.getMessage());
+        result.setData(data);
+        return result;
+    }
 
     public static R build(Integer code,String message,Object data){
         R result=new R();

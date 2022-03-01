@@ -1,22 +1,22 @@
 package com.originfinding.enums;
 
-public enum HTTPCode implements CodeInterface<Integer,String>{
+public enum CopyrightCommitStatus implements CodeInterface<Integer,String>{
+    NOT_AUDIT(0,"未审核状态"),
+    PASSED(1,"已通过审核状态"),
+    NOT_PASSED(-1,"未通过审核状态"),
 
-    OK(200,"成功"),
-    NOT_FOUND(404,"无法访问"),
-    ERROR(-1,"错误"),
     ;
 
     final Integer code;
     final String message;
-    HTTPCode(Integer code,String message){
+    CopyrightCommitStatus(Integer code, String message){
         this.code=code;
         this.message=message;
     }
+    @Override
     public Integer getCode(){
         return code;
     }
-
     @Override
     public String getMessage() {
         return message;

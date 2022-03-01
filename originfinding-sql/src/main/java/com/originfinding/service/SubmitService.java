@@ -27,13 +27,13 @@ import java.util.stream.Collectors;
 public class SubmitService {
 
     @Autowired
-    KafkaTemplate kafkaTemplate;
+    private KafkaTemplate kafkaTemplate;
 
     @Autowired
-    SimRecordService simRecordService;
+    private SimRecordService simRecordService;
 
     @Autowired
-    Gson gson;
+    private Gson gson;
 
     @Autowired
     private StringRedisTemplate stringRedisTemplate;

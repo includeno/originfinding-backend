@@ -31,6 +31,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestController
 public class UserController {
+    @Autowired
+    Gson gson;
 
     @Autowired
     UserLogicService userLogicService;
@@ -47,8 +49,7 @@ public class UserController {
     @Autowired
     PermissionService permissionService;
 
-    @Autowired
-    Gson gson;
+
 
     @PostMapping("/user/login")
     public R login(UserLoginRequest loginRequest){
