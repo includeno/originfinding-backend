@@ -1,19 +1,19 @@
 package com.originfinding.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.gson.Gson;
 import com.originfinding.entity.CopyrightCommit;
+import com.originfinding.entity.User;
 import com.originfinding.enums.CopyrightCommitCode;
+import com.originfinding.request.CopyrightCommitPageRequest;
 import com.originfinding.request.CopyrightCommitRequest;
 import com.originfinding.service.sql.CopyrightCommitService;
 import com.originfinding.service.sql.UserService;
 import com.originfinding.util.R;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 
@@ -29,7 +29,7 @@ public class CopyrightCommitController {
     @Autowired
     UserService userService;
 
-    @PostMapping("/copyrightrequest")
+    @PostMapping("/copyrightcommit")
     public R add(CopyrightCommitRequest request){
         if(request==null||request.getUserId()==null||request.getPlatform()==null||request.getPlatformHash()==null||request.getUrl()==null){
             return R.build(CopyrightCommitCode.REQUIRED_INFO_ERROR,null);
@@ -56,7 +56,7 @@ public class CopyrightCommitController {
         }
     }
 
-    @PutMapping("/copyrightrequest")
+    @PutMapping("/copyrightcommit")
     public R update(CopyrightCommitRequest request){
         if(request==null||request.getId()==null||request.getPlatform()==null||request.getPlatformHash()==null||request.getStatus()==null||request.getUrl()==null){
             return R.build(CopyrightCommitCode.REQUIRED_INFO_ERROR,null);
@@ -91,7 +91,7 @@ public class CopyrightCommitController {
         }
     }
 
-    @DeleteMapping ("/copyrightrequest")
+    @DeleteMapping ("/copyrightcommit")
     public R delete(CopyrightCommitRequest request){
         if(request==null||request.getId()==null||request.getUserId()==null||request.getEmail()==null){
             return R.build(CopyrightCommitCode.REQUIRED_INFO_ERROR,null);
@@ -115,5 +115,41 @@ public class CopyrightCommitController {
                 return R.build(CopyrightCommitCode.DB_ERROR,null);
             }
         }
+    }
+
+    @GetMapping("/copyrightcommits/page")
+    public R getUserListByPage(CopyrightCommitPageRequest copyrightCommitPageRequest){
+        log.info("CopyrightCommitPageRequest:"+gson.toJson(copyrightCommitPageRequest));
+        if(copyrightCommitPageRequest==null||copyrightCommitPageRequest.getPage()==null||copyrightCommitPageRequest.getSize()==null){
+            copyrightCommitPageRequest=new CopyrightCommitPageRequest();
+            copyrightCommitPageRequest.setPage(1);
+            copyrightCommitPageRequest.setSize(10);
+        }
+        Page<CopyrightCommit> userIPage=new Page(copyrightCommitPageRequest.getPage(),copyrightCommitPageRequest.getSize());
+        QueryWrapper<CopyrightCommit> queryWrapper=new QueryWrapper<>();
+        if(copyrightCommitPageRequest.getUrl()!=null){
+            queryWrapper.eq("url",copyrightCommitPageRequest.getUrl());
+        }
+        //普通用户 绑定userId
+        if(copyrightCommitPageRequest.getUserId()!=null){
+            queryWrapper.eq("user_id",copyrightCommitPageRequest.getUserId());
+        }
+        //管理员通过email查询
+        else if(copyrightCommitPageRequest.getEmail()!=null){
+            QueryWrapper<User> userQueryWrapper=new QueryWrapper<>();
+            userQueryWrapper.eq("email",copyrightCommitPageRequest.getEmail());
+            User user=userService.getOne(userQueryWrapper);
+            queryWrapper.eq("user_id",user.getId());
+        }
+        if(copyrightCommitPageRequest.getStatus()!=null){
+            queryWrapper.eq("status",copyrightCommitPageRequest.getStatus());
+        }
+        if(copyrightCommitPageRequest.getDeleted()!=null){
+            queryWrapper.eq("deleted",copyrightCommitPageRequest.getDeleted());
+        }
+
+        queryWrapper.orderByDesc("create_time");
+        Page<CopyrightCommit> res = copyrightCommitService.page(userIPage, queryWrapper);
+        return R.success("OK",res);
     }
 }
