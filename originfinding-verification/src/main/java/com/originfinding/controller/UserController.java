@@ -137,9 +137,20 @@ public class UserController {
 
     @GetMapping("/users/page")
     public R getUserListByPage(UserPageRequest userPageRequest){
-        Page<User> userIPage=new Page(userPageRequest.getStart(),userPageRequest.getSize());
+        log.info("userPageRequest:"+gson.toJson(userPageRequest));
+        if(userPageRequest==null||userPageRequest.getPage()==null||userPageRequest.getSize()==null){
+            userPageRequest=new UserPageRequest();
+            userPageRequest.setPage(1);
+            userPageRequest.setSize(10);
+        }
+        Page<User> userIPage=new Page(userPageRequest.getPage(),userPageRequest.getSize());
         QueryWrapper<User> queryWrapper=new QueryWrapper<>();
-
+        if(userPageRequest.getUsername()!=null){
+            queryWrapper.eq("username",userPageRequest.getUsername());
+        }
+        if(userPageRequest.getEmail()!=null){
+            queryWrapper.eq("email",userPageRequest.getEmail());
+        }
         queryWrapper.orderByDesc("create_time");
         Page<User> res = userService.page(userIPage, queryWrapper);
         return R.success("OK",res);
