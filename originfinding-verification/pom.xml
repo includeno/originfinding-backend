@@ -27,6 +27,13 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
+        <!--公共模块-->
+        <dependency>
+            <groupId>com.originfinding</groupId>
+            <artifactId>originfinding-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
         <!--SQL-->
         <!--mybatis plus-->
         <dependency>

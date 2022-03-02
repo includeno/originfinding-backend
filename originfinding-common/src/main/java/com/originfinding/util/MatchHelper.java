@@ -1,21 +1,13 @@
 package com.originfinding.util;
 
-import com.google.common.collect.Lists;
-import com.originfinding.service.ContentService;
+import com.originfinding.service.MatchService;
 import lombok.extern.slf4j.Slf4j;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
-import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ClasspathHelper;
 
-import javax.validation.constraints.NotNull;
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -23,7 +15,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class MatchHelper {
 
-    public final static List<Class> impls = getSubClassesFromInterface(ContentService.class);
+    public final static List<Class> impls = getSubClassesFromInterface(MatchService.class);
 
     public static List<Class> getSubClassesFromInterface(Class<?> target) {
         return getSubclassesFromJar(target);

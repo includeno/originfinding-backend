@@ -12,8 +12,6 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.TimeZone;
 
-@MapperScan("com.originfinding.mapper")
-@EnableDiscoveryClient
 @SpringBootApplication
 @Slf4j
 public class SpiderMain {

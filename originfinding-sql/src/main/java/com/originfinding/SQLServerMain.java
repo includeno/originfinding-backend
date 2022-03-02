@@ -11,8 +11,6 @@ import java.time.ZoneId;
 import java.util.TimeZone;
 
 @SpringBootApplication
-@EnableFeignClients
-@EnableDiscoveryClient
 @MapperScan("com.originfinding.mapper")
 public class SQLServerMain {
 

@@ -11,6 +11,7 @@ import com.originfinding.request.CopyrightCommitRequest;
 import com.originfinding.service.sql.CopyrightCommitService;
 import com.originfinding.service.sql.UserService;
 import com.originfinding.util.R;
+import com.originfinding.util.UrlFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +39,16 @@ public class CopyrightCommitController {
             return R.build(CopyrightCommitCode.REQUIRED_INFO_ERROR,null);
         }
         log.warn("CopyrightCommitRequest:"+gson.toJson(request));
+
+        boolean res=false;
+        try {
+            res= UrlFilter.filter(request.getUrl());
+        } catch (NoSuchMethodException e) {
+
+        }
+        if(res==false){
+            return R.build(CopyrightCommitCode.URL_NOT_INCLUDED,null);
+        }
 
         //一个url只能允许一个有效
         QueryWrapper<CopyrightCommit> queryWrapper=new QueryWrapper<>();
