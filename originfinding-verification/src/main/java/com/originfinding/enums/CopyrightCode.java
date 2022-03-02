@@ -2,10 +2,11 @@ package com.originfinding.enums;
 
 public enum CopyrightCode implements CodeInterface<Integer,String>{
     //通用
-    OTHER_USER_EXIST(-400,"其他人已提交此url版权记录"),
     DB_ERROR(-500,"数据库错误"),
     OK(200,"成功"),
 
+    //requestId的状态 -1表示无关联 >0表示已关联
+    NOT_RELEATED(-1,"未关联任何版权请求")
     ;
 
     final Integer code;

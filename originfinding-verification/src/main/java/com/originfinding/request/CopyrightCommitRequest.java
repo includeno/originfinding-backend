@@ -14,4 +14,7 @@ public class CopyrightCommitRequest {
 
     String comment;
     Integer status;//CopyrightStatus内定义
+    Integer auditId;
+
+    Integer deleted;
 }

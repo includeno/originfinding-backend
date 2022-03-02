@@ -10,7 +10,7 @@ public class Copyright {
     @TableId(type = IdType.AUTO)
     Integer id;
 
-    Integer userId;
+    Integer auditId;//审核用户ID
     String url;
     Integer requestId;
 

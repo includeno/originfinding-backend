@@ -29,6 +29,9 @@ public class CopyrightCommitController {
     @Autowired
     UserService userService;
 
+    //必填 url userId platform PlatformHash
+    //可选 comment
+    //无效 status deleted
     @PostMapping("/copyrightcommit")
     public R add(CopyrightCommitRequest request){
         if(request==null||request.getUserId()==null||request.getPlatform()==null||request.getPlatformHash()==null||request.getUrl()==null){
@@ -36,18 +39,14 @@ public class CopyrightCommitController {
         }
         log.warn("CopyrightCommitRequest:"+gson.toJson(request));
 
-        log.info("step 1");
         //一个url只能允许一个有效
         QueryWrapper<CopyrightCommit> queryWrapper=new QueryWrapper<>();
         queryWrapper.eq("url",request.getUrl());
         Long count=copyrightCommitService.count(queryWrapper);
-        log.info("step 2");
         if(count>0){
             return R.build(CopyrightCommitCode.URL_EXIST,null);
         }
-        log.warn("CopyrightCommit.newInstance(request):"+gson.toJson(CopyrightCommit.newInstance(request)));
         boolean sqlresult=copyrightCommitService.save(CopyrightCommit.newInstance(request));
-        log.info("step 3");
         if(sqlresult==true){
             return R.build(CopyrightCommitCode.OK,null);
         }
@@ -56,23 +55,25 @@ public class CopyrightCommitController {
         }
     }
 
+    //必填 id userId platform PlatformHash
+    //可选 comment
+    //无效 url
+    //鉴权 userId
     @PutMapping("/copyrightcommit")
     public R update(CopyrightCommitRequest request){
-        if(request==null||request.getId()==null||request.getPlatform()==null||request.getPlatformHash()==null||request.getStatus()==null||request.getUrl()==null){
+        if(request==null||request.getId()==null||request.getPlatform()==null||request.getPlatformHash()==null){
             return R.build(CopyrightCommitCode.REQUIRED_INFO_ERROR,null);
         }
-        if(request.getUserId()==null||request.getEmail()==null){
-            return R.build(CopyrightCommitCode.EMAIL_ERROR,null);
+        if(request.getUserId()==null){
+            return R.build(CopyrightCommitCode.REQUIRED_INFO_ERROR,null);
         }
         else {
             //验证身份 只有用户本人或者管理员才能修改
-            QueryWrapper<CopyrightCommit> queryWrapper=new QueryWrapper<>();
-            queryWrapper.eq("id",request.getId());
-            CopyrightCommit entity=copyrightCommitService.getOne(queryWrapper);
+            CopyrightCommit entity=copyrightCommitService.getById(request.getId());
             if(entity==null){
                 return R.build(CopyrightCommitCode.RECORD_ERROR,null);
             }
-            if(!(request.getUserId().equals(entity.getUserId())||userService.selectRoles(request.getId()).stream().map(a->a.getCode()).filter(code->code.equals("admin")).count()>0)){
+            if(!(request.getUserId().equals(entity.getUserId())||userService.selectRoles(request.getUserId()).stream().map(a->a.getCode()).filter(code->code.equals("admin")).count()>0)){
                 return R.build(CopyrightCommitCode.AUTH_ERROR,null);
             }
 
@@ -91,20 +92,20 @@ public class CopyrightCommitController {
         }
     }
 
+    //必填 id userId
+    //鉴权 userId
     @DeleteMapping ("/copyrightcommit")
     public R delete(CopyrightCommitRequest request){
-        if(request==null||request.getId()==null||request.getUserId()==null||request.getEmail()==null){
+        if(request==null||request.getId()==null||request.getUserId()==null){
             return R.build(CopyrightCommitCode.REQUIRED_INFO_ERROR,null);
         }
         else {
             //验证身份 只有用户本人或者管理员才能修改
-            QueryWrapper<CopyrightCommit> queryWrapper=new QueryWrapper<>();
-            queryWrapper.eq("id",request.getId());
-            CopyrightCommit entity=copyrightCommitService.getOne(queryWrapper);
+            CopyrightCommit entity=copyrightCommitService.getById(request.getId());
             if(entity==null){
                 return R.build(CopyrightCommitCode.RECORD_ERROR,null);
             }
-            if(!(request.getUserId().equals(entity.getUserId())||userService.selectRoles(request.getId()).stream().map(a->a.getCode()).filter(code->code.equals("admin")).count()>0)){
+            if(!(request.getUserId().equals(entity.getUserId())||userService.selectRoles(request.getUserId()).stream().map(a->a.getCode()).filter(code->code.equals("admin")).count()>0)){
                 return R.build(CopyrightCommitCode.AUTH_ERROR,null);
             }
             boolean sqlresult=copyrightCommitService.removeById(entity);
@@ -118,7 +119,7 @@ public class CopyrightCommitController {
     }
 
     @GetMapping("/copyrightcommits/page")
-    public R getUserListByPage(CopyrightCommitPageRequest copyrightCommitPageRequest){
+    public R getCopyrightCommitListByPage(CopyrightCommitPageRequest copyrightCommitPageRequest){
         log.info("CopyrightCommitPageRequest:"+gson.toJson(copyrightCommitPageRequest));
         if(copyrightCommitPageRequest==null||copyrightCommitPageRequest.getPage()==null||copyrightCommitPageRequest.getSize()==null){
             copyrightCommitPageRequest=new CopyrightCommitPageRequest();
@@ -139,7 +140,9 @@ public class CopyrightCommitController {
             QueryWrapper<User> userQueryWrapper=new QueryWrapper<>();
             userQueryWrapper.eq("email",copyrightCommitPageRequest.getEmail());
             User user=userService.getOne(userQueryWrapper);
-            queryWrapper.eq("user_id",user.getId());
+            if(user!=null){
+                queryWrapper.eq("user_id",user.getId());
+            }
         }
         if(copyrightCommitPageRequest.getStatus()!=null){
             queryWrapper.eq("status",copyrightCommitPageRequest.getStatus());
@@ -150,6 +153,11 @@ public class CopyrightCommitController {
 
         queryWrapper.orderByDesc("create_time");
         Page<CopyrightCommit> res = copyrightCommitService.page(userIPage, queryWrapper);
-        return R.success("OK",res);
+        if(res!=null){
+            return R.build(CopyrightCommitCode.OK,res);
+        }
+        else{
+            return R.build(CopyrightCommitCode.DB_ERROR,res);
+        }
     }
 }

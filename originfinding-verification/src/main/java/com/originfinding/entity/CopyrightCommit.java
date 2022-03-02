@@ -20,6 +20,7 @@ public class CopyrightCommit {
     String platformHash;
     String comment;
     Integer status;//CopyrightStatus内定义
+    Integer auditId;//审核员ID
 
     @TableField(fill = FieldFill.INSERT)
     Date createTime;
@@ -27,6 +28,8 @@ public class CopyrightCommit {
     Date updateTime;
     @Version
     Integer version;
+    @TableLogic
+    Integer deleted;
 
     public static CopyrightCommit newInstance(CopyrightCommitRequest request){
         CopyrightCommit copyrightCommit=new CopyrightCommit();
@@ -41,6 +44,7 @@ public class CopyrightCommit {
         copyrightCommit.setCreateTime(date);
         copyrightCommit.setUpdateTime(date);
         copyrightCommit.setVersion(1);
+
         return copyrightCommit;
     }
 

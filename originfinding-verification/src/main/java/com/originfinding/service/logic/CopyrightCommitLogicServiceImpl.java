@@ -38,11 +38,15 @@ public class CopyrightCommitLogicServiceImpl implements CopyrightCommitLogicServ
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
+    //必填 id status;//变为的状态 userId;//审核人
     @Transactional
     @Override
     public R audit(AuditRequest request) {
+        if(request==null||request.getId()==null||request.getAuditId()==null||request.getStatus()==null){
+            return R.build(AuditCode.REQUIRED_INFO_ERROR,null);
+        }
         //检查权限是否满足
-        List<UserRoleVo> roles=userService.selectRoles(request.getUserId());
+        List<UserRoleVo> roles=userService.selectRoles(request.getAuditId());
         Long count=roles.stream().filter(a->a.getCode().equals("admin")||a.getCode().equals("audit")).count();
         if(count==0){
             return R.build(AuditCode.AUTH_ERROR,null);
@@ -52,13 +56,18 @@ public class CopyrightCommitLogicServiceImpl implements CopyrightCommitLogicServ
         if(entity==null||entity.getUrl()==null){
             return R.build(AuditCode.RECORD_ERROR,null);
         }
+        //只审核未被审核过的请求 拒绝已审核过的记录
+        if(entity.getStatus().equals(CopyrightCommitStatus.PASSED.getCode())||entity.getStatus().equals(CopyrightCommitStatus.NOT_PASSED.getCode())){
+            return R.build(AuditCode.HAVE_AUDITED_ERROR,null);
+        }
 
         QueryWrapper<Copyright> copyrightQueryWrapper=new QueryWrapper<>();
         copyrightQueryWrapper.eq("url",entity.getUrl());
         Copyright copyright=copyrightService.getOne(copyrightQueryWrapper);
+
         String key=RedisKey.copyrightKey(entity.getUrl());
         //审核员通过请求
-        if(request.getStatus().equals(CopyrightCommitStatus.PASSED)){
+        if(request.getStatus().equals(CopyrightCommitStatus.PASSED.getCode())){
             //保存至数据库
             if(copyright==null){
                 copyright=new Copyright();

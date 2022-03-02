@@ -2,9 +2,10 @@ USE manage;
 DROP TABLE IF EXISTS `copyright`;
 CREATE TABLE `copyright`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
-  `user_id` bigint(20) NULL DEFAULT NULL COMMENT '用户ID',
+
   `url` varchar(200) NULL DEFAULT NULL COMMENT '唯一网页地址',
   `request_id` bigint(20) NULL DEFAULT NULL COMMENT '关联请求ID -1为取消绑定',
+  `audit_id` bigint(20) NULL DEFAULT NULL COMMENT '审核用户ID',
 
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '修改时间',
@@ -23,6 +24,7 @@ CREATE TABLE `copyright_commit`  (
      `platform_hash` varchar(1000) DEFAULT NULL COMMENT '平台hash',
      `comment` varchar(1000) DEFAULT NULL COMMENT '用户留言',
      `status` int NOT NULL DEFAULT '0' COMMENT '版权记录 状态 0待审核 1已通过审核 -1未通过审核 非0状态下普票用户无法修改',
+     `audit_id` bigint(20) NULL DEFAULT NULL COMMENT '审核员用户ID',
 
      `create_time` datetime DEFAULT NULL COMMENT '创建时间',
      `update_time` datetime DEFAULT NULL COMMENT '修改时间',
