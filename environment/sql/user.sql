@@ -16,8 +16,8 @@ CREATE TABLE `user` (
 
 CREATE TABLE `role`  (
  `role_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '角色ID',
- `code` varchar(255)  DEFAULT NULL COMMENT '角色唯一CODE代码',
- `rolename` varchar(255)  DEFAULT NULL COMMENT '角色名称',
+ `code` varchar(100)  DEFAULT NULL COMMENT '角色唯一CODE代码',
+ `rolename` varchar(100)  DEFAULT NULL COMMENT '角色名称',
 
  `create_time` datetime NOT NULL COMMENT '角色创建时间',
  `update_time` datetime NOT NULL COMMENT '角色修改时间',
@@ -29,8 +29,8 @@ CREATE TABLE `role`  (
 DROP TABLE IF EXISTS `permission`;
 CREATE TABLE `permission`  (
    `permission_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '权限ID',
-   `operation` varchar(255)  COMMENT '操作代码 存放数组[add,delete,list]',
-   `permissionname` varchar(255)  COMMENT '权限英文名称 user:form,user:list,menu',
+   `operation` varchar(100)  COMMENT '操作代码 存放数组[add,delete,list]',
+   `permissionname` varchar(100)  COMMENT '权限英文名称 user:form,user:list,menu',
 
    `create_time` datetime DEFAULT NULL COMMENT '创建时间',
    `update_time` datetime DEFAULT NULL COMMENT '修改时间',

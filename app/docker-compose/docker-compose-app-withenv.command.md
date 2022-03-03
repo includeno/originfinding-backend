@@ -4,8 +4,8 @@ cd app/docker-compose
 
 ## pull
 ```
-docker pull openjdk:11.0.10-jdk
-docker pull includeno/javachrome:openjdk-11.0.10-jdkchrome92.0.4515.43
+docker pull openjdk:11.0.13-jdk
+docker pull includeno/jdk11chrome:openjdk-11.0.13-jdkchrome99.0.4844.51
 ```
 
 ## run

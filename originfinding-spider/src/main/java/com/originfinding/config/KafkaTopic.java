@@ -13,21 +13,18 @@ public class KafkaTopic {
     public static final String spidertask ="spidertask";//spidertask
     public static final String spiderresult="spiderresult";//spiderresult
 
-
     @Bean
     public NewTopic spidertask() {
         return TopicBuilder.name(KafkaTopic.spidertask)
-                .partitions(100)
+                .partitions(5)
                 .replicas(1)
                 .build();
     }
 
-
-
     @Bean
     public NewTopic spiderresult() {
         return TopicBuilder.name(KafkaTopic.spiderresult)
-                .partitions(100)
+                .partitions(5)
                 .replicas(1)
                 .build();
     }

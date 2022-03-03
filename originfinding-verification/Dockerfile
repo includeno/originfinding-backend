@@ -1,4 +1,4 @@
-FROM openjdk:11.0.10-jdk
+FROM openjdk:11.0.13-jdk
 
 EXPOSE 8080
 WORKDIR /app
@@ -25,9 +25,6 @@ ENV redis_database="1"
 ADD ${NAME}/target/${NAME}-${VERSION}.jar /app/application.jar
 #ENTRYPOINT ["java","-jar","/app/application.jar","--dockerconfig=true"]
 CMD java -jar /app/application.jar --server.port=${server_port} \
- --spring.boot.admin.client.url=${admin_server} \
- --spring.cloud.consul.host=${consul_host} --spring.cloud.consul.port=${consul_port} \
- --spring.cloud.consul.discovery.service-name=${consul_service_name} --spring.cloud.consul.discovery.instance-id=${consul_service_id} \
  --spring.kafka.bootstrap-servers=${kafka_server} \
  --spring.datasource.url="${datasource}" --spring.datasource.username=${datasource_username} --spring.datasource.password="${datasource_password}" \
  --spring.redis.host=${redis_host} --spring.redis.port=${redis_port} --spring.redis.password=${redis_password} --spring.redis.database=${redis_database}

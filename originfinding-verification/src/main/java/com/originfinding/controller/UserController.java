@@ -93,6 +93,12 @@ public class UserController {
 
     @PostMapping("/user/register")
     public R register(UserRegisterRequest userRegisterRequest){
+        if(userRegisterRequest.getRoleId()==null||userRegisterRequest.getRoleId().equals(-1)){
+            QueryWrapper<Role> roleQueryWrapper=new QueryWrapper<Role>();
+            roleQueryWrapper.eq("rolename","普通用户");
+            Role role=roleService.getOne(roleQueryWrapper);
+            userRegisterRequest.setRoleId(role.getRoleId());
+        }
         RegisterCode code= userLogicService.register(userRegisterRequest.getUsername(), userRegisterRequest.getPassword(), userRegisterRequest.getEmail(), userRegisterRequest.getRoleId());
         if(code.equals(RegisterCode.EMAIL_EXISTS)||code.equals(RegisterCode.DB_ERROR)){
             return R.error(code.getMessage(),null);
