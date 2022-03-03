@@ -14,7 +14,6 @@ public class User {
     String password;
     String salt;
     String email;
-    Integer status;//UserStatus内定义
 
     @TableField(fill = FieldFill.INSERT)
     Date createTime;

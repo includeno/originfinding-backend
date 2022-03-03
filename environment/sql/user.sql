@@ -6,7 +6,6 @@ CREATE TABLE `user` (
   `password` varchar(100) NOT NULL DEFAULT '' COMMENT '用户密码',
   `salt` varchar(64) DEFAULT NULL COMMENT '密码加盐',
   `email` varchar(100) NOT NULL DEFAULT '' COMMENT '用户邮箱',
-  `status` int NOT NULL DEFAULT '1' COMMENT '用户状态 UserStatus',
 
   `create_time` datetime NOT NULL COMMENT '用户创建时间',
   `update_time` datetime NOT NULL COMMENT '用户修改时间',

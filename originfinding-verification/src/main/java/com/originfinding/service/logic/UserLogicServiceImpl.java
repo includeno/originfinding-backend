@@ -5,7 +5,6 @@ import com.originfinding.entity.User;
 import com.originfinding.entity.UserRole;
 import com.originfinding.enums.LoginCode;
 import com.originfinding.enums.RegisterCode;
-import com.originfinding.enums.UserStatus;
 import com.originfinding.service.sql.RoleService;
 import com.originfinding.service.sql.UserRoleService;
 import com.originfinding.service.sql.UserService;
@@ -36,7 +35,6 @@ public class UserLogicServiceImpl implements UserLogicService{
         user.setUsername(username);
         user.setPassword(password);
         user.setEmail(email);
-        user.setStatus(UserStatus.OK.code);
         user.setDeleted(0);
         Date time = new Date();
         user.setCreateTime(time);
