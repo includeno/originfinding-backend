@@ -14,6 +14,7 @@ import com.originfinding.message.SpiderResultMessage;
 import com.originfinding.service.sql.SimRecordService;
 import com.originfinding.service.sql.SpiderRecordService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.redisson.api.RBloomFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,11 +49,24 @@ public class SpiderResultListener {
     @Autowired
     private Gson gson;
 
-    @Value("${spring.cloud.consul.discovery.instance-id}")
-    String instance_id;
+    @KafkaListener(
+            id = "BatchSpiderResultConsumer",
+            topics = KafkaTopic.spiderresult,
+            containerFactory = "batchFactory",
+            properties={
+                    "max.poll.interval.ms:60000",
+                    "max.poll.records:300"
+            }
+    )
+    public void batchListenSpiderResult(List<ConsumerRecord<String, String>> list){
+        log.info("SpiderResultConsumer receive:" + list.size());
+        List<String> messages=list.stream().map(a->a.value()).collect(Collectors.toList());
+        log.warn("SpiderResultConsumer RAW:"+gson.toJson(messages));
 
-    @Transactional(rollbackFor = Exception.class)
-    @KafkaListener(id = "SpiderResultConsumer", topics = KafkaTopic.spiderresult)
+    }
+
+
+    //@KafkaListener(id = "SpiderResultConsumer", topics = KafkaTopic.spiderresult,containerFactory = "")
     public void listenSpiderResult(String message) throws Exception {
         log.info("SpiderResultConsumer receive:" + message);
         SpiderResultMessage spiderResultMessage = null;

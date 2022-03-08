@@ -5,11 +5,15 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.gson.Gson;
 import com.originfinding.entity.Role;
 import com.originfinding.entity.User;
+import com.originfinding.entity.UserRole;
 import com.originfinding.enums.LoginCode;
 import com.originfinding.enums.RegisterCode;
+import com.originfinding.enums.UserCode;
 import com.originfinding.request.UserLoginRequest;
 import com.originfinding.request.UserPageRequest;
 import com.originfinding.request.UserRegisterRequest;
+import com.originfinding.request.UserUpdateRequest;
+import com.originfinding.response.UserInfoResponse;
 import com.originfinding.response.UserLoginResponse;
 import com.originfinding.service.logic.UserLogicService;
 import com.originfinding.service.sql.PermissionService;
@@ -48,8 +52,6 @@ public class UserController {
 
     @Autowired
     PermissionService permissionService;
-
-
 
     @PostMapping("/user/login")
     public R login(UserLoginRequest loginRequest){
@@ -118,27 +120,73 @@ public class UserController {
         return R.success(code.getMessage(), null);
     }
 
+    @GetMapping("/user")
+    public R getUser(Integer id){
+        QueryWrapper<User> userQueryWrapper=new QueryWrapper<>();
+        userQueryWrapper.eq("id",id);
+        userQueryWrapper.ge("deleted",-2);
+        User user=userService.getOne(userQueryWrapper);
+
+        List<UserRoleVo> roles=userService.selectRoles(user.getId());
+
+        UserInfoResponse response=new UserInfoResponse();
+        response.setEmail(user.getEmail());
+        response.setUsername(user.getUsername());
+        response.setDeleted(user.getDeleted());
+        response.setCreateTime(user.getCreateTime());
+        response.setUpdateTime(user.getUpdateTime());
+        response.setRoles(roles);
+        if(user!=null){
+            return R.build(UserCode.OK,response);
+        }
+        else{
+            return R.build(UserCode.DB_ERROR,null);
+        }
+    }
+
+    //id,username, password,email,roleId
     @PutMapping("/user")
-    public R updateUser(User user){
+    public R updateUser(UserUpdateRequest request){
+        if(request==null||request.getId()==null){
+            return R.build(UserCode.REQUIRED_INFO_ERROR,false);
+        }
+        User user=userService.getById(request.getId());
+        user.setUpdateTime(new Date());
+        if(request.getUsername()!=null){
+            user.setUsername(request.getUsername());
+        }
+        if(request.getPassword()!=null){
+            user.setPassword(request.getPassword());
+        }
+        if(request.getPassword()!=null){
+            user.setPassword(request.getPassword());
+        }
+        if(request.getRoleId()!=null){
+            QueryWrapper<UserRole> userRoleQueryWrapper=new QueryWrapper<>();
+            userRoleQueryWrapper.eq("user_id",request.getId());
+            UserRole userRole=userRoleService.getOne(userRoleQueryWrapper);
+            userRoleService.updateById(userRole);
+        }
         boolean updateResult=userService.updateById(user);
         if(updateResult==true){
-            return R.success("ok",true);
+            return R.build(UserCode.OK,true);
         }
         else {
-            log.error("updateUser db_error");
-            return R.error("db_error",false);
+            return R.build(UserCode.UPDATE_DB_ERROR,false);
         }
     }
 
     @DeleteMapping ("/user")
     public R deleteUser(User user){
+        if(user.getId()==null){
+            return R.build(UserCode.REQUIRED_INFO_ERROR,null);
+        }
         boolean deleteResult=userService.removeById(user);
         if(deleteResult==true){
-            return R.success("ok",true);
+            return R.build(UserCode.OK,true);
         }
         else {
-            log.error("deleteUser db_error");
-            return R.error("db_error",false);
+            return R.build(UserCode.DELETE_DB_ERROR,false);
         }
     }
 
@@ -157,6 +205,9 @@ public class UserController {
         }
         if(userPageRequest.getEmail()!=null){
             queryWrapper.eq("email",userPageRequest.getEmail());
+        }
+        if(userPageRequest.getDeleted()!=null){
+            queryWrapper.eq("deleted",userPageRequest.getDeleted());
         }
         queryWrapper.orderByDesc("create_time");
         Page<User> res = userService.page(userIPage, queryWrapper);

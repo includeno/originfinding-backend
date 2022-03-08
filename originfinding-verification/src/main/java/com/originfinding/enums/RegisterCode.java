@@ -1,11 +1,12 @@
 package com.originfinding.enums;
 
 public enum RegisterCode {
-    USER_NAME_EXISTS(1,"用户名已被注册，无法注册成功"),
-    EMAIL_EXISTS(2,"邮箱已被注册，无法注册成功"),
+    ERROR(-1,"错误"),
+    EMAIL_EXISTS(-2,"邮箱已被注册，无法注册成功"),
+    USER_NAME_EXISTS(-3,"用户名已被注册，无法注册成功"),
 
     OK(200,"成功"),
-    DB_ERROR(500,"数据库错误"),
+    DB_ERROR(-500,"数据库错误"),
     ;
 
     Integer code;

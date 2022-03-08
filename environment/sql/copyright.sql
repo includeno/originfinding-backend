@@ -23,7 +23,7 @@ CREATE TABLE `copyright_commit`  (
      `platform` varchar(1000) DEFAULT NULL COMMENT '平台',
      `platform_hash` varchar(1000) DEFAULT NULL COMMENT '平台hash',
      `comment` varchar(1000) DEFAULT NULL COMMENT '用户留言',
-     `status` int NOT NULL DEFAULT '0' COMMENT '版权记录 状态 0待审核 1已通过审核 -1未通过审核 非0状态下普票用户无法修改',
+     `status` int NOT NULL DEFAULT '0' COMMENT '版权信息申请 状态 0待审核 1已通过审核 -1未通过审核 非0状态下普通用户无法修改',
      `audit_id` bigint(20) NULL DEFAULT NULL COMMENT '审核员用户ID',
 
      `create_time` datetime DEFAULT NULL COMMENT '创建时间',
@@ -33,18 +33,18 @@ CREATE TABLE `copyright_commit`  (
 
      PRIMARY KEY (`id`) USING BTREE,
      INDEX `url_index`(`url`) USING BTREE COMMENT 'url Index'
-) ENGINE = InnoDB CHARSET=utf8mb4 COMMENT = '版权信息提交记录表';
+) ENGINE = InnoDB CHARSET=utf8mb4 COMMENT = '版权信息申请记录表';
 
 DROP TABLE IF EXISTS `copyright_commit_log`;
 CREATE TABLE `copyright_commit_log`  (
  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
- `copyright_commit_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'copyright_commit表ID',
+ `copyright_commit_id` bigint(20) NOT NULL COMMENT 'copyright_commit表ID',
  `user_id` bigint(20) NULL DEFAULT NULL COMMENT '用户ID',
  `url` varchar(200) NULL DEFAULT NULL COMMENT '网页地址',
  `platform` varchar(1000) DEFAULT NULL COMMENT '平台',
  `platform_hash` varchar(1000) DEFAULT NULL COMMENT '平台hash',
  `comment` varchar(1000) DEFAULT NULL COMMENT '用户留言',
- `status` int NOT NULL DEFAULT '0' COMMENT '版权记录 状态 0待审核 1已通过审核 -1未通过审核 非0状态下普票用户无法修改',
+ `status` int NOT NULL DEFAULT '0' COMMENT '版权信息申请 状态 0待审核 1已通过审核 -1未通过审核 非0状态下普通用户无法修改',
  `audit_id` bigint(20) NULL DEFAULT NULL COMMENT '审核员用户ID',
 
  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
@@ -54,4 +54,4 @@ CREATE TABLE `copyright_commit_log`  (
 
  PRIMARY KEY (`id`) USING BTREE,
  INDEX `url_index`(`url`) USING BTREE COMMENT 'url Index'
-) ENGINE = InnoDB CHARSET=utf8mb4 COMMENT = '版权信息提交日志表';
+) ENGINE = InnoDB CHARSET=utf8mb4 COMMENT = '版权信息申请日志表';

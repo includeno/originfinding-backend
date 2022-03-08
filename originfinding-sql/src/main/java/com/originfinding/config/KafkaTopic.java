@@ -16,7 +16,7 @@ public class KafkaTopic {
     public static final String sparkPairAnalyze="sparkPairAnalyze";//Spark 分析原创文章和非原创文章配对任务
     public static final String sparkPairAnalyzeResult="sparkPairAnalyzeResult";//Spark 分析原创文章和非原创文章配对 处理结果
 
-    public static final Integer count=10;
+    public static final Integer count=3;
     public static final Integer replicas=1;
 
     @Bean

@@ -11,7 +11,7 @@ public enum CopyrightCommitCode implements CodeInterface<Integer,String>{
     URL_NOT_INCLUDED(-407,"链接不符合标准，请提交指定平台的链接"),
     //修改
     RECORD_ERROR(-404,"不存在记录"),
-    AUTH_ERROR(-406,"修改权限错误"),
+    AUTH_ERROR(-406,"权限错误"),
     ;
 
     final Integer code;

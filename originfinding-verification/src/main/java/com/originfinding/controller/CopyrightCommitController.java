@@ -30,6 +30,23 @@ public class CopyrightCommitController {
     @Autowired
     UserService userService;
 
+    @GetMapping("/copyrightcommit")
+    public R get(Integer id){
+        if(id==null){
+            return R.build(CopyrightCommitCode.REQUIRED_INFO_ERROR,null);
+        }
+        QueryWrapper<CopyrightCommit> queryWrapper=new QueryWrapper<>();
+        queryWrapper.eq("id",id);
+        queryWrapper.ge("deleted",-2);
+        CopyrightCommit copyrightCommit=copyrightCommitService.getOne(queryWrapper);
+        if(copyrightCommit!=null){
+            return R.build(CopyrightCommitCode.OK,copyrightCommit);
+        }
+        else{
+            return R.build(CopyrightCommitCode.RECORD_ERROR,null);
+        }
+    }
+
     //必填 url userId platform PlatformHash
     //可选 comment
     //无效 status deleted
@@ -80,7 +97,12 @@ public class CopyrightCommitController {
         }
         else {
             //验证身份 只有用户本人或者管理员才能修改
-            CopyrightCommit entity=copyrightCommitService.getById(request.getId());
+            QueryWrapper<CopyrightCommit> queryWrapper=new QueryWrapper<>();
+            queryWrapper.eq("id",request.getId());
+            queryWrapper.ge("deleted",-2);
+
+            //查询所有数据 包括已删除数据
+            CopyrightCommit entity=copyrightCommitService.getOne(queryWrapper);
             if(entity==null){
                 return R.build(CopyrightCommitCode.RECORD_ERROR,null);
             }
@@ -116,7 +138,7 @@ public class CopyrightCommitController {
             if(entity==null){
                 return R.build(CopyrightCommitCode.RECORD_ERROR,null);
             }
-            if(!(request.getUserId().equals(entity.getUserId())||userService.selectRoles(request.getUserId()).stream().map(a->a.getCode()).filter(code->code.equals("admin")).count()>0)){
+            if(!(request.getUserId().equals(entity.getUserId())||userService.selectRoles(request.getUserId()).stream().map(a->a.getCode()).filter(code->code.equals("admin")||code.equals("audit")).count()>0)){
                 return R.build(CopyrightCommitCode.AUTH_ERROR,null);
             }
             boolean sqlresult=copyrightCommitService.removeById(entity);

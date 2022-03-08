@@ -3,9 +3,11 @@ package com.originfinding.request;
 import lombok.Data;
 
 @Data
-public class UserPageRequest extends PageRequest {
-
+public class UserUpdateRequest {
+    Integer id;
     String username;
-    String email;
+    String password;
+
+    Integer roleId;
     Integer deleted;
 }
